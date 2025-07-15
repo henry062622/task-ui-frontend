@@ -1,0 +1,109 @@
+<template>
+    <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
+        <div class=" shadow-xl bg-white p-5 rounded-xl">
+            <!-- <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
+                {{ status }}
+            </div> -->
+            <a-alert v-if="loginError" type="error" :message="loginError" show-icon class="mb-4" />
+
+            <a-form :model="formState" name="horizontal_login" layout="vertical" autocomplete="off" @finish="onFinish"
+                class="w-full" @finishFailed="onFinishFailed">
+                <a-row>
+                    <a-col span="24">
+                        <a-form-item label="Email" name="email"
+                            :rules="[{ required: true, message: 'Please input your email!' }]"
+                            :validate-status="errors.email ? 'error' : ''" :help="errors.email">
+                            <a-input v-model:value="formState.email" class="w-full">
+                            </a-input>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+                <a-row>
+                    <a-col span="24">
+                        <a-form-item label="Password" name="password"
+                            :rules="[{ required: true, message: 'Please input your password!' }]"
+                            :validate-status="errors.password ? 'error' : ''" :help="errors.password">
+                            <a-input-password v-model:value="formState.password">
+                            </a-input-password>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+
+                <a-row class="pt-3">
+                    <a-col span="24">
+                        <a-form-item>
+                            <a-button type="primary" class="!bg-[#faf3e4] !w-full !shadow-none !text-[#213441]"
+                                style="font-weight: 600;" html-type="submit" :loading="isLoading">Log in</a-button>
+                        </a-form-item>
+                    </a-col>
+                </a-row>
+
+            </a-form>
+        </div>
+
+    </AuthLayout>
+</template>
+<script setup>
+import AuthLayout from '@/components/layout/AuthLayout.vue';
+import { computed, ref } from 'vue';
+import api, { ensureCsrfToken } from '@/lib/axios';
+import router from '@/router';
+
+const formState = ref({
+    email: '',
+    password: '',
+});
+
+const errors = ref({
+    email: '',
+    password: '',
+});
+
+const loginError = ref('');
+const isLoading = ref(false);
+
+const onFinish = async (values) => {
+    console.log('Success:', values);
+    isLoading.value = true;
+    errors.value.email = '';
+    errors.value.password = '';
+    loginError.value = '';
+
+    await ensureCsrfToken();
+    try {
+        await api.post('/api/login', formState.value).then(res => {
+            console.log(res.data);
+            sessionStorage.setItem('login_token', res.data.data.login_token);
+            router.push('/two-factory/verify');
+        });
+    } catch (err) {
+        console.log(err);
+        const response = err?.response;
+
+        if (!response || !response.data) return;
+
+        const { errors: backendErrors, message } = response.data;
+
+        if (backendErrors) {
+            errors.value.email = backendErrors.email?.[0] || '';
+            errors.value.password = backendErrors.password?.[0] || '';
+        } else if (message) {
+            loginError.value = message;
+        } else {
+            loginError.value = 'Something went wrong. Please try again.';
+        }
+    } finally {
+        isLoading.value = false;
+    }
+
+};
+
+const onFinishFailed = async (errorInfo) => {
+    console.log('Failed:', errorInfo);
+
+};
+
+const disabled = computed(() => {
+    return !(formState.username && formState.password);
+});
+</script>
