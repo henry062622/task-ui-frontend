@@ -100,6 +100,19 @@ const onFinish = async (values) => {
 
 const onFinishFailed = async (errorInfo) => {
     console.log('Failed:', errorInfo);
+    const errorFields = errorInfo.errorFields;
+    // Reset errors first
+    errors.value.email = '';
+    errors.value.password = '';
+
+    errorFields.forEach(field => {
+        if (field.name?.[0] === 'email') {
+            errors.value.email = field.errors?.[0] || '';
+        }
+        if (field.name?.[0] === 'password') {
+            errors.value.password = field.errors?.[0] || '';
+        }
+    })
 
 };
 

@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia'
 import axios from '@/lib/axios'
 import { ref } from 'vue'
+import api from '@/lib/axios'
+import router from '@/router'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -19,9 +21,11 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  function logout() {
+  async function logout() {
+    await api.post('/api/logout')
     user.value = null
     loaded.value = false
+    router.push('/login')
   }
 
   return { user, loaded, fetchUser, logout }
