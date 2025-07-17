@@ -35,6 +35,21 @@
                 </a-col>
             </a-row>
 
+            <!-- role Dropdown -->
+            <a-row>
+                <a-col :span="24">
+                    <a-form-item label="Role" name="role_id"
+                        :rules="[{ required: true, message: 'Please select a role!' }]"
+                        :validate-status="errors.role_id ? 'error' : ''" :help="errors.role_id">
+                        <a-select v-model:value="formState.role_id" placeholder="Select Role" class="w-full">
+                            <a-select-option v-for="role in roleList" :key="role.id" :value="role.id">
+                                {{ role.name }}
+                            </a-select-option>
+                        </a-select>
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
             <!-- Group Dropdown -->
             <a-row>
                 <a-col :span="24">
@@ -79,11 +94,12 @@ const props = defineProps({
     visible: Boolean,
     groupList: Array,
     websiteList: Array,
+    roleList: Array,
 })
 const emit = defineEmits(['close', 'created'])
 
-const formState = ref({ name: '', email: '', password: '', group_id: '', website_ids: [] });
-const errors = ref({ name: '', email: '', password: '' });
+const formState = ref({ name: '', email: '', password: '', role_id: '', group_id: '', website_ids: [] });
+const errors = ref({ name: '', email: '', password: '', role_id: '' });
 const isLoading = ref(false);
 
 // Reset modal when opened
@@ -92,11 +108,13 @@ watch(() => props.visible, (val) => {
         formState.value.name = ''
         formState.value.email = ''
         formState.value.password = ''
+        formState.value.role_id = ''
         formState.value.group_id = ''
         formState.value.website_ids = []
         errors.value.name = ''
         errors.value.email = ''
         errors.value.password = ''
+        errors.value.role_id = ''
     }
 })
 
@@ -120,6 +138,7 @@ const onSubmit = async () => {
             errors.value.name = backendErrors.name?.[0] || '';
             errors.value.email = backendErrors.email?.[0] || '';
             errors.value.password = backendErrors.password?.[0] || '';
+            errors.value.role_id = backendErrors.role_id?.[0] || '';
         }
     } finally {
         isLoading.value = false

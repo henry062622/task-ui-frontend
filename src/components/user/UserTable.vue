@@ -1,6 +1,10 @@
 <template>
     <a-table :columns="columns" :data-source="users" class="pt-4" bordered>
         <template #bodyCell="{ column, record }">
+            <template v-if="column.dataIndex === 'role' && record.role">
+                <span>{{ record.role.name }}</span>
+            </template>
+
             <template v-if="column.dataIndex === 'group' && record.group">
                 <span>{{ record.group.name }}</span>
             </template>
@@ -23,7 +27,7 @@
     </a-table>
 
     <EditUserModal :visible="showEditModal" :group-list="groupList" :website-list="websiteList" :user="selectedRecord"
-        @close="showEditModal = false" @updated="emit('refreshTable')"></EditUserModal>
+        :role-list="roleList" @close="showEditModal = false" @updated="emit('refreshTable')"></EditUserModal>
 </template>
 
 <script setup>
@@ -47,6 +51,10 @@ defineProps({
         type: Array,
         required: true
     },
+    roleList: {
+        type: Array,
+        required: true
+    },
 })
 
 const showEditModal = ref(false);
@@ -60,6 +68,11 @@ const columns = [
         title: 'Email',
         dataIndex: 'email',
         key: 'email'
+    },
+    {
+        title: 'Role',
+        dataIndex: 'role',
+        key: 'role'
     },
     {
         title: 'Group',

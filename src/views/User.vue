@@ -7,9 +7,9 @@
                 </div>
 
                 <UserTable :users="userList" @refreshTable="fetchUserlist" :groupList="groupList"
-                    :website-list="websiteList" />
+                    :website-list="websiteList" :role-list="roleList" />
                 <CreateUserModal :visible="showModal" :groupList="groupList" :website-list="websiteList"
-                    @close="showModal = false" @created="fetchUserlist" />
+                    :role-list="roleList" @close="showModal = false" @created="fetchUserlist" />
 
             </div>
         </div>
@@ -28,6 +28,7 @@ const userList = ref([]);
 const showModal = ref(false);
 const websiteList = ref([]);
 const groupList = ref([]);
+const roleList = ref([]);
 
 // Modal control
 const clickCreateBtn = () => { showModal.value = true };
@@ -48,10 +49,16 @@ const fetchWebsitelist = async () => {
     websiteList.value = res.data.data;
 }
 
+const fetchRoleList = async () => {
+    const res = await api.get('/api/role/get-name-list');
+    roleList.value = res.data.data;
+}
+
 // Init
 onMounted(() => {
     fetchUserlist();
     fetchGrouplist();
     fetchWebsitelist();
+    fetchRoleList();
 })
 </script>
