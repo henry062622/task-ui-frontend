@@ -54,7 +54,7 @@ const menuItems = ref([
     },
     {
         id: 2,
-        name: 'Ip Whitlist',
+        name: 'Ip Whitelist',
         url: '/ip-whitelist',
         icon: 'hugeicons:location-03'
     },
@@ -66,6 +66,12 @@ const menuItems = ref([
     },
     {
         id: 4,
+        name: 'Group',
+        url: '/group',
+        icon: 'fluent:people-team-20-regular'
+    },
+    {
+        id: 5,
         name: 'Role',
         url: '/role',
         icon: 'solar:user-id-broken'
