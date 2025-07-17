@@ -6,8 +6,7 @@
                     <a-button type="primary" @click="clickCreateBtn">Create</a-button>
                 </div>
 
-                <RoleTable :roles="roleList" @delete="handleDelete" :permissionList="permissionList"
-                    @refreshTable="fetchRolelist" />
+                <RoleTable :roles="roleList" :permissionList="permissionList" @refreshTable="fetchRolelist" />
                 <CreateRoleModal :visible="showModal" :permissionList="permissionList" @close="showModal = false"
                     @created="fetchRolelist" />
 
@@ -28,7 +27,7 @@ const roleList = ref([])
 const permissionList = ref({})
 const showModal = ref(false)
 
-// 🧠 Modal control
+// Modal control
 const clickCreateBtn = () => { showModal.value = true }
 
 // Fetch data
@@ -42,7 +41,7 @@ const fetchPermissionlist = async () => {
     permissionList.value = res.data.data
 }
 
-// 🔃 Init
+// Init
 onMounted(() => {
     fetchRolelist()
     fetchPermissionlist()
