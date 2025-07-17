@@ -4,12 +4,16 @@ import Login from '@/views/auth/Login.vue'
 import TwoFactoryVerify from '@/views/auth/TwoFactoryVerify.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import { useAuthStore } from '@/stores/auth'
+import IpWhitelist from '@/views/IpWhitelist.vue'
+import Role from '@/views/Role.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login, meta: { guestOnly: true } },
   { path: '/two-factory/verify', component: TwoFactoryVerify, meta: { guestOnly: true } },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
+  { path: '/ip-whitelist', component: IpWhitelist, meta: { requiresAuth: true } },
+  { path: '/role', component: Role, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

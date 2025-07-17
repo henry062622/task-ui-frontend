@@ -46,6 +46,7 @@ import AuthLayout from '@/components/layout/AuthLayout.vue';
 import { computed, onMounted, ref } from 'vue';
 import api, { ensureCsrfToken } from '@/lib/axios';
 import router from '@/router';
+import { useAuthStore } from '@/stores/auth';
 
 const formState = ref({
     code: '',
@@ -77,8 +78,12 @@ const onFinish = async (values) => {
     try {
         await api.post('/api/two-factory/verify', formState.value).then(res => {
             console.log(res);
-            router.push('/dashboard');
         });
+        const auth = useAuthStore();
+        auth.loaded = false;
+        await auth.fetchUser();
+        router.push('/dashboard');
+
     } catch (err) {
         console.log(err);
         const response = err?.response;
