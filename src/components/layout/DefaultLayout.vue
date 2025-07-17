@@ -61,7 +61,7 @@ const menuItems = ref([
     {
         id: 3,
         name: 'User',
-        url: '#',
+        url: '/user',
         icon: 'qlementine-icons:user-16'
     },
     {
