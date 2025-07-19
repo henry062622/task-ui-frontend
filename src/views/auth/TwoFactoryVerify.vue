@@ -76,12 +76,12 @@ const onFinish = async (values) => {
     errors.value.code = '';
 
     try {
+        const auth = useAuthStore();
         await api.post('/api/two-factory/verify', formState.value).then(res => {
             console.log(res);
+            auth.user = res.data.data;
+            auth.permissions = res.data.data.permissions;
         });
-        const auth = useAuthStore();
-        auth.loaded = false;
-        await auth.fetchUser();
         router.push('/dashboard');
 
     } catch (err) {

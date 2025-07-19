@@ -2,12 +2,13 @@
     <DefaultLayout :breadcrumb-list="breadcrumbList">
         <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
             <div class="relative h-full flex-1 space-y-6">
-                <div class="flex justify-end mx-4 mt-4 items-center">
+                <div v-if="hasCreatePermission" class="flex justify-end mx-4 mt-4 items-center">
                     <a-button type="primary" @click="clickCreateBtn">Create</a-button>
                 </div>
 
                 <UserTable :users="userList" @refreshTable="fetchUserlist" :groupList="groupList"
-                    :website-list="websiteList" :role-list="roleList" />
+                    :website-list="websiteList" :role-list="roleList" :has-delete-permission="hasDeletePermission"
+                    :has-edit-permission="hasEditPermission" />
                 <CreateUserModal :visible="showModal" :groupList="groupList" :website-list="websiteList"
                     :role-list="roleList" @close="showModal = false" @created="fetchUserlist" />
 
@@ -22,6 +23,7 @@ import api from '@/lib/axios'
 import { onMounted, ref } from 'vue'
 import UserTable from '@/components/user/UserTable.vue'
 import CreateUserModal from '@/components/user/CreateUserModal.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const breadcrumbList = ref(['User', 'List'])
 const userList = ref([]);
@@ -29,6 +31,13 @@ const showModal = ref(false);
 const websiteList = ref([]);
 const groupList = ref([]);
 const roleList = ref([]);
+
+const auth = useAuthStore();
+
+// State for buttons
+const hasCreatePermission = ref(false);
+const hasEditPermission = ref(false);
+const hasDeletePermission = ref(false);
 
 // Modal control
 const clickCreateBtn = () => { showModal.value = true };
@@ -56,9 +65,14 @@ const fetchRoleList = async () => {
 
 // Init
 onMounted(() => {
+    hasCreatePermission.value = auth.hasPermission('user_create');
+    hasEditPermission.value = auth.hasPermission('user_edit');
+    hasDeletePermission.value = auth.hasPermission('user_delete');
     fetchUserlist();
-    fetchGrouplist();
-    fetchWebsitelist();
-    fetchRoleList();
+    if (hasEditPermission.value || hasCreatePermission.value) {
+        fetchGrouplist();
+        fetchWebsitelist();
+        fetchRoleList();
+    }
 })
 </script>

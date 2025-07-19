@@ -8,16 +8,22 @@ import IpWhitelist from '@/views/IpWhitelist.vue'
 import Role from '@/views/Role.vue'
 import Group from '@/views/Group.vue'
 import User from '@/views/User.vue'
+import NoPermission from '@/views/NoPermission.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: Login, meta: { guestOnly: true } },
   { path: '/two-factory/verify', component: TwoFactoryVerify, meta: { guestOnly: true } },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
-  { path: '/ip-whitelist', component: IpWhitelist, meta: { requiresAuth: true } },
-  { path: '/role', component: Role, meta: { requiresAuth: true } },
-  { path: '/group', component: Group, meta: { requiresAuth: true } },
-  { path: '/user', component: User, meta: { requiresAuth: true } },
+  {
+    path: '/ip-whitelist',
+    component: IpWhitelist,
+    meta: { requiresAuth: true, permission: 'ip_whitelist_read' },
+  },
+  { path: '/role', component: Role, meta: { requiresAuth: true, permission: 'role_read' } },
+  { path: '/group', component: Group, meta: { requiresAuth: true, permission: 'group_read' } },
+  { path: '/user', component: User, meta: { requiresAuth: true, permission: 'user_read' } },
+  { path: '/no-permission', component: NoPermission },
 ]
 
 const router = createRouter({
@@ -34,9 +40,20 @@ router.beforeEach(async (to, from, next) => {
   if (to.meta.requiresAuth && !isLoggedIn) {
     return next('/login')
   }
+
   if (to.meta.guestOnly && isLoggedIn) {
     return next('/dashboard')
   }
+
+  // Check if the route has a permission requirement
+  if (to.meta.permission) {
+    const hasPermission = auth.hasPermission(to.meta.permission)
+
+    if (!hasPermission) {
+      return next('/no-permission') // Redirect to "No Permission" page
+    }
+  }
+
   next()
 })
 

@@ -4,14 +4,14 @@
             <div class="!m-4 h-8 flex justify-center items-center rounded-2xl bg-[rgba(255,255,255,0.2)]">
                 <!-- <h3 class="text-white">Task Management</h3> -->
             </div>
-            <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline" @update:selectedKeys="onSelect">
-                <a-menu-item v-for="(menu, index) in menuItems" :key="menu.url">
+            <a-menu :selectedKeys="selectedKeys" theme="dark" mode="inline" @update:selectedKeys="onSelect">
+                <a-menu-item v-for="(menu, index) in filteredMenuItems" :key="menu.url">
                     <div class="flex items-center gap-3">
                         <Icon :icon="menu.icon" style="color: #fff; size: 32px;" />
                         <span class="nav-text">{{ menu.name }}</span>
                     </div>
                 </a-menu-item>
-                <a-menu-item @click="Logout">
+                <a-menu-item :key="'logout'" @click.stop="Logout" style="pointer-events: auto">
                     <div class="flex items-center gap-3">
                         <Icon icon="ri:logout-circle-r-line" class="text-red-500" style=" size: 32px;" />
                         <span class="nav-text text-red-800 hover:text-red-500 ">Logout</span>
@@ -36,13 +36,13 @@
 </template>
 <script setup>
 import { Icon } from '@iconify/vue';
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import UserInfo from '../user/UserInfo.vue';
 import { useAuthStore } from '@/stores/auth';
 
 defineProps({
-    breadcrumbList: []
+    breadcrumbList: Array
 });
 
 const menuItems = ref([
@@ -50,31 +50,36 @@ const menuItems = ref([
         id: 1,
         name: 'Dashboard',
         url: '/dashboard',
-        icon: 'mynaui:desktop'
+        icon: 'mynaui:desktop',
+
     },
     {
         id: 2,
         name: 'Ip Whitelist',
         url: '/ip-whitelist',
-        icon: 'hugeicons:location-03'
+        icon: 'hugeicons:location-03',
+        permission: 'ip_whitelist_read'
     },
     {
         id: 3,
         name: 'User',
         url: '/user',
-        icon: 'qlementine-icons:user-16'
+        icon: 'qlementine-icons:user-16',
+        permission: 'user_read'
     },
     {
         id: 4,
         name: 'Group',
         url: '/group',
-        icon: 'fluent:people-team-20-regular'
+        icon: 'fluent:people-team-20-regular',
+        permission: 'group_read'
     },
     {
         id: 5,
         name: 'Role',
         url: '/role',
-        icon: 'solar:user-id-broken'
+        icon: 'solar:user-id-broken',
+        permission: 'role_read'
     },
 ]);
 
@@ -89,6 +94,14 @@ const Logout = async () => {
     auth.logout();
 }
 
+// Filter the menu items based on user permissions
+const filteredMenuItems = computed(() => {
+    return menuItems.value.filter(menu => {
+        if (!menu.permission) return true; // If there's no permission limit, show the item
+        return auth.hasPermission(menu.permission); // Check if the user has permission for this menu item
+    });
+});
+
 // On component mount, set the active menu based on current route
 onMounted(() => {
     selectedKeys.value = [route.path];
@@ -101,6 +114,7 @@ watch(() => route.path, (newPath) => {
 
 // Called whenever a user clicks a menu item
 function onSelect(keys) {
+    if (keys.includes('logout')) return;
     const [targetPath] = keys;
     selectedKeys.value = keys;
 

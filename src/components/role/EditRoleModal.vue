@@ -63,6 +63,7 @@ import { ref, watch } from 'vue'
 import { DownOutlined, UpOutlined } from '@ant-design/icons-vue'
 import { formatPermissionName } from '@/utils/format'
 import api from '@/lib/axios'
+import { useAuthStore } from '@/stores/auth'
 
 const props = defineProps({
     visible: Boolean,
@@ -92,6 +93,11 @@ const onSubmit = async () => {
     errors.value.name = ''
     try {
         await api.post(`/api/role/${props.role.id}/update`, formState.value)
+        const auth = useAuthStore();
+        if (auth.user.role_id == props.role.id) {
+            auth.loaded = false;
+            await auth.fetchUser();
+        }
         emit('updated')
         emit('close')
     } catch (err) {
