@@ -9,6 +9,7 @@ import Role from '@/views/Role.vue'
 import Group from '@/views/Group.vue'
 import User from '@/views/User.vue'
 import NoPermission from '@/views/NoPermission.vue'
+import UserProfile from '@/views/UserProfile.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -24,6 +25,7 @@ const routes = [
   { path: '/group', component: Group, meta: { requiresAuth: true, permission: 'group_read' } },
   { path: '/user', component: User, meta: { requiresAuth: true, permission: 'user_read' } },
   { path: '/no-permission', component: NoPermission },
+  { path: '/setting', component: UserProfile },
 ]
 
 const router = createRouter({
