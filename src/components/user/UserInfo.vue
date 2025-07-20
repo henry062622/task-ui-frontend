@@ -5,16 +5,22 @@
         </a-avatar>
         <div class="grid flex-1 text-left text-sm leading-tight">
             <span class="truncate font-medium">{{ user.name }}</span>
-            <span class="truncate text-xs text-muted-foreground cursor-pointer underline text-green-500">view
+            <span class="truncate text-xs text-muted-foreground cursor-pointer underline text-green-500"
+                @click="goToProfilePage">view
                 profile</span>
         </div>
     </div>
 
 </template>
 <script setup lang="ts">
+import router from '@/router';
 import { getInitials } from '@/utils/initials';
 
 defineProps({
     user: Object,
 })
+
+const goToProfilePage = () => {
+    router.push('/setting');
+}
 </script>

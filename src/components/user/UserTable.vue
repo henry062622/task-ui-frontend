@@ -18,8 +18,8 @@
             </template>
 
             <template v-if="column.dataIndex === 'action'">
-                <EditOutlined @click="clickEditBtn(record)" class="!mr-2" />
-                <a-popconfirm title="Sure to delete?" @confirm="handleDelete(record)">
+                <EditOutlined v-if="hasEditPermission" @click="clickEditBtn(record)" class="!mr-2" />
+                <a-popconfirm v-if="hasDeletePermission" title="Sure to delete?" @confirm="handleDelete(record)">
                     <DeleteOutlined style="color: red;" />
                 </a-popconfirm>
             </template>
@@ -55,6 +55,14 @@ defineProps({
         type: Array,
         required: true
     },
+    hasEditPermission: {
+        type: Boolean,
+        required: true
+    },
+    hasDeletePermission: {
+        type: Boolean,
+        required: true
+    }
 })
 
 const showEditModal = ref(false);

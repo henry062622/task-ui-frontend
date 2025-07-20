@@ -5,6 +5,7 @@ import router from '@/router'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
+  const permissions = ref([])
   const loaded = ref(false)
 
   async function fetchUser() {
@@ -12,9 +13,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const { data } = await axios.get('/api/user')
       user.value = data.data
+      permissions.value = data.data.permissions || []
       console.log(data.data)
     } catch {
       user.value = null
+      permissions.value = []
     } finally {
       loaded.value = true
     }
@@ -27,5 +30,9 @@ export const useAuthStore = defineStore('auth', () => {
     router.push('/login')
   }
 
-  return { user, loaded, fetchUser, logout }
+  function hasPermission(permission) {
+    return permissions.value.includes(permission)
+  }
+
+  return { user, permissions, loaded, fetchUser, logout, hasPermission }
 })
