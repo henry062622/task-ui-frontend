@@ -10,6 +10,8 @@ import Group from '@/views/Group.vue'
 import User from '@/views/User.vue'
 import NoPermission from '@/views/NoPermission.vue'
 import UserProfile from '@/views/UserProfile.vue'
+import TaskCreate from '@/views/task/TaskCreate.vue'
+import TaskEditView from '@/views/task/TaskEditView.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -26,6 +28,8 @@ const routes = [
   { path: '/user', component: User, meta: { requiresAuth: true, permission: 'user_read' } },
   { path: '/no-permission', component: NoPermission },
   { path: '/setting', component: UserProfile },
+  { path: '/task-create', component: TaskCreate, meta: { requiresAuth: true } },
+  { path: '/tasks/:id', component: TaskEditView, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

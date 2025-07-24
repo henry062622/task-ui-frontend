@@ -1,7 +1,9 @@
 import axios from 'axios'
 import Cookies from 'js-cookie'
 
-const apiBaseUrl = 'http://localhost:8000'
+// const apiBaseUrl = 'http://localhost:8000'
+// const apiBaseUrl = 'https://only-immune-buck.ngrok-free.app'
+const apiBaseUrl = 'http://128.10.102.13:8000'
 const api = axios.create({
   baseURL: apiBaseUrl,
   headers: {
