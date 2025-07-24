@@ -1,5 +1,5 @@
 <template>
-    <a-layout has-sider :style="{ width: '100%', height: '100vh', background: '#fff' }">
+    <a-layout has-sider :style="{ width: '100%', height: '100svh', background: '#fff' }">
         <a-layout-sider :style="{ overflow: 'auto', height: '100%', position: 'fixed', left: 0, top: 0, bottom: 0, }">
             <div class="!m-4 h-8 flex justify-center items-center rounded-2xl bg-[rgba(255,255,255,0.2)]">
                 <!-- <h3 class="text-white">Task Management</h3> -->
@@ -23,13 +23,20 @@
                 <UserInfo :user="user" />
             </div>
         </a-layout-sider>
-        <a-layout :style="{ marginLeft: '200px', padding: '16px', height: '100vh', background: '#fff' }">
+        <a-layout :style="{ marginLeft: '200px', height: '100svh', background: '#fff', overflow: 'auto' }">
+            <div v-if="site" class="p-5 shadow-md flex gap-4">
+                <img :src="site.logo_url" alt="site_logo" class="site-logo w-15 h-8 ">
+                <span class=" !text-xl !font-semibold">New order</span>
+            </div>
             <!-- <a-layout-header :style="{ background: '#fff', padding: 0 }" /> -->
             <!-- <a-layout-content :style="{ width: '100%', height: '100vh', margin: '24px 16px 0', overflow: 'initial' }"> -->
             <a-breadcrumb style="margin: 16px">
                 <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{ breadcrumb }}</a-breadcrumb-item>
             </a-breadcrumb>
-            <slot />
+            <div class="!m-4 h-full">
+                <slot />
+            </div>
+
             <!-- </a-layout-content> -->
         </a-layout>
     </a-layout>
@@ -42,7 +49,8 @@ import UserInfo from '../user/UserInfo.vue';
 import { useAuthStore } from '@/stores/auth';
 
 defineProps({
-    breadcrumbList: Array
+    breadcrumbList: Array,
+    site: Object
 });
 
 const menuItems = ref([

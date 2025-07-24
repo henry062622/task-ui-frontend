@@ -8,3 +8,15 @@ export const getInitials = (fullName) => {
 
   return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase()
 }
+
+export const getColor = (status) => {
+  if (status == 'complete') {
+    return '#87d068'
+  } else if (status == 'in-progress') {
+    return '#108ee9'
+  } else if (status == 'cancel') {
+    return '#f50'
+  } else {
+    return '#2db7f5'
+  }
+}
