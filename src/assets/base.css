@@ -19,6 +19,7 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+  --custom-font: 'Noto Sans Thai', 'Noto Sans', sans-serif;
 }
 
 /* semantic color variables for this project */
@@ -67,7 +68,7 @@ body {
     color 0.5s,
     background-color 0.5s;
   line-height: 1.6;
-  font-family:
+  /* font-family:
     Inter,
     -apple-system,
     BlinkMacSystemFont,
@@ -79,9 +80,29 @@ body {
     'Fira Sans',
     'Droid Sans',
     'Helvetica Neue',
-    sans-serif;
+    sans-serif; */
+  font-family: var(--custom-font) !important;
   font-size: 15px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global override for all AntD elements */
+.ant-typography,
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-table,
+.ant-form,
+.ant-modal,
+.ant-dropdown,
+.ant-menu,
+.ant-pagination,
+.ant-tag,
+.ant-tooltip,
+.ant-breadcrumb,
+.ant-tabs,
+.ant-card {
+  font-family: var(--custom-font) !important;
 }

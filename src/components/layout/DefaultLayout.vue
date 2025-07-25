@@ -1,9 +1,12 @@
 <template>
     <a-layout has-sider :style="{ width: '100%', height: '100svh', background: '#fff' }">
         <a-layout-sider :style="{ overflow: 'auto', height: '100%', position: 'fixed', left: 0, top: 0, bottom: 0, }">
-            <div class="!m-4 h-8 flex justify-center items-center rounded-2xl bg-[rgba(255,255,255,0.2)]">
-                <!-- <h3 class="text-white">Task Management</h3> -->
+            <div class="w-full text-white p-4 border-b border-gray-700 text-center text-lg !mb-4 !font-bold">
+                Task Management
             </div>
+            <!-- <div class="!m-4 h-8 flex justify-center items-center rounded-2xl bg-[rgba(255,255,255,0.2)]"> -->
+            <!-- <h3 class="text-white">Task Management</h3> -->
+            <!-- </div> -->
             <a-menu :selectedKeys="selectedKeys" theme="dark" mode="inline" @update:selectedKeys="onSelect">
                 <a-menu-item v-for="(menu, index) in filteredMenuItems" :key="menu.url">
                     <div class="flex items-center gap-3">
