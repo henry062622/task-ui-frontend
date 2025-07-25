@@ -1,5 +1,6 @@
 <template>
-    <a-table :columns="columns" :data-source="groups" class="pt-4" bordered>
+    <a-table :columns="columns" :data-source="groups" :pagination="pagination" row-key="id" @change="handleTableChange"
+        :loading="loading" class="pt-4" bordered>
         <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'users' && record.users.length > 0">
                 <div class="!space-y-3">
@@ -42,6 +43,12 @@ defineProps({
     hasDeletePermission: {
         type: Boolean,
         required: true
+    },
+    pagination: {
+        type: Object
+    },
+    loading: {
+        type: Boolean
     }
 })
 
@@ -71,6 +78,10 @@ const clickEditBtn = (group) => {
     selectedRecord.value = group;
     showEditModal.value = true;
 }
+
+const handleTableChange = (pagination) => {
+    emit('refreshTable', pagination.current)
+};
 
 // Delete
 const handleDelete = async (group) => {

@@ -1,5 +1,6 @@
 <template>
-    <a-table :columns="columns" :data-source="roles" class="pt-4" bordered>
+    <a-table :columns="columns" :data-source="roles" :pagination="pagination" row-key="id" @change="handleTableChange"
+        :loading="loading" class="pt-4" bordered>
         <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'permissions' && record.permissions.length > 0">
                 <div class="!space-y-3">
@@ -47,6 +48,12 @@ defineProps({
     hasDeletePermission: {
         type: Boolean,
         required: true
+    },
+    pagination: {
+        type: Object
+    },
+    loading: {
+        type: Boolean
     }
 })
 
@@ -76,6 +83,10 @@ const clickEditBtn = (role) => {
     selectedRecord.value = role;
     showEditModal.value = true;
 }
+
+const handleTableChange = (pagination) => {
+    emit('refreshTable', pagination.current)
+};
 
 // Delete
 const handleDelete = async (role) => {

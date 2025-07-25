@@ -6,8 +6,12 @@
                     <a-button type="primary" @click="clickCreateBtn">Create</a-button>
                 </div>
 
+                <a-input-search v-model:value="searchQuery" placeholder="Search by role name" @search="handleSearch"
+                    allow-clear style="width: 250px" />
+
                 <RoleTable :roles="roleList" :permissionList="permissionList" :has-edit-permission="hasEditPermission"
-                    :has-delete-permission="hasDeletePermission" @refreshTable="fetchRolelist" />
+                    :has-delete-permission="hasDeletePermission" @refreshTable="fetchRolelist" :pagination="pagination"
+                    :loading="loading" />
                 <CreateRoleModal :visible="showModal" :permissionList="permissionList" @close="showModal = false"
                     @created="fetchRolelist" />
 
@@ -19,7 +23,7 @@
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import api from '@/lib/axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import RoleTable from '@/components/role/RoleTable.vue'
 import CreateRoleModal from '@/components/role/CreateRoleModal.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -28,6 +32,15 @@ const breadcrumbList = ref(['Role', 'List'])
 const roleList = ref([])
 const permissionList = ref({})
 const showModal = ref(false)
+
+const loading = ref(false);
+const searchQuery = ref('');
+const pagination = reactive({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: false
+});
 
 const auth = useAuthStore();
 
@@ -39,11 +52,29 @@ const hasDeletePermission = ref(false);
 // Modal control
 const clickCreateBtn = () => { showModal.value = true }
 
-// Fetch data
-const fetchRolelist = async () => {
-    const res = await api.get('/api/role')
-    roleList.value = res.data.data
+const handleSearch = () => {
+    fetchRolelist(1);
 }
+
+const fetchRolelist = async (page = 1) => {
+    loading.value = true;
+    try {
+        const res = await api.get('/api/role', {
+            params: {
+                page,
+                search: searchQuery.value
+            }
+        });
+
+        roleList.value = res.data.data.data;
+        pagination.total = res.data.data.total;
+        pagination.current = res.data.data.current_page;
+    } catch (err) {
+        console.error('Fetch error', err);
+    } finally {
+        loading.value = false;
+    }
+};
 
 const fetchPermissionlist = async () => {
     const res = await api.get('/api/get-permission-list')

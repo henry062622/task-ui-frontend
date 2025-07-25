@@ -7,8 +7,12 @@
                     <a-button type="primary" @click="clickCreateBtn"> Create </a-button>
                 </div>
 
+                <a-input-search v-model:value="searchQuery" placeholder="Search by ip address" @search="handleSearch"
+                    allow-clear style="width: 250px" />
+
                 <IpWhitelistTable :data="data" :has-delete-permission="hasDeletePermission"
-                    :has-edit-permission="hasEditPermission" :fetch-ip-whitelist="fetchIpWhitelist" />
+                    :has-edit-permission="hasEditPermission" :fetch-ip-whitelist="fetchIpWhitelist"
+                    :pagination="pagination" :loading="loading" />
 
                 <CreateIpWhitelistModal :visible="showModal" @close="closeModel" @created="fetchIpWhitelist" />
 
@@ -20,7 +24,7 @@
 </template>
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue';
-import { onMounted, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import api from '@/lib/axios';
 import { useAuthStore } from '@/stores/auth';
 import IpWhitelistTable from '@/components/ip_whitelist/IpWhitelistTable.vue';
@@ -35,13 +39,13 @@ const hasCreatePermission = ref(false);
 const hasEditPermission = ref(false);
 const hasDeletePermission = ref(false);
 
-const formState = ref({
-    ip_address: '',
-    description: null
-});
-
-const errors = ref({
-    ip_address: '',
+const loading = ref(false);
+const searchQuery = ref('');
+const pagination = reactive({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: false
 });
 
 const data = ref([]);
@@ -55,12 +59,29 @@ const closeModel = () => {
     showModal.value = false;
 }
 
-const fetchIpWhitelist = async () => {
-    await api.get('/api/ip-whitelist')
-        .then(res => {
-            data.value = res.data.data;
-        })
+const handleSearch = () => {
+    fetchIpWhitelist(1);
 }
+
+const fetchIpWhitelist = async (page = 1) => {
+    loading.value = true;
+    try {
+        const res = await api.get('/api/ip-whitelist', {
+            params: {
+                page,
+                search: searchQuery.value
+            }
+        });
+
+        data.value = res.data.data.data;
+        pagination.total = res.data.data.total;
+        pagination.current = res.data.data.current_page;
+    } catch (err) {
+        console.error('Fetch error', err);
+    } finally {
+        loading.value = false;
+    }
+};
 
 onMounted(() => {
     hasCreatePermission.value = auth.hasPermission('ip_whitelist_create');

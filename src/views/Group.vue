@@ -6,8 +6,11 @@
                     <a-button type="primary" @click="clickCreateBtn">Create</a-button>
                 </div>
 
+                <a-input-search v-model:value="searchQuery" placeholder="Search by group name" @search="handleSearch"
+                    allow-clear style="width: 250px" />
+
                 <GroupTable :groups="groupList" @refreshTable="fetchGrouplist" :has-edit-permission="hasEditPermission"
-                    :has-delete-permission="hasDeletePermission" />
+                    :has-delete-permission="hasDeletePermission" :pagination="pagination" :loading="loading" />
                 <CreateGroupModal :visible="showModal" @close="showModal = false" @created="fetchGrouplist" />
 
             </div>
@@ -18,7 +21,7 @@
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import api from '@/lib/axios'
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import GroupTable from '@/components/group/GroupTable.vue'
 import CreateGroupModal from '@/components/group/CreateGroupModal.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -26,6 +29,15 @@ import { useAuthStore } from '@/stores/auth'
 const breadcrumbList = ref(['Group', 'List'])
 const groupList = ref([]);
 const showModal = ref(false);
+
+const loading = ref(false);
+const searchQuery = ref('');
+const pagination = reactive({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+    showSizeChanger: false
+});
 
 const auth = useAuthStore();
 
@@ -37,11 +49,29 @@ const hasDeletePermission = ref(false);
 // Modal control
 const clickCreateBtn = () => { showModal.value = true };
 
-// Fetch data
-const fetchGrouplist = async () => {
-    const res = await api.get('/api/group');
-    groupList.value = res.data.data;
+const handleSearch = () => {
+    fetchGrouplist(1);
 }
+
+const fetchGrouplist = async (page = 1) => {
+    loading.value = true;
+    try {
+        const res = await api.get('/api/group', {
+            params: {
+                page,
+                search: searchQuery.value
+            }
+        });
+
+        groupList.value = res.data.data.data;
+        pagination.total = res.data.data.total;
+        pagination.current = res.data.data.current_page;
+    } catch (err) {
+        console.error('Fetch error', err);
+    } finally {
+        loading.value = false;
+    }
+};
 
 // Init
 onMounted(() => {

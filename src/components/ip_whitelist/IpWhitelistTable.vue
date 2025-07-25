@@ -1,6 +1,7 @@
 <template>
     <div class="ip-whitelist-table">
-        <a-table :columns="columns" :data-source="data" class="pt-4" bordered>
+        <a-table :columns="columns" :data-source="data" class="pt-4" :pagination="pagination" row-key="id"
+            @change="handleTableChange" :loading="loading" bordered>
             <template #bodyCell="{ column, record }">
                 <template v-if="column.dataIndex === 'creator'">
                     <span>{{ record.creator.name }}</span>
@@ -28,9 +29,11 @@ import EditIpWhitelistModal from './EditIpWhitelistModal.vue';
 
 const props = defineProps({
     data: Array,
+    pagination: Object,
     hasDeletePermission: Boolean,
     hasEditPermission: Boolean,
     fetchIpWhitelist: Function,
+    loading: Boolean,
 });
 
 const columns = [
@@ -74,5 +77,9 @@ const deleteIpWhitelist = async (id) => {
     } catch (err) {
         console.error('Error deleting IP whitelist:', err);
     }
+};
+
+const handleTableChange = (pagination) => {
+    props.fetchIpWhitelist(pagination.current);
 };
 </script>

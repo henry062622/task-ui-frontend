@@ -1,5 +1,6 @@
 <template>
-    <a-table :columns="columns" :data-source="users" class="pt-4" bordered>
+    <a-table :columns="columns" :data-source="users" :pagination="pagination" row-key="id" :loading="loading"
+        @change="handleTableChange" class="pt-4" bordered>
         <template #bodyCell="{ column, record }">
             <template v-if="column.dataIndex === 'role' && record.role">
                 <span>{{ record.role.name }}</span>
@@ -62,6 +63,12 @@ defineProps({
     hasDeletePermission: {
         type: Boolean,
         required: true
+    },
+    pagination: {
+        type: Object
+    },
+    loading: {
+        type: Boolean
     }
 })
 
@@ -117,4 +124,8 @@ const handleDelete = async (user) => {
         console.error('Delete failed:', err)
     }
 }
+
+const handleTableChange = (pagination) => {
+    emit('refreshTable', pagination.current)
+};
 </script>
