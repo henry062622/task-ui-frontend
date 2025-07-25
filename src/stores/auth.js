@@ -26,6 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function logout() {
     await axios.post('/api/logout')
     user.value = null
+    localStorage.removeItem('auth_token')
     loaded.value = false
     router.push('/login')
   }

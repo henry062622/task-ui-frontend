@@ -79,8 +79,10 @@ const onFinish = async (values) => {
         const auth = useAuthStore();
         await api.post('/api/two-factory/verify', formState.value).then(res => {
             console.log(res);
-            auth.user = res.data.data;
-            auth.permissions = res.data.data.permissions;
+            auth.user = res.data.data.user;
+            auth.permissions = res.data.data.user.permissions;
+            const token = res.data.data.token
+            localStorage.setItem('auth_token', token)
         });
         router.push('/dashboard');
 

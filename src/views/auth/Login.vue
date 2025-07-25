@@ -69,7 +69,7 @@ const onFinish = async (values) => {
     errors.value.password = '';
     loginError.value = '';
 
-    await ensureCsrfToken();
+    // await ensureCsrfToken();
     try {
         await api.post('/api/login', formState.value).then(res => {
             console.log(res.data);
