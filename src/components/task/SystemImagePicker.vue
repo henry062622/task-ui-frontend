@@ -107,9 +107,3 @@ const handleWebsiteChange = (value) => {
 };
 
 </script>
-
-<style>
-ul.ant-pagination li.ant-pagination-jump-next.ant-pagination-jump-next-custom-icon a.ant-pagination-item-link {
-    display: block !important;
-}
-</style>

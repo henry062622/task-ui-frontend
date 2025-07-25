@@ -372,7 +372,7 @@
         :total="decorativeTotal" :current-page="decorativePage" :selected="selectedDecorativeIds"
         title="Select Decorative Images" @update:selected="selectedDecorativeIds = $event"
         @confirm="confirmDecorativeSelection" @cancel="decorativeModalVisible = false"
-        @page-change="loadDecorativePage" />
+        @page-change="loadDecorativePageWithPagination" />
 
 </template>
 <script setup>
@@ -565,7 +565,7 @@ const cancelSystemImageSelection = () => {
 
 //actor image logic
 const openActorModal = () => {
-    loadActorPage(actorPage.value);
+    loadActorPage(actorPage.value, '');
     actorModalVisible.value = true;
 };
 
@@ -712,6 +712,10 @@ const loadActorPageWithWebsite = (siteId) => {
 
 const loadActorPageWithPagination = ({ page, site }) => {
     loadActorPage(page, site);
+}
+
+const loadDecorativePageWithPagination = ({ page, site }) => {
+    loadDecorativePage(page);
 }
 
 const getTaskTypeList = () => {

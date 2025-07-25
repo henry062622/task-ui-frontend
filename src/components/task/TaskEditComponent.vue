@@ -379,16 +379,17 @@
     </a-modal>
 
     <!-- SYSTEM IMAGE PICKERS -->
-    <SystemImagePicker v-model:visible="actorModalVisible" :image-list="actorImageList" :total="actorTotal"
-        :current-page="actorPage" :selected="selectedActorIds" title="Select Actor Images"
+    <SystemImagePicker v-model:visible="actorModalVisible" :website-list="websiteList" :image-list="actorImageList"
+        :total="actorTotal" :current-page="actorPage" :selected="selectedActorIds" title="Select Actor Images"
         @update:selected="selectedActorIds = $event" @confirm="confirmActorSelection"
-        @cancel="actorModalVisible = false" @page-change="loadActorPage" />
+        @cancel="actorModalVisible = false" @page-change="loadActorPageWithPagination"
+        @website-change="loadActorPageWithWebsite" />
 
     <SystemImagePicker v-model:visible="decorativeModalVisible" :image-list="decorativeImageList"
         :total="decorativeTotal" :current-page="decorativePage" :selected="selectedDecorativeIds"
         title="Select Decorative Images" @update:selected="selectedDecorativeIds = $event"
         @confirm="confirmDecorativeSelection" @cancel="decorativeModalVisible = false"
-        @page-change="loadDecorativePage" />
+        @page-change="loadDecorativePageWithPagination" />
 
 </template>
 <script setup>
@@ -467,6 +468,7 @@ const decorativeTotal = ref(0);
 const selectedDecorativeIds = ref([]);
 
 const previewPreviousFiles = ref([]);
+const websiteList = ref([]);
 
 const handleFileTypeChange = (selected) => {
     if (selected.length > 3) {
@@ -594,7 +596,7 @@ const cancelSystemImageSelection = () => {
 
 //actor image logic
 const openActorModal = () => {
-    loadActorPage(actorPage.value);
+    loadActorPage(actorPage.value, '');
     actorModalVisible.value = true;
 };
 
@@ -739,6 +741,23 @@ const clickCancelBtn = () => {
     router.push('/dashboard');
 }
 
+const loadActorPageWithWebsite = (siteId) => {
+    loadActorPage(1, siteId);
+}
+
+const loadActorPageWithPagination = ({ page, site }) => {
+    loadActorPage(page, site);
+}
+
+const loadDecorativePageWithPagination = ({ page, site }) => {
+    loadDecorativePage(page);
+}
+
+const fetchWebsitelist = async () => {
+    const res = await api.get('/api/websites');
+    websiteList.value = res.data.data;
+}
+
 const getTaskTypeList = () => {
     api.get('/api/get-task-type-name-list').then(res => {
         console.log(res);
@@ -779,9 +798,9 @@ const getSampleImageList = (page = 1) => {
     });
 };
 
-const loadActorPage = (page) => {
+const loadActorPage = (page, site) => {
     actorPage.value = page;
-    api.get(`/api/get-actor-image-list?page=${page}`).then(res => {
+    api.get(`/api/get-actor-image-list?page=${page}&website=${site}`).then(res => {
         actorImageList.value = res.data.data.data;
         actorTotal.value = res.data.data.total;
     });
@@ -853,10 +872,9 @@ onMounted(() => {
         };
 
     }
+    fetchWebsitelist()
     getTaskTypeList()
     getSizesByTaskType(props.task.task_type_id);
-    console.log('size list:', sizeList.value);
-    console.log('form size:', formState.value.size);
     getFileTypeList()
     getColorList()
     getThemeNameList()
