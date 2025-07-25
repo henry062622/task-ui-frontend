@@ -12,8 +12,8 @@ const api = axios.create({
     'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
-  withXSRFToken: true,
+  // withCredentials: true,
+  // withXSRFToken: true,
 })
 
 api.interceptors.request.use((config) => {
