@@ -35,7 +35,14 @@ a,
   } */
 }
 
-ul.ant-pagination li.ant-pagination-jump-next.ant-pagination-jump-next-custom-icon,
-.ant-pagination-jump-prev.ant-pagination-jump-prev-custom-icon a.ant-pagination-item-link {
+ul.ant-pagination
+  li.ant-pagination-jump-next.ant-pagination-jump-next-custom-icon
+  a.ant-pagination-item-link {
+  display: block;
+}
+
+ul.ant-pagination
+  li.ant-pagination-jump-prev.ant-pagination-jump-prev-custom-icon
+  a.ant-pagination-item-link {
   display: block;
 }
