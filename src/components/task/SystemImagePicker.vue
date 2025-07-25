@@ -2,11 +2,12 @@
     <a-modal :visible="visible" :title="title" @ok="handleConfirm" @cancel="handleCancel" width="800px" ok-text="Select"
         cancel-text="Cancel">
         <div class="h-[70vh] overflow-auto !mb-4">
-            <a-select v-if="websiteList.length > 0" v-model:value="selectedWebsite" placeholder="Select website"
-                class="!mb-4 w-60" @change="handleWebsiteChange">
-                <a-select-option v-for="site in websiteList" :key="site.value" :value="site.value">
-                    {{ site.label }}
+            <a-select v-if="websiteList.length > 0" v-model:value="selectedWebsite" placeholder="Select Model List"
+                class="!mb-4 w-60" @change="handleWebsiteChange" allow-clear>
+                <a-select-option v-for="site in websiteList" :key="site.id" :value="site.id">
+                    model{{ site.name }}
                 </a-select-option>
+                <a-select-option value="other">modelOther</a-select-option>
             </a-select>
             <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                 <div v-for="item in imageList" :key="item.id" :class="[
@@ -28,7 +29,7 @@
         </div>
 
         <a-pagination class="mt-4 flex justify-end" :current="currentPage" :page-size="pageSize" :total="total"
-            @change="handlePageChange" show-less-items />
+            width="100%" show-quick-jumper @change="handlePageChange" show-less-items :showSizeChanger="false" />
 
     </a-modal>
 </template>
@@ -97,12 +98,18 @@ const handleCancel = () => {
 };
 
 const handlePageChange = (page) => {
-    emit('page-change', page);
+    emit('page-change', { page, site: selectedWebsite.value ?? '' });
 };
 
 const handleWebsiteChange = (value) => {
-    selectedWebsite.value = value;
-    emit('website-change', value);
+    selectedWebsite.value = value ?? null;
+    emit('website-change', selectedWebsite.value ?? '');
 };
 
 </script>
+
+<style>
+ul.ant-pagination li.ant-pagination-jump-next.ant-pagination-jump-next-custom-icon a.ant-pagination-item-link {
+    display: block !important;
+}
+</style>

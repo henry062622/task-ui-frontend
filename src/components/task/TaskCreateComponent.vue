@@ -365,7 +365,8 @@
     <SystemImagePicker v-model:visible="actorModalVisible" :image-list="actorImageList" :website-list="websiteList"
         :total="actorTotal" :current-page="actorPage" :selected="selectedActorIds" title="Select Actor Images"
         @update:selected="selectedActorIds = $event" @confirm="confirmActorSelection"
-        @cancel="actorModalVisible = false" @page-change="loadActorPage" />
+        @cancel="actorModalVisible = false" @page-change="loadActorPageWithPagination"
+        @website-change="loadActorPageWithWebsite" />
 
     <SystemImagePicker v-model:visible="decorativeModalVisible" :image-list="decorativeImageList"
         :total="decorativeTotal" :current-page="decorativePage" :selected="selectedDecorativeIds"
@@ -703,6 +704,14 @@ const submitForm = async () => {
 
 const clickCancelBtn = () => {
     router.push('/dashboard');
+}
+
+const loadActorPageWithWebsite = (siteId) => {
+    loadActorPage(1, siteId);
+}
+
+const loadActorPageWithPagination = ({ page, site }) => {
+    loadActorPage(page, site);
 }
 
 const getTaskTypeList = () => {
