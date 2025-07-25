@@ -9,7 +9,7 @@ const token = localStorage.getItem('auth_token')
 const api = axios.create({
   baseURL: apiBaseUrl,
   headers: {
-    'X-Requested-With': 'XMLHttpRequest',
+    // 'X-Requested-With': 'XMLHttpRequest',
     'Content-Type': 'application/json',
   },
   // withCredentials: true,
