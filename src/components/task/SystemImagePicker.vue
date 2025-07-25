@@ -2,6 +2,12 @@
     <a-modal :visible="visible" :title="title" @ok="handleConfirm" @cancel="handleCancel" width="800px" ok-text="Select"
         cancel-text="Cancel">
         <div class="h-[70vh] overflow-auto !mb-4">
+            <a-select v-if="websiteList.length > 0" v-model:value="selectedWebsite" placeholder="Select website"
+                class="!mb-4 w-60" @change="handleWebsiteChange">
+                <a-select-option v-for="site in websiteList" :key="site.value" :value="site.value">
+                    {{ site.label }}
+                </a-select-option>
+            </a-select>
             <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                 <div v-for="item in imageList" :key="item.id" :class="[
                     'cursor-pointer border rounded overflow-hidden transition',
@@ -47,14 +53,21 @@ const props = defineProps({
     currentPage: {
         type: Number,
         default: 1
+    },
+    websiteList: {
+        type: Array,
+        default: []
     }
 });
+
+const selectedWebsite = ref(null);
 
 const emit = defineEmits([
     'update:selected',
     'confirm',
     'cancel',
-    'page-change' // ✅ trigger when user paginates
+    'page-change',
+    'website-change'
 ]);
 
 const selectedIds = ref(new Set([...props.selected]));
@@ -85,6 +98,11 @@ const handleCancel = () => {
 
 const handlePageChange = (page) => {
     emit('page-change', page);
+};
+
+const handleWebsiteChange = (value) => {
+    selectedWebsite.value = value;
+    emit('website-change', value);
 };
 
 </script>

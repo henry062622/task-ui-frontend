@@ -362,8 +362,8 @@
     </a-modal>
 
     <!-- SYSTEM IMAGE PICKERS -->
-    <SystemImagePicker v-model:visible="actorModalVisible" :image-list="actorImageList" :total="actorTotal"
-        :current-page="actorPage" :selected="selectedActorIds" title="Select Actor Images"
+    <SystemImagePicker v-model:visible="actorModalVisible" :image-list="actorImageList" :website-list="websiteList"
+        :total="actorTotal" :current-page="actorPage" :selected="selectedActorIds" title="Select Actor Images"
         @update:selected="selectedActorIds = $event" @confirm="confirmActorSelection"
         @cancel="actorModalVisible = false" @page-change="loadActorPage" />
 
@@ -385,6 +385,10 @@ import router from '@/router';
 const props = defineProps({
     websiteId: {
         type: Number,
+        required: true
+    },
+    websiteList: {
+        type: Array,
         required: true
     }
 });
@@ -739,9 +743,9 @@ const getSampleImageList = (page = 1) => {
     });
 };
 
-const loadActorPage = (page) => {
+const loadActorPage = (page, site) => {
     actorPage.value = page;
-    api.get(`/api/get-actor-image-list?page=${page}`).then(res => {
+    api.get(`/api/get-actor-image-list?page=${page}&website=${site}`).then(res => {
         actorImageList.value = res.data.data.data;
         actorTotal.value = res.data.data.total;
     });
