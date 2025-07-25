@@ -1,6 +1,12 @@
 <template>
     <DefaultLayout>
-        <div class="flex h-auto bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4 ">
+        <a-breadcrumb>
+            <a-breadcrumb-item>
+                <RouterLink to="/dashboard">Dashboard</RouterLink>
+            </a-breadcrumb-item>
+            <a-breadcrumb-item>Task Detail</a-breadcrumb-item>
+        </a-breadcrumb>
+        <div class="flex h-auto bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4 !mt-4">
             <!-- view form  -->
             <TaskView v-if="task && showView" :task="task" :user-list="userList" @fetchDetail="getTaskDetail"
                 @clickEdit="showView = false">
@@ -14,7 +20,7 @@
 import DefaultLayout from '@/components/layout/DefaultLayout.vue';
 import api from '@/lib/axios';
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, RouterLink } from 'vue-router';
 import TaskView from '@/components/task/TaskView.vue';
 import TaskEditComponent from '@/components/task/TaskEditComponent.vue';
 
