@@ -27,7 +27,7 @@
                         <CheckCircleOutlined v-if="selectedIds.has(item.id)"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
                         <!-- Image -->
-                        <img :src="item.storage_url" alt="actor" class="!w-30 aspect-[4/5] object-fill" />
+                        <img :src="item.thumbnail_url" alt="actor" class="!w-30 aspect-[4/5] object-fill" />
                     </div>
                 </div>
             </div>

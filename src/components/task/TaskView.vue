@@ -243,7 +243,7 @@
                         <!-- Image: keep original style -->
                         <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
                             <!-- Download Icon -->
-                            <DownloadOutlined @click="downloadImage(img)"
+                            <DownloadOutlined @click="downloadImage(file)"
                                 class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
                             <!-- Image -->
                             <ImageView :image="file" />
@@ -270,7 +270,7 @@
             <a-col :span="24">
                 <div class="relative !w-[120px]">
                     <!-- download Icon -->
-                    <DownloadOutlined @click="downloadImage(img)"
+                    <DownloadOutlined @click="downloadImage(task.sample_image)"
                         class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
                     <!-- Image -->
                     <ImageView :image="task.sample_image" />

@@ -338,18 +338,17 @@
         <div class="h-[70vh] overflow-auto !mb-4">
             <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                 <div v-for="item in sampleImageList" :key="item.id" :class="[
-                    'cursor-pointer border rounded overflow-hidden transition',
+                    'cursor-pointer border border-gray-200 rounded-lg overflow-hidden transition',
                     selectedSystemImage && selectedSystemImage.id === item.id
                         ? 'bg-blue-200'
                         : 'hover:bg-blue-100'
                 ]" @click="selectSystemImage(item)">
-                    <div class="relative w-40 h-40">
+                    <div class="relative !w-30">
                         <!-- Delete Icon -->
                         <CheckCircleOutlined v-if="selectedSystemImage && selectedSystemImage.id === item.id"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
                         <!-- Image -->
-                        <img :src="item.storage_url" alt="sample"
-                            class="!w-40 !h-40 object-fill !border !border-gray-200 rounded-lg" />
+                        <img :src="item.thumbnail_url" alt="sample" class="!w-30 aspect-[4/5] object-fill" />
                     </div>
                 </div>
             </div>
@@ -358,7 +357,7 @@
         <!-- Pagination -->
         <div class="mt-4 flex justify-end">
             <a-pagination :current="samplePage" :page-size="25" :total="sampleTotal" @change="handleSamplePageChange"
-                show-less-items />
+                show-less-items show-quick-jumper :showSizeChanger="false" />
         </div>
     </a-modal>
 
