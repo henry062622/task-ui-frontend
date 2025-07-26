@@ -9,6 +9,12 @@
                 </a-select-option>
                 <a-select-option value="other">modelOther</a-select-option>
             </a-select>
+            <a-select v-if="decorativeTypes.length > 0" v-model:value="selectedtype" placeholder="Select"
+                class="!mb-4 w-80" @change="handleDecorativeTypeChange" allow-clear>
+                <a-select-option v-for="type in decorativeTypes" :key="type.key" :value="type.key">
+                    {{ type.value }}
+                </a-select-option>
+            </a-select>
             <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                 <div v-for="item in imageList" :key="item.id" :class="[
                     'cursor-pointer border border-gray-200 rounded-lg overflow-hidden transition',
@@ -57,17 +63,23 @@ const props = defineProps({
     websiteList: {
         type: Array,
         default: []
+    },
+    decorativeTypes: {
+        type: Array,
+        default: []
     }
 });
 
 const selectedWebsite = ref(null);
+const selectedtype = ref(null);
 
 const emit = defineEmits([
     'update:selected',
     'confirm',
     'cancel',
     'page-change',
-    'website-change'
+    'website-change',
+    'decorative-type-change'
 ]);
 
 const selectedIds = ref(new Set([...props.selected]));
@@ -97,7 +109,7 @@ const handleCancel = () => {
 };
 
 const handlePageChange = (page) => {
-    emit('page-change', { page, site: selectedWebsite.value ?? '' });
+    emit('page-change', { page, site: selectedWebsite.value ?? '', type: selectedtype.value ?? '' });
 };
 
 const handleWebsiteChange = (value) => {
@@ -105,4 +117,8 @@ const handleWebsiteChange = (value) => {
     emit('website-change', selectedWebsite.value ?? '');
 };
 
+const handleDecorativeTypeChange = (value) => {
+    selectedtype.value = value ?? null;
+    emit('decorative-type-change', selectedtype.value ?? '');
+};
 </script>

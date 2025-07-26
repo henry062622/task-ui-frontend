@@ -370,10 +370,11 @@
         @website-change="loadActorPageWithWebsite" />
 
     <SystemImagePicker v-model:visible="decorativeModalVisible" :image-list="decorativeImageList"
-        :total="decorativeTotal" :current-page="decorativePage" :selected="selectedDecorativeIds"
-        title="Select Decorative Images" @update:selected="selectedDecorativeIds = $event"
-        @confirm="confirmDecorativeSelection" @cancel="decorativeModalVisible = false"
-        @page-change="loadDecorativePageWithPagination" />
+        :decorative-types="decorativeTypeList" :total="decorativeTotal" :current-page="decorativePage"
+        :selected="selectedDecorativeIds" title="Select Decorative Images"
+        @update:selected="selectedDecorativeIds = $event" @confirm="confirmDecorativeSelection"
+        @cancel="decorativeModalVisible = false" @page-change="loadDecorativePageWithPagination"
+        @decorative-type-change="loadDecorativePageWithType" />
 
 </template>
 <script setup>
@@ -430,6 +431,7 @@ const samplePage = ref(1);
 const sampleTotal = ref(0);
 const sampleModalVisible = ref(false);
 const selectedSystemImage = ref(null);
+const decorativeTypeList = ref([]);
 
 // Actor image logic
 const actorModalVisible = ref(false);
@@ -593,7 +595,7 @@ const removeActorImage = (index) => {
 
 // Decorative image logic
 const openDecorativeModal = () => {
-    loadDecorativePage(decorativePage.value);
+    loadDecorativePage(decorativePage.value, '');
     decorativeModalVisible.value = true;
 };
 
@@ -713,12 +715,16 @@ const loadActorPageWithWebsite = (siteId) => {
     loadActorPage(1, siteId);
 }
 
-const loadActorPageWithPagination = ({ page, site }) => {
+const loadActorPageWithPagination = ({ page, site, type }) => {
     loadActorPage(page, site);
 }
 
-const loadDecorativePageWithPagination = ({ page, site }) => {
-    loadDecorativePage(page);
+const loadDecorativePageWithType = (type) => {
+    loadDecorativePage(1, type);
+}
+
+const loadDecorativePageWithPagination = ({ page, site, type }) => {
+    loadDecorativePage(page, type);
 }
 
 const getTaskTypeList = () => {
@@ -767,9 +773,9 @@ const loadActorPage = (page, site) => {
     });
 };
 
-const loadDecorativePage = (page) => {
+const loadDecorativePage = (page, type) => {
     decorativePage.value = page;
-    api.get(`/api/get-decorative-image-list?page=${page}`).then(res => {
+    api.get(`/api/get-decorative-image-list?page=${page}&type=${type}`).then(res => {
         decorativeImageList.value = res.data.data.data;
         decorativeTotal.value = res.data.data.total;
     });
@@ -789,6 +795,11 @@ const fetchDecorativeImagesByIds = async (ids) => {
     return res.data.data;
 };
 
+const fetchDecorativeTypes = async () => {
+    const res = await api.get('/api/get-decorative-types');
+    decorativeTypeList.value = res.data.data;
+};
+
 watch(() => formState.value.task_type, (newVal) => {
     formState.value.size = null; // reset size selection
 
@@ -804,6 +815,7 @@ onMounted(() => {
     getFileTypeList()
     getColorList()
     getThemeNameList()
+    fetchDecorativeTypes()
 })
 
 const validateForm = () => {
