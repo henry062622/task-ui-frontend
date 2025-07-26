@@ -334,7 +334,7 @@
                 <a-form-item label="ผู้รับมอบหมาย / Assignee" name="assignee">
                     <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear style="width: 100%">
                         <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                            }} </a-select-option>
+                        }} </a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
@@ -860,7 +860,7 @@ onMounted(() => {
                 name: f.file_name,
                 status: 'done',
                 url: f.storage_url,
-                thumbUrl: f.thumbnail_url
+                thumbUrl: f.storage_url
             })),
             sample_image: t.sample_image,
             sample_image_type: 'system',
