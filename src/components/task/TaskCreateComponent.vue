@@ -96,11 +96,16 @@
             <a-col :span="12">
                 <a-form-item label="สี (เลือกได้สูงสุด 3 สี) / Colors (Optional)" name="colors">
                     <a-select mode="multiple" v-model:value="formState.colors" placeholder="Select up to 3 colors"
-                        :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" :options="colorList.map(color => ({
-                            label: color.en,
-                            value: color.color_code
-                        }))" class="w-full" @change="handleColorChange" show-search :filter-option="(input, option) =>
-                            option.label.toLowerCase().includes(input.toLowerCase())" />
+                        :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" class="w-full" show-search :filter-option="(input, option) =>
+                            option.children.toLowerCase().includes(input.toLowerCase())" @change="handleColorChange">
+                        <a-select-option v-for="color in colorList" :key="color.color_code" :value="color.color_code">
+                            <div class="flex items-center gap-2">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 inline-block"
+                                    :style="{ backgroundColor: color.color_code }"></span>
+                                <span>{{ color.th }} / {{ color.en }}</span>
+                            </div>
+                        </a-select-option>
+                    </a-select>
                 </a-form-item>
             </a-col>
 
@@ -194,7 +199,7 @@
                     :rules="[{ required: true, message: 'Please upload at least one file' }]"
                     :validate-status="errors.task_file ? 'error' : ''" :help="errors.task_file">
                     <a-upload list-type="picture-card" multiple :file-list="formState.task_file"
-                        :before-upload="() => false" @change="handleFileUpload">
+                        :before-upload="() => false" accept="image/*,video/*" @change="handleFileUpload">
                         <div>
                             <plus-outlined />
                             <div style="margin-top: 8px">Upload</div>
@@ -224,10 +229,10 @@
             <a-col :span="6">
                 <span>Samples Image Preview</span>
                 <div v-if="formState.sample_image" class="mt-4">
-                    <a-image v-if="formState.sample_image_type === 'system'" :src="formState.sample_image.storage_url"
-                        alt="sample" class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
-                    <a-image v-else-if="formState.sample_image" :src="createObjectURL(formState.sample_image)"
-                        alt="uploaded" class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
+                    <ImageView v-if="formState.sample_image_type === 'system'" :image="formState.sample_image"
+                        class="w-[120px]" />
+                    <LocalImageView v-else-if="formState.sample_image"
+                        :image-url="createObjectURL(formState.sample_image)" class="!w-[120px]" />
                 </div>
             </a-col>
         </a-row>
@@ -251,16 +256,14 @@
                 <span>Actor Images previews</span>
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                     <template v-for="(img, i) in formState.actor_images" :key="i">
-                        <div class="relative w-24 h-24">
+                        <div class="relative">
                             <!-- Delete Icon -->
-                            <DeleteOutlined
+                            <MinusCircleOutlined
                                 class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
                                 @click="removeActorImage(i)" />
                             <!-- Image -->
-                            <a-image v-if="img.storage_url" :src="img.storage_url"
-                                class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
-                            <a-image v-else :src="createObjectURL(img)"
-                                class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
+                            <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+                            <LocalImageView v-else :image-url="createObjectURL(img)" class="!w-[120px]" />
                         </div>
                     </template>
                 </div>
@@ -288,16 +291,14 @@
                 <span>Decorative Images previews</span>
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                     <template v-for="(img, i) in formState.decorative_images" :key="i">
-                        <div class="relative w-24 h-24">
+                        <div class="relative">
                             <!-- Delete Icon -->
-                            <DeleteOutlined
+                            <MinusCircleOutlined
                                 class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
                                 @click="removeDecorativeImage(i)" />
                             <!-- Image -->
-                            <a-image v-if="img.storage_url" :src="img.storage_url"
-                                class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
-                            <a-image v-else :src="createObjectURL(img)"
-                                class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
+                            <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+                            <LocalImageView v-else :image-url="createObjectURL(img)" class="!w-[120px]" />
                         </div>
                     </template>
                 </div>
@@ -378,10 +379,12 @@
 <script setup>
 import api from '@/lib/axios';
 import { computed, onMounted, ref, watch } from 'vue';
-import { PlusOutlined, DeleteOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, MinusCircleOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
 import SystemImagePicker from './SystemImagePicker.vue';
 import { mergeSelectedImages } from '@/utils/mergeSelectedImage';
 import router from '@/router';
+import ImageView from '../ui/ImageView.vue';
+import LocalImageView from '../ui/LocalImageView.vue';
 
 const props = defineProps({
     websiteId: {
@@ -508,13 +511,13 @@ const removeCustomTheme = (index) => {
 const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
-        return file.type.startsWith('image/');
+        return file.type.startsWith('image/') || file.type.startsWith('video/');
     });
 
     formState.value.task_file = fileList;
 
     if (fileList.length === 0) {
-        errors.value.task_file = 'Please upload at least one image file';
+        errors.value.task_file = 'Please upload at least one image file or video';
     } else {
         errors.value.task_file = '';
     }

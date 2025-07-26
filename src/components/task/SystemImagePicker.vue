@@ -11,18 +11,17 @@
             </a-select>
             <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                 <div v-for="item in imageList" :key="item.id" :class="[
-                    'cursor-pointer border rounded overflow-hidden transition',
+                    'cursor-pointer border border-gray-200 rounded-lg overflow-hidden transition',
                     selectedIds.has(item.id)
                         ? 'bg-blue-200'
                         : 'hover:bg-blue-100'
                 ]" @click="toggleSelection(item.id)">
-                    <div class="relative w-40 h-40">
+                    <div class="relative !w-30">
                         <!-- Delete Icon -->
                         <CheckCircleOutlined v-if="selectedIds.has(item.id)"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
                         <!-- Image -->
-                        <img :src="item.storage_url" alt="actor"
-                            class="!w-40 !h-40 object-fill !border !border-gray-200 rounded-lg" />
+                        <img :src="item.storage_url" alt="actor" class="!w-30 aspect-[4/5] object-fill" />
                     </div>
                 </div>
             </div>
@@ -41,7 +40,7 @@ import { CheckCircleOutlined } from '@ant-design/icons-vue';
 const props = defineProps({
     visible: Boolean,
     imageList: Array,
-    total: Number,                // ✅ total image count for pagination
+    total: Number,
     selected: Array,
     title: {
         type: String,

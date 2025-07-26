@@ -239,19 +239,42 @@
         <a-row>
             <a-col :span="24">
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap">
-                    <a-image v-for="img in task.files" :src="img.storage_url" alt="Preview"
-                        class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
+                    <div v-for="file in task.files" :key="file.storage_url">
+                        <!-- Image: keep original style -->
+                        <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
+                            <!-- Download Icon -->
+                            <DownloadOutlined @click="downloadImage(img)"
+                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                            <!-- Image -->
+                            <ImageView :image="file" />
+                        </div>
+
+                        <!-- Video: enforce 16:9 aspect ratio -->
+                        <div v-else-if="isVideo(file.storage_url)"
+                            class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
+                            <video controls class="aspect-[16/9] object-fill">
+                                <source :src="file.storage_url" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
                 </div>
             </a-col>
         </a-row>
+
         <!-- sample image -->
         <a-row>
             <a-col :span="24" class="!font-semibold !text-base">ภาพตัวอย่าง / Sample Image :</a-col>
         </a-row>
         <a-row>
             <a-col :span="24">
-                <a-image :src="task.sample_image.storage_url" alt="Preview"
-                    class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
+                <div class="relative !w-[120px]">
+                    <!-- download Icon -->
+                    <DownloadOutlined @click="downloadImage(img)"
+                        class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                    <!-- Image -->
+                    <ImageView :image="task.sample_image" />
+                </div>
             </a-col>
         </a-row>
         <!-- Model, Ambassador, and Other Characters files -->
@@ -262,8 +285,16 @@
         <a-row>
             <a-col :span="24">
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap" v-if="task.actor_images.length > 0">
-                    <a-image v-for="img in task.actor_images" :src="img.storage_url" alt="Preview"
-                        class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
+                    <template v-for="(img, i) in task.actor_images" :key="i">
+                        <div class="relative">
+                            <!-- Download Icon -->
+                            <DownloadOutlined @click="downloadImage(img)"
+                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                            <!-- Image -->
+                            <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+                        </div>
+                    </template>
+                    <!-- <ImageList :image-list="task.actor_images" /> -->
                 </div>
             </a-col>
         </a-row>
@@ -274,8 +305,15 @@
         <a-row>
             <a-col :span="24">
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap">
-                    <a-image v-for="img in task.decorative_images" :src="img.storage_url" alt="Preview"
-                        class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
+                    <template v-for="(img, i) in task.decorative_images" :key="i">
+                        <div class="relative">
+                            <!-- Download Icon -->
+                            <DownloadOutlined @click="downloadImage(img)"
+                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                            <!-- Image -->
+                            <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+                        </div>
+                    </template>
                 </div>
             </a-col>
         </a-row>
@@ -287,7 +325,8 @@
     <CompletePopup :visible="showCompleteModel" :task-id="task.id" @completed="refetchDetail"
         @close="showCompleteModel = false"></CompletePopup>
     <CancelPopup :visible="showCancelModel" :task-id="task.id" @close="showCancelModel = false"
-        @cancelled="refetchDetail"></CancelPopup>
+        @cancelled="refetchDetail">
+    </CancelPopup>
 </template>
 <script setup>
 import { formatDate } from '@/utils/format';
@@ -298,6 +337,10 @@ import CancelPopup from '@/components/task/CancelPopup.vue';
 import { onMounted, ref } from 'vue';
 import api from '@/lib/axios';
 import { getColor } from '@/utils/initials';
+import ImageList from '../ui/ImageList.vue';
+import ImageView from '../ui/ImageView.vue';
+import { DownloadOutlined } from '@ant-design/icons-vue';
+
 const props = defineProps({
     task: {
         type: Object,
@@ -324,6 +367,25 @@ const showCancelModel = ref(false);
 const clickCompleteBtn = () => {
     showCompleteModel.value = true;
 }
+
+const downloadImage = async (img) => {
+    try {
+        const response = await fetch(img.storage_url, { mode: 'cors' }); // CORS must be allowed by Bunny
+        const blob = await response.blob();
+
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute('download', img.file_name || 'download.jpg');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Clean up memory
+        URL.revokeObjectURL(link.href);
+    } catch (err) {
+        console.error('Failed to download image:', err);
+    }
+};
 
 const refetchDetail = (updatedTask) => {
     emit('fetchDetail');
@@ -353,6 +415,14 @@ const changeToArray = (data) => {
 const changeToString = (data) => {
     return data.map(t => t.text).join(', ');
 }
+
+const isImage = (url) => {
+    return /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(url);
+};
+
+const isVideo = (url) => {
+    return /\.(mp4|mov|webm|ogg|mkv)$/i.test(url);
+};
 
 onMounted(() => {
     hasEditPermission.value = auth.hasPermission('task_edit');
