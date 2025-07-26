@@ -63,7 +63,7 @@ const twoFactory = ref({
     qr_url: null
 });
 
-const title = ref('Two Factory Authentication Required');
+const title = ref('Two Factor Authentication Required');
 const description = ref('Please enter the 6-digit code from your authentior app.')
 
 const loginError = ref('');
@@ -122,8 +122,8 @@ const checkTwoFactoryForUser = async () => {
             if (!twoFactory.value.isEnabled) {
                 twoFactory.value.secret = data.secret;
                 twoFactory.value.qr_url = data.qr_url;
-                title.value = 'Setup Two-Factory Authentication';
-                description.value = 'Please scan this qr cord with your authenticator app (e.g., Google Authenticator, Microsoft Authenticator)';
+                title.value = 'Setup Two-Factor Authentication';
+                description.value = 'Please scan this qr code with your authenticator app (e.g., Google Authenticator, Microsoft Authenticator)';
             }
         });
 }
