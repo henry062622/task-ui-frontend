@@ -141,7 +141,7 @@
                 <div class="flex flex-wrap gap-2 pt-2 h-full">
                     <!-- Placeholder spacing for future preview -->
                     <div v-for="(file, index) in previewPreviousFiles" :key="index" class="w-28">
-                        <a-image :src="file.thumbnail_url" alt="Preview"
+                        <a-image :src="file.storage_url" alt="Preview"
                             class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
                         <div class="text-xs mt-1 truncate" :title="file.file_name">{{ file.file_name }}</div>
                     </div>
@@ -229,7 +229,7 @@
             <a-col :span="6">
                 <span>Samples Image Preview</span>
                 <div v-if="formState.sample_image" class="mt-4">
-                    <a-image v-if="formState.sample_image_type === 'system'" :src="formState.sample_image.thumbnail_url"
+                    <a-image v-if="formState.sample_image_type === 'system'" :src="formState.sample_image.storage_url"
                         alt="sample" class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
                     <a-image v-else-if="formState.sample_image" :src="createObjectURL(formState.sample_image)"
                         alt="uploaded" class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
@@ -262,7 +262,7 @@
                                 class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
                                 @click="removeActorImage(i)" />
                             <!-- Image -->
-                            <a-image v-if="img.thumbnail_url" :src="img.thumbnail_url"
+                            <a-image v-if="img.storage_url" :src="img.storage_url"
                                 class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
                             <a-image v-else :src="createObjectURL(img)"
                                 class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
@@ -299,7 +299,7 @@
                                 class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
                                 @click="removeDecorativeImage(i)" />
                             <!-- Image -->
-                            <a-image v-if="img.thumbnail_url" :src="img.thumbnail_url"
+                            <a-image v-if="img.storage_url" :src="img.storage_url"
                                 class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
                             <a-image v-else :src="createObjectURL(img)"
                                 class="!w-24 !h-24 object-fill !border !border-gray-200 rounded-lg" />
@@ -334,7 +334,7 @@
                 <a-form-item label="ผู้รับมอบหมาย / Assignee" name="assignee">
                     <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear style="width: 100%">
                         <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                        }} </a-select-option>
+                            }} </a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
@@ -364,7 +364,7 @@
                         <CheckCircleOutlined v-if="selectedSystemImage && selectedSystemImage.id === item.id"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
                         <!-- Image -->
-                        <img :src="item.thumbnail_url" alt="sample"
+                        <img :src="item.storage_url" alt="sample"
                             class="!w-40 !h-40 object-fill !border !border-gray-200 rounded-lg" />
                     </div>
                 </div>
