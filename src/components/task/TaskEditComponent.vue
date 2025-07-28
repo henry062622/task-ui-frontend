@@ -344,7 +344,7 @@
                 <a-form-item label="ผู้รับมอบหมาย / Assignee" name="assignee">
                     <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear style="width: 100%">
                         <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                        }} </a-select-option>
+                            }} </a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
@@ -354,7 +354,7 @@
         <!-- Footer Buttons -->
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="emit('clickCancelBtn')">Cancel</a-button>
-            <a-button type="primary" :disabled="isLoading" @click="submitForm">Update</a-button>
+            <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">Update</a-button>
         </div>
     </a-form>
 

@@ -328,7 +328,7 @@
         <!-- Footer Buttons -->
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">Cancel</a-button>
-            <a-button type="primary" :disabled="isLoading" @click="submitForm">Create</a-button>
+            <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">Create</a-button>
         </div>
     </a-form>
 

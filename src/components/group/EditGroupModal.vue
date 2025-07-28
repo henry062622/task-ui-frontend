@@ -46,7 +46,7 @@
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4 pt-4">
                 <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :disabled="isLoading">Update</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Update</a-button>
             </div>
         </a-form>
     </a-modal>

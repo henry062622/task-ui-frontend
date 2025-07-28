@@ -13,7 +13,7 @@
                         <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear
                             style="width: 100%">
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                            }} </a-select-option>
+                                }} </a-select-option>
                         </a-select>
                     </a-form-item>
                 </a-col>
@@ -22,7 +22,7 @@
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
                 <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :disabled="isLoading">assign</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">assign</a-button>
             </div>
         </a-form>
     </a-modal>

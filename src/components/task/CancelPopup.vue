@@ -18,7 +18,7 @@
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
                 <a-button @click="cancel">Cancel</a-button>
-                <a-button type="primary" :disabled="isLoading" @click="onSubmit">Submit</a-button>
+                <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="onSubmit">Submit</a-button>
             </div>
         </a-form>
     </a-modal>
