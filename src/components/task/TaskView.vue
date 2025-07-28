@@ -238,7 +238,8 @@
         </a-row>
         <!-- task files -->
         <a-row>
-            <a-col :span="24" class="!font-semibold !text-base">รูปภาพงาน / Task Images :</a-col>
+            <a-col :span="24" class="!font-semibold !text-base">ไฟล์ที่จำเป็นสำหรับงานนี้ / Files required for the task
+                :</a-col>
         </a-row>
         <a-row>
             <a-col :span="24">

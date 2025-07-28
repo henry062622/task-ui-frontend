@@ -209,7 +209,7 @@
         <!-- Task File Upload -->
         <a-row>
             <a-col :span="24">
-                <a-form-item label="อัปโหลดไฟล์งาน / Upload Task Files" name="task_file"
+                <a-form-item label="ไฟล์ที่จำเป็นสำหรับงานนี้  / Files required for the task" name="task_file"
                     :rules="[{ required: true, message: 'Please upload at least one file' }]"
                     :validate-status="errors.task_file ? 'error' : ''" :help="errors.task_file">
                     <a-upload list-type="picture-card" multiple :file-list="formState.task_file"
@@ -344,7 +344,7 @@
                 <a-form-item label="ผู้รับมอบหมาย / Assignee" name="assignee">
                     <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear style="width: 100%">
                         <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                            }} </a-select-option>
+                        }} </a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
