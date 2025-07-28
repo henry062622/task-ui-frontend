@@ -7,7 +7,7 @@
             <!-- upload file -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Upload finished file" name="file"
+                    <a-form-item label="อัพโหลดไฟล์ที่เสร็จสิ้น / Upload finished file" name="file"
                         :rules="[{ required: true, message: 'Please upload at least one file' }]"
                         :validate-status="errors.file ? 'error' : ''" :help="errors.file">
                         <a-upload list-type="picture-card" multiple :file-list="formState.file"
@@ -63,13 +63,13 @@ watch(() => props.visible, (val) => {
 const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
-        return file.type.startsWith('image/');
+        return file.type.startsWith('image/') || file.type.startsWith('video/');
     });
 
     formState.value.file = fileList;
 
     if (fileList.length === 0) {
-        errors.value.file = 'Please upload at least one image file';
+        errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ / Please upload at least one file';
     } else {
         errors.value.file = '';
     }
@@ -78,7 +78,7 @@ const handleFileUpload = (info) => {
 // Submission logic
 const onSubmit = async () => {
     if (!formState.value.file.length) {
-        errors.value.task_file = 'Please upload at least one file!';
+        errors.value.task_file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ / Please upload at least one file!';
         return;
     }
 

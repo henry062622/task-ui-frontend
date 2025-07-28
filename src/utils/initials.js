@@ -13,10 +13,10 @@ export const getColor = (status) => {
   if (status == 'complete') {
     return '#87d068'
   } else if (status == 'in-progress') {
-    return '#108ee9'
+    return '#faad14'
   } else if (status == 'cancel') {
     return '#f50'
   } else {
-    return '#2db7f5'
+    return '#faad14'
   }
 }
