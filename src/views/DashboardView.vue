@@ -26,13 +26,13 @@
                         <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type"
                             placeholder="Task Type" @change="handleFilter" allow-clear style="width: 220px">
                             <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                            }} </a-select-option>
+                                }} </a-select-option>
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
                             placeholder="Assignee" @change="handleFilter" allow-clear style="width: 180px">
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                            }} </a-select-option>
+                                }} </a-select-option>
                         </a-select>
                     </div>
 
@@ -202,7 +202,7 @@ const actionAfterStatusUpdate = (task) => {
             console.log(tasks.value[index]);
         }
     } else {
-        removeTaskFromList(id);
+        removeTaskFromList(task.id);
     }
 };
 
