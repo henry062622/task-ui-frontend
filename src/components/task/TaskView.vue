@@ -231,8 +231,25 @@
             </a-col>
             <a-col :span="24">
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap">
-                    <a-image v-for="img in task.task_submissions" :src="img.storage_url" alt="Preview"
-                        class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
+                    <div v-for="file in task.task_submissions" :key="file.storage_url">
+                        <!-- Image: keep original style -->
+                        <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
+                            <!-- Download Icon -->
+                            <DownloadOutlined @click="downloadImage(file)"
+                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                            <!-- Image -->
+                            <ImageView :image="file" />
+                        </div>
+
+                        <!-- Video: enforce 16:9 aspect ratio -->
+                        <div v-else-if="isVideo(file.storage_url)"
+                            class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
+                            <video controls class="aspect-[16/9] object-fill">
+                                <source :src="file.storage_url" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
                 </div>
             </a-col>
         </a-row>
