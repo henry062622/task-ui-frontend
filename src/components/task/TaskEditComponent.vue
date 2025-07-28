@@ -344,7 +344,7 @@
                 <a-form-item label="ผู้รับมอบหมาย / Assignee" name="assignee">
                     <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear style="width: 100%">
                         <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                        }} </a-select-option>
+                            }} </a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
@@ -550,7 +550,7 @@ const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
         if (file.type) {
-            return file.type.startsWith('image/');
+            return file.type.startsWith('image/') || file.type.startsWith('video/');
         }
         return true;
     });

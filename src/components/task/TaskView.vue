@@ -109,10 +109,14 @@
                         สี / Colors :
                     </a-col>
                     <a-col :span="18">
-                        <div class="flex h-14 gap-6 items-center pt-2">
+                        <div class="flex h-14 gap-6 items-center pt-2 !mb-2">
                             <div v-for="code in changeToArray(task.colors)" :key="code"
-                                :style="{ backgroundColor: code }"
-                                class=" size-14 rounded-lg shadow border border-gray-300" :title="code"></div>
+                                class="flex flex-col items-center">
+                                <div @click="copyColor(code)" :style="{ backgroundColor: code }"
+                                    class="size-16 rounded-lg shadow border border-gray-300 cursor-pointer"
+                                    :title="code"></div>
+                                <span class="mt-1 text-xs text-gray-600 select-text">{{ code }}</span>
+                            </div>
                         </div>
                     </a-col>
                 </a-row>
