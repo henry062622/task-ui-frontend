@@ -74,6 +74,12 @@
                                         @click="assignTask(record.id)">
                                         Assign
                                     </a-button>
+
+                                    <a-popconfirm
+                                        v-if="currentTab?.buttons.includes('delete') && !record.assignee && record.created_by.id == auth.user.id"
+                                        title="Sure to delete?" @confirm="deleteTask(record.id)">
+                                        <DeleteOutlined style="color: red;" />
+                                    </a-popconfirm>
                                 </div>
                             </template>
                         </template>
@@ -96,7 +102,7 @@ import api from '@/lib/axios';
 import router from '@/router';
 import { useAuthStore } from '@/stores/auth';
 import { computed, h, onMounted, reactive, ref } from 'vue';
-import { EyeOutlined } from '@ant-design/icons-vue'
+import { EyeOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import AssignPopup from '@/components/task/AssignPopup.vue';
 import CompletePopup from '@/components/task/CompletePopup.vue';
 import { formatDate } from '@/utils/format';
@@ -210,6 +216,14 @@ const clickCancelBtn = (id) => {
     selectedTaskId.value = id
     showCancelModel.value = true
 };
+
+const deleteTask = (id) => {
+    console.log('deleted task', id);
+    api.delete(`/api/task/${id}`).then(res => {
+        removeTaskFromList(id);
+    })
+};
+
 // const cancelTask = (task) => {
 //     if (currentTab.value.value == 'my_tasks') {
 //         const index = tasks.value.findIndex(data => data.id === task.id);
@@ -278,11 +292,11 @@ const getUserNameList = () => {
 const getAvailableTabs = () => {
     const allTabs = [
         { label: 'งานของฉัน / My Tasks', value: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'complete', 'cancel'] },
-        { label: 'งานทั้งหมด / All Tasks', value: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more'] },
+        { label: 'งานทั้งหมด / All Tasks', value: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
         { label: 'อยู่ระหว่างดำเนินการ / In Progress', value: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'complete', 'cancel'] },
         { label: 'สมบูรณ์ / Completed', value: 'completed_tasks', showSearch: true, filters: ['type'], buttons: ['see_more'] },
         { label: 'ยกเลิก / Cancelled', value: 'cancelled_tasks', showSearch: true, filters: ['type'], buttons: ['see_more'] },
-        { label: 'การกระจายงาน / Task Distribution', value: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign'] }
+        { label: 'การกระจายงาน / Task Distribution', value: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete'] }
     ];
 
     if (userRoleId == uiRoleId) {
