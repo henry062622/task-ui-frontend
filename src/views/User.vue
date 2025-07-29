@@ -3,20 +3,20 @@
         <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
             <div class="relative h-full flex-1 space-y-6">
                 <div v-if="hasCreatePermission" class="flex justify-end mx-4 mt-4 items-center">
-                    <a-button type="primary" @click="clickCreateBtn">Create</a-button>
+                    <a-button type="primary" @click="clickCreateBtn">{{ $t('create') }}</a-button>
                 </div>
 
                 <div class="flex gap-4 !mb-4">
-                    <a-input-search v-model:value="searchQuery" placeholder="Search by name or email"
+                    <a-input-search v-model:value="searchQuery" :placeholder="$t('searchByNameOrEmail')"
                         @search="handleSearch" allow-clear style="width: 250px" />
 
-                    <a-select v-model:value="filters.role" placeholder="Select Role" @change="handleFilter" allow-clear
-                        style="width: 220px">
+                    <a-select v-model:value="filters.role" :placeholder="$t('selectRole')" @change="handleFilter"
+                        allow-clear style="width: 220px">
                         <a-select-option v-for="role in roleList" :key="role.id" :value="role.id"> {{ role.name
                             }} </a-select-option>
                     </a-select>
 
-                    <a-select v-model:value="filters.group" placeholder="Select Group" @change="handleFilter"
+                    <a-select v-model:value="filters.group" :placeholder="$t('selectGroup')" @change="handleFilter"
                         allow-clear style="width: 220px">
                         <a-select-option v-for="group in groupList" :key="group.id" :value="group.id"> {{ group.name
                             }} </a-select-option>
@@ -42,7 +42,7 @@ import UserTable from '@/components/user/UserTable.vue'
 import CreateUserModal from '@/components/user/CreateUserModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
-const breadcrumbList = ref(['User', 'List'])
+const breadcrumbList = ref(['user', 'list'])
 const userList = ref([]);
 const showModal = ref(false);
 const websiteList = ref([]);

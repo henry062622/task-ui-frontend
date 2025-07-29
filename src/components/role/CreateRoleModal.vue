@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="visible" title="Create a Role" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('createARole')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="create_role" layout="vertical" autocomplete="off" @finish="onSubmit"
@@ -7,7 +7,7 @@
             <!-- Role Name -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Name" name="name"
+                    <a-form-item :label="$t('name')" name="name"
                         :rules="[{ required: true, message: 'please input role name!' }]"
                         :validate-status="errors.name ? 'error' : ''" :help="errors.name">
                         <a-input v-model:value="formState.name" class="w-full" />
@@ -18,7 +18,7 @@
             <!-- Permissions -->
             <a-row>
                 <a-col :span="24">
-                    <div class="font-medium mb-2">Permissions</div>
+                    <div class="font-medium mb-2">{{ $t('permissions') }}</div>
                     <a-divider></a-divider>
 
                     <div class="pr-2 space-y-4">
@@ -39,7 +39,8 @@
                                 <a-checkbox v-for="perm in permissions" :key="perm.id"
                                     :checked="formState.permission_ids.includes(perm.id)"
                                     @change="togglePermission(perm.id)" class="mr-4 mb-1 block">
-                                    {{ formatPermissionName(perm.name) }}
+                                    <span v-if="isEnglish"> {{ formatPermissionName(perm.name) }} </span>
+                                    <span v-else> {{ perm.th_name }} </span>
                                 </a-checkbox>
                             </div>
 
@@ -51,8 +52,9 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
-                <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Create</a-button>
+                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('create')
+                }}</a-button>
             </div>
         </a-form>
     </a-modal>
@@ -63,6 +65,7 @@ import { ref, watch } from 'vue'
 import { DownOutlined, UpOutlined } from '@ant-design/icons-vue'
 import { formatPermissionName } from '@/utils/format'
 import api from '@/lib/axios'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
     visible: Boolean,
@@ -70,6 +73,8 @@ const props = defineProps({
 })
 const emit = defineEmits(['close', 'created'])
 
+const { locale } = useI18n()
+const isEnglish = ref(locale.value === 'en')
 const formState = ref({ name: '', permission_ids: [] })
 const errors = ref({ name: '' })
 const isLoading = ref(false)
@@ -83,6 +88,10 @@ watch(() => props.visible, (val) => {
         errors.value.name = ''
         collapsedGroups.value = {}
     }
+})
+
+watch(locale, val => {
+    isEnglish.value = (val === 'en')
 })
 
 // Submission logic

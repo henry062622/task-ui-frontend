@@ -1,8 +1,8 @@
 <template>
     <DefaultLayout :breadcrumb-list="breadcrumbList">
         <div class="flex h-full w-full flex-1 flex-col gap-2 rounded-xl shadow-2xl p-4 pt-10">
-            <span class=" text-2xl !font-semibold">Settings</span>
-            <p class=" text-gray-500 !font-medium">Manage your profile and account settings</p>
+            <span class=" text-2xl !font-semibold">{{ $t('setting') }}</span>
+            <p class=" text-gray-500 !font-medium">{{ $t('manage_ur_pf_and_acc_settings') }}</p>
 
             <div class="setting-container flex h-full">
                 <a-menu id="setting-sidebar" class=" !w-1/4 h-full" mode="inline" :selectedKeys="selectedKeys"
@@ -22,25 +22,27 @@
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue';
 import api from '@/lib/axios';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useAuthStore } from '@/stores/auth'
 import EditUserProfile from '@/components/user/EditUserProfile.vue'
 import PasswordChange from '@/components/user/PasswordChange.vue';
+import { useI18n } from 'vue-i18n'
 
-const breadcrumbList = ref(['User', 'Setting'])
+const { t } = useI18n()
+const breadcrumbList = ref(['user', 'setting'])
 const auth = useAuthStore();
 const user = auth.user;
 const selectedKeys = ref(['1']);
 const isProfile = ref(true);
 
-const menuItems = ref([
+const menuItems = computed(() => [
     {
         key: '1',
-        name: 'Profile'
+        name: t('profile')
     },
     {
         key: '2',
-        name: 'Password',
+        name: t('password'),
         url: '/ip-whitelist'
     },
 ]);

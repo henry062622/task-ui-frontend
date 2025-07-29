@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="visible" title="Assign the task" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('assign_the_task')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="assign_task" layout="vertical" autocomplete="off" @finish="onSubmit"
@@ -7,13 +7,13 @@
             <!-- assignee -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Assignee" name="assignee"
+                    <a-form-item :label="$t('assignee')" name="assignee"
                         :rules="[{ required: true, message: 'please select !' }]"
                         :validate-status="errors.assignee ? 'error' : ''" :help="errors.assignee">
-                        <a-select v-model:value="formState.assignee" placeholder="Assignee" allow-clear
+                        <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear
                             style="width: 100%">
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                                }} </a-select-option>
+                            }} </a-select-option>
                         </a-select>
                     </a-form-item>
                 </a-col>
@@ -21,8 +21,9 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
-                <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">assign</a-button>
+                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('assign')
+                    }}</a-button>
             </div>
         </a-form>
     </a-modal>

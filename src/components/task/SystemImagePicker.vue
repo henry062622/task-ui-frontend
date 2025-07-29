@@ -1,15 +1,15 @@
 <template>
-    <a-modal :visible="visible" :title="title" @ok="handleConfirm" @cancel="handleCancel" width="800px" ok-text="Select"
-        cancel-text="Cancel">
+    <a-modal :visible="visible" :title="title" @ok="handleConfirm" @cancel="handleCancel" width="800px"
+        :ok-text="$t('select')" :cancel-text="$t('cancel')">
         <div class="h-[70vh] overflow-auto !mb-4">
-            <a-select v-if="websiteList.length > 0" v-model:value="selectedWebsite" placeholder="Select Model List"
-                class="!mb-4 w-60" @change="handleWebsiteChange" allow-clear>
+            <a-select v-if="websiteList.length > 0" v-model:value="selectedWebsite"
+                :placeholder="$t('select_model_list')" class="!mb-4 w-60" @change="handleWebsiteChange" allow-clear>
                 <a-select-option v-for="site in websiteList" :key="site.id" :value="site.id">
                     model{{ site.name }}
                 </a-select-option>
                 <a-select-option value="other">modelOther</a-select-option>
             </a-select>
-            <a-select v-if="decorativeTypes.length > 0" v-model:value="selectedtype" placeholder="Select"
+            <a-select v-if="decorativeTypes.length > 0" v-model:value="selectedtype" :placeholder="$t('select')"
                 class="!mb-4 w-80" @change="handleDecorativeTypeChange" allow-clear>
                 <a-select-option v-for="type in decorativeTypes" :key="type.key" :value="type.key">
                     {{ type.value }}

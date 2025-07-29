@@ -4,11 +4,11 @@
             <div class="relative h-full flex-1 space-y-6">
                 <!-- Header with Create Button -->
                 <div v-if="hasCreatePermission" class="flex justify-end mx-4 mt-4 items-center">
-                    <a-button type="primary" @click="clickCreateBtn"> Create </a-button>
+                    <a-button type="primary" @click="clickCreateBtn"> {{ $t('create') }} </a-button>
                 </div>
 
-                <a-input-search v-model:value="searchQuery" placeholder="Search by ip address" @search="handleSearch"
-                    allow-clear style="width: 250px" />
+                <a-input-search v-model:value="searchQuery" :placeholder="$t('searchByIpAddress')"
+                    @search="handleSearch" allow-clear style="width: 250px" />
 
                 <IpWhitelistTable :data="data" :has-delete-permission="hasDeletePermission"
                     :has-edit-permission="hasEditPermission" :fetch-ip-whitelist="fetchIpWhitelist"
@@ -30,7 +30,7 @@ import { useAuthStore } from '@/stores/auth';
 import IpWhitelistTable from '@/components/ip_whitelist/IpWhitelistTable.vue';
 import CreateIpWhitelistModal from '@/components/ip_whitelist/CreateIpWhitelistModal.vue';
 
-const breadcrumbList = ref(['Ip Whitelist', 'List']);
+const breadcrumbList = ref(['ipWhitelist', 'list']);
 
 const auth = useAuthStore();
 

@@ -1,13 +1,12 @@
 <template>
     <div class="flex gap-2">
-        <a-avatar class="!bg-[#f56a00]" :size="32" :gap="4">
+        <a-avatar class="!bg-[#f56a00]" :size="37" :gap="4">
             {{ getInitials(user.name) }}
         </a-avatar>
         <div class="grid flex-1 text-left text-sm leading-tight">
-            <span class="truncate font-medium">{{ user.name }}</span>
-            <span class="truncate text-xs text-muted-foreground cursor-pointer underline text-green-500"
-                @click="goToProfilePage">view
-                profile</span>
+            <span class="truncate !font-bold">{{ user.name }}</span>
+            <span class="truncate text-xs text-muted-foreground cursor-pointer text-gray-500">{{ user.email
+            }}</span>
         </div>
     </div>
 
@@ -20,7 +19,5 @@ defineProps({
     user: Object,
 })
 
-const goToProfilePage = () => {
-    router.push('/setting');
-}
+
 </script>

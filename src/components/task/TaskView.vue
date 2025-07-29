@@ -2,30 +2,30 @@
     <div class="flex flex-col !gap-4">
         <a-row :gutter="16">
             <a-col :span="6">
-                <h2 class="!font-bold text-3xl">Task Detail</h2>
+                <h2 class="!font-bold text-3xl">{{ $t('title') }}</h2>
             </a-col>
             <a-col :span="18">
                 <div class="flex gap-2 justify-end">
                     <a-button v-if="hasEditPermission && task.status != 'complete'" @click="emit('clickEdit')">
-                        Edit
+                        {{ $t('edit') }}
                     </a-button>
                     <a-button v-if="task.status == 'pending' && task.assignee?.id == userId"
                         @click="updateTaskStatus('in-progress')">
-                        In-progress
+                        {{ $t('in_progress') }}
                     </a-button>
 
                     <a-button v-if="task.status == 'in-progress' && task.assignee?.id == userId"
                         @click="clickCompleteBtn()">
-                        Complete
+                        {{ $t('complete') }}
                     </a-button>
 
                     <a-button v-if="task.status != 'cancel' && task.status != 'complete' && task.assignee?.id == userId"
                         danger @click="clickCancelBtn()">
-                        Cancel
+                        {{ $t('cancel') }}
                     </a-button>
 
                     <a-button v-if="task.assignee == null && uiRoleId != userRoleId" @click="assignTask(task.id)">
-                        Assign
+                        {{ $t('assign') }}
                     </a-button>
                 </div>
 
@@ -37,7 +37,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ตำแหน่งงาน /<br /> Job Title :
+                        {{ $t('job_title') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.job_title" class="w-full" readonly></a-input>
@@ -47,7 +47,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ประเภทงาน /<br />Task Type :
+                        {{ $t('task_type') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.type.name" class="w-full" readonly></a-input>
@@ -60,7 +60,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        เว็บไซต์ / Website :
+                        {{ $t('website') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.website.name" class="w-full" readonly></a-input>
@@ -70,7 +70,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        สถานะ / Status :
+                        {{ $t('status') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-tag :color="getColor(task.status)"> {{ task.status }}</a-tag>
@@ -83,7 +83,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ขนาด / Size :
+                        {{ $t('size') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.size.name" class="w-full" readonly></a-input>
@@ -93,7 +93,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ประเภทไฟล์ / <br /> File Type :
+                        {{ $t('file_types') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="changeToArray(task.file_types)" class="w-full" readonly></a-input>
@@ -106,7 +106,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        สี / Colors :
+                        {{ $t('colors') }} :
                     </a-col>
                     <a-col :span="18">
                         <div class="flex h-14 gap-6 items-center pt-2 !mb-2">
@@ -124,7 +124,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ธีมส์ / Themes :
+                        {{ $t('themes') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-tag v-for="theme in task.themes" color="#2db7f5" class="!mt-2"> {{ theme.text }}</a-tag>
@@ -137,7 +137,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ข้อความในภาพ / <br /> Text in the Image :
+                        {{ $t('image_text') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-textarea :value="task.image_text" class="w-full" readonly></a-textarea>
@@ -147,7 +147,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        คำอธิบายงาน / <br /> Task Description :
+                        {{ $t('task_description') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-textarea :value="task.task_description" class="w-full" readonly></a-textarea>
@@ -160,7 +160,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        สร้างโดย / <br /> Created By :
+                        {{ $t('created_by') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.created_by.name" class="w-full" readonly></a-input>
@@ -170,7 +170,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        วันครบกำหนด / <br /> Duedate :
+                        {{ $t('duedate') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="formatDate(task.deadline)" class="w-full" readonly></a-input>
@@ -180,7 +180,7 @@
             <a-col :span="12" v-if="uiRoleId != user.role_id" class="!mt-2">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        สร้างเมื่อ / <br /> Created At :
+                        {{ $t('created_at') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="formatDate(task.created_at)" class="w-full" readonly></a-input>
@@ -195,7 +195,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        มอบหมายโดย / <br /> Assigned By :
+                        {{ $t('assigned_by') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.assigned_by?.name ?? ''" class="w-full" readonly></a-input>
@@ -205,7 +205,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ผู้รับมอบหมาย / <br />Assignee :
+                        {{ $t('assignee') }} :
                     </a-col>
                     <a-col :span="18">
                         <a-input :value="task.assignee?.name ?? ''" class="w-full" readonly></a-input>
@@ -217,7 +217,7 @@
             <a-col :span="12">
                 <a-row>
                     <a-col :span="6" class="!font-semibold !text-base">
-                        ยกเลิกเหตุผล / <br /> Cancel Reason :
+                        {{ $t('cancel_reason') }}:
                     </a-col>
                     <a-col :span="18">
                         <a-textarea :value="task.cancel_reason" class="w-full" readonly></a-textarea>
@@ -227,7 +227,7 @@
         </a-row>
         <a-row :gutter="16" v-if="task.status == 'complete'">
             <a-col :span="24" class="!font-semibold !text-base">
-                การส่งงาน / Task Submissions :
+                {{ $t('task_submission') }} :
             </a-col>
             <a-col :span="24">
                 <div class="flex h-auto gap-4 !mt-4 flex-wrap">
@@ -255,7 +255,7 @@
         </a-row>
         <!-- task files -->
         <a-row>
-            <a-col :span="24" class="!font-semibold !text-base">ไฟล์ที่จำเป็นสำหรับงานนี้ / Files required for the task
+            <a-col :span="24" class="!font-semibold !text-base">{{ $t('files_required_for_task') }}
                 :</a-col>
         </a-row>
         <a-row>
@@ -286,7 +286,7 @@
 
         <!-- sample image -->
         <a-row>
-            <a-col :span="24" class="!font-semibold !text-base">ภาพตัวอย่าง / Sample Image :</a-col>
+            <a-col :span="24" class="!font-semibold !text-base">{{ $t('sample_img') }} :</a-col>
         </a-row>
         <a-row>
             <a-col :span="24">
@@ -301,8 +301,7 @@
         </a-row>
         <!-- Model, Ambassador, and Other Characters files -->
         <a-row>
-            <a-col :span="24" class="!font-semibold !text-base">นางแบบ / แอดบาสเดอร์ / ตัวละครอื่นๆ / Model, Ambassador,
-                and Other Characters :</a-col>
+            <a-col :span="24" class="!font-semibold !text-base">{{ $t('actor_images') }} :</a-col>
         </a-row>
         <a-row>
             <a-col :span="24">
@@ -322,7 +321,7 @@
         </a-row>
         <!-- Decorative files -->
         <a-row>
-            <a-col :span="24" class="!font-semibold !text-base">รูปตกแต่ง / Decorative Images :</a-col>
+            <a-col :span="24" class="!font-semibold !text-base">{{ $t('decorative_image') }} :</a-col>
         </a-row>
         <a-row>
             <a-col :span="24">

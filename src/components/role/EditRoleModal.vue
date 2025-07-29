@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="visible" title="Edit a Role" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('editARole')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="edit_role" layout="vertical" autocomplete="off" @finish="onSubmit"
@@ -7,7 +7,7 @@
             <!-- Role Name -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Name" name="name"
+                    <a-form-item :label="$t('name')" name="name"
                         :rules="[{ required: true, message: 'please input role name!' }]"
                         :validate-status="errors.name ? 'error' : ''" :help="errors.name">
                         <a-input v-model:value="formState.name" class="w-full" />
@@ -18,7 +18,7 @@
             <!-- Permissions -->
             <a-row>
                 <a-col :span="24">
-                    <div class="font-medium mb-2">Permissions</div>
+                    <div class="font-medium mb-2">{{ $t('permissions') }}</div>
                     <a-divider></a-divider>
 
                     <div class="pr-2 space-y-4">
@@ -39,7 +39,8 @@
                                 <a-checkbox v-for="perm in permissions" :key="perm.id"
                                     :checked="formState.permission_ids.includes(perm.id)"
                                     @change="togglePermission(perm.id)" class="mr-4 mb-1 block">
-                                    {{ formatPermissionName(perm.name) }}
+                                    <span v-if="isEnglish"> {{ formatPermissionName(perm.name) }} </span>
+                                    <span v-else> {{ perm.th_name }} </span>
                                 </a-checkbox>
                             </div>
 
@@ -51,8 +52,9 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
-                <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Update</a-button>
+                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('update')
+                }}</a-button>
             </div>
         </a-form>
     </a-modal>
@@ -69,6 +71,7 @@ const props = defineProps({
     visible: Boolean,
     permissionList: Object,
     role: Object,
+    isEnglish: Boolean
 })
 const emit = defineEmits(['close', 'updated'])
 

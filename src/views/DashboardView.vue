@@ -2,21 +2,21 @@
     <DefaultLayout :breadcrumb-list="breadcrumbList">
         <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4 pt-10">
             <div v-if="hasCreatePermission" class="flex justify-end mx-4 mt-4 items-center">
-                <a-button type="primary" @click="goToCreatePage">Create</a-button>
+                <a-button type="primary" @click="goToCreatePage">{{ $t('create') }}</a-button>
             </div>
 
             <!-- tabs section -->
             <a-tabs v-if="tabs.length > 0" v-model:activeKey="activeTab" @change="onTabChange">
-                <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="tab.label">
+                <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="$t(tab.value)">
 
                     <!-- Search and Filters -->
                     <div class="flex gap-4 !mb-4">
                         <a-input-search v-if="currentTab?.showSearch" v-model:value="searchQuery"
-                            placeholder="Search by project name" @search="handleSearch" allow-clear
+                            :placeholder="$t('search_by_pj_name')" @search="handleSearch" allow-clear
                             style="width: 250px" />
 
                         <a-select v-if="currentTab?.filters.includes('status')" v-model:value="filters.status"
-                            placeholder="Status" @change="handleFilter" style="width: 110px" allow-clear>
+                            :placeholder="$t('status')" @change="handleFilter" style="width: 110px" allow-clear>
                             <a-select-option value="pending">Pending</a-select-option>
                             <a-select-option value="in-progress">In Progress</a-select-option>
                             <a-select-option value="complete">Completed</a-select-option>
@@ -24,15 +24,15 @@
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type"
-                            placeholder="Task Type" @change="handleFilter" allow-clear style="width: 220px">
+                            :placeholder="$t('type')" @change="handleFilter" allow-clear style="width: 220px">
                             <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                                }} </a-select-option>
+                            }} </a-select-option>
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
-                            placeholder="Assignee" @change="handleFilter" allow-clear style="width: 180px">
+                            :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                                }} </a-select-option>
+                            }} </a-select-option>
                         </a-select>
                     </div>
 
@@ -55,29 +55,29 @@
                                     <a-button
                                         v-if="currentTab?.buttons.includes('in-progress') && record.status == 'pending'"
                                         @click="updateTaskStatus('in-progress', record.id)">
-                                        In-progress
+                                        {{ $t('in_progress') }}
                                     </a-button>
 
                                     <a-button
                                         v-if="currentTab?.buttons.includes('complete') && record.status == 'in-progress'"
                                         @click="clickCompleteBtn(record.id)">
-                                        Complete
+                                        {{ $t('complete') }}
                                     </a-button>
 
                                     <a-button
                                         v-if="currentTab?.buttons.includes('cancel') && record.status != 'cancel' && record.status != 'complete'"
                                         danger @click="clickCancelBtn(record.id)">
-                                        Cancel
+                                        {{ $t('cancel') }}
                                     </a-button>
 
                                     <a-button v-if="currentTab?.buttons.includes('assign')"
                                         @click="assignTask(record.id)">
-                                        Assign
+                                        {{ $t('assign') }}
                                     </a-button>
 
                                     <a-popconfirm
                                         v-if="currentTab?.buttons.includes('delete') && !record.assignee && record.created_by.id == auth.user.id"
-                                        title="Sure to delete?" @confirm="deleteTask(record.id)">
+                                        :title="$t('sureToDelete')" @confirm="deleteTask(record.id)">
                                         <DeleteOutlined style="color: red;" />
                                     </a-popconfirm>
                                 </div>
@@ -108,9 +108,10 @@ import CompletePopup from '@/components/task/CompletePopup.vue';
 import { formatDate } from '@/utils/format';
 import CancelPopup from '@/components/task/CancelPopup.vue';
 import { getColor } from '@/utils/initials';
+import { useI18n } from 'vue-i18n';
 
 const auth = useAuthStore();
-const breadcrumbList = ref(['Manager', 'Dashboard']);
+const breadcrumbList = ref(['manager', 'dashboard']);
 const activeTab = ref('');
 const showModal = ref(false);
 const showCompleteModel = ref(false);
@@ -130,10 +131,11 @@ const userList = ref([]);
 const selectedTaskId = ref(null);
 const userRoleId = auth.user.role_id;
 const uiRoleId = import.meta.env.VITE_UI_ROLE_ID;
+const { t } = useI18n();
 
 const pagination = reactive({
     current: 1,
-    pageSize: 50,
+    pageSize: 10,
     total: 0,
     showSizeChanger: false
 });
@@ -142,8 +144,8 @@ const endpointMap = {
     my_tasks: '/api/tasks/my',
     all_tasks: '/api/tasks/all',
     in_progress: '/api/tasks/in-progress',
-    completed_tasks: '/api/tasks/completed',
-    cancelled_tasks: '/api/tasks/cancelled',
+    complete: '/api/tasks/completed',
+    cancel: '/api/tasks/cancelled',
     task_distribution: '/api/tasks/unassigned'
 };
 
@@ -259,19 +261,16 @@ const assignTask = async (id) => {
 const removeTaskFromList = (taskId) => {
     tasks.value = tasks.value.filter(data => data.id !== taskId);
 }
-const columns = [
-    { title: 'ชื่องาน / Project Name', dataIndex: 'job_title', key: 'job_title' },
-    { title: 'ผู้สั่งงาน / Task Creator', dataIndex: ['created_by', 'name'], key: 'creator' },
-    { title: 'ผู้รับงาน / Assignee', dataIndex: ['assignee', 'name'], key: 'assignee' },
-    { title: 'สถานะ / Status', dataIndex: 'status', key: 'status' },
-    { title: 'ประเภท / Type', dataIndex: ['type', 'name'], key: 'type' },
-    { title: 'เว็บ / Website', dataIndex: ['website', 'name'], key: 'website' },
-    { title: 'สร้างเมื่อ / Created At', dataIndex: 'created_at', key: 'created_at' },
-    {
-        title: 'การกระทำ / Action',
-        key: 'action'
-    }
-];
+const columns = computed(() => [
+    { title: t('project_name'), dataIndex: 'job_title', key: 'job_title' },
+    { title: t('task_creator'), dataIndex: ['created_by', 'name'], key: 'creator' },
+    { title: t('assignee'), dataIndex: ['assignee', 'name'], key: 'assignee' },
+    { title: t('status'), dataIndex: 'status', key: 'status' },
+    { title: t('type'), dataIndex: ['type', 'name'], key: 'type' },
+    { title: t('website'), dataIndex: ['website', 'name'], key: 'website' },
+    { title: t('created_at'), dataIndex: 'created_at', key: 'created_at' },
+    { title: t('action'), key: 'action' }
+]);
 
 const goToCreatePage = () => {
     router.push('/task-create');
@@ -294,8 +293,8 @@ const getAvailableTabs = () => {
         { label: 'งานของฉัน / My Tasks', value: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'complete', 'cancel'] },
         { label: 'งานทั้งหมด / All Tasks', value: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
         { label: 'อยู่ระหว่างดำเนินการ / In Progress', value: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'complete', 'cancel'] },
-        { label: 'สมบูรณ์ / Completed', value: 'completed_tasks', showSearch: true, filters: ['type'], buttons: ['see_more'] },
-        { label: 'ยกเลิก / Cancelled', value: 'cancelled_tasks', showSearch: true, filters: ['type'], buttons: ['see_more'] },
+        { label: 'สมบูรณ์ / Completed', value: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more'] },
+        { label: 'ยกเลิก / Cancelled', value: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more'] },
         { label: 'การกระจายงาน / Task Distribution', value: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete'] }
     ];
 

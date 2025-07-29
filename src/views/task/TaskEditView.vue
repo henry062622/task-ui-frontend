@@ -2,9 +2,9 @@
     <DefaultLayout>
         <a-breadcrumb>
             <a-breadcrumb-item>
-                <RouterLink to="/dashboard">Dashboard</RouterLink>
+                <RouterLink to="/dashboard">{{ $t('dashboard') }}</RouterLink>
             </a-breadcrumb-item>
-            <a-breadcrumb-item>Task Detail</a-breadcrumb-item>
+            <a-breadcrumb-item>{{ $t('title') }}</a-breadcrumb-item>
         </a-breadcrumb>
         <div class="flex h-auto bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4 !mt-4">
             <!-- view form  -->

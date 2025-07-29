@@ -1,12 +1,12 @@
 <template>
-    <a-modal :open="visible" title="Create a User" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('createAUser')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="create_user" layout="vertical" autocomplete="off" @finish="onSubmit"
             class="w-full" @finishFailed="onFinishFailed">
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Name" name="name"
+                    <a-form-item :label="$t('name')" name="name"
                         :rules="[{ required: true, message: 'please input User name!' }]"
                         :validate-status="errors.name ? 'error' : ''" :help="errors.name">
                         <a-input v-model:value="formState.name" class="w-full" autocomplete="new-password" />
@@ -16,7 +16,7 @@
 
             <a-row>
                 <a-col span="24">
-                    <a-form-item label="Email" name="email"
+                    <a-form-item :label="$t('email')" name="email"
                         :rules="[{ required: true, message: 'Please input your email!' }]"
                         :validate-status="errors.email ? 'error' : ''" :help="errors.email">
                         <a-input v-model:value="formState.email" class="w-full" autocomplete="new-password">
@@ -26,7 +26,7 @@
             </a-row>
             <a-row>
                 <a-col span="24">
-                    <a-form-item label="Password" name="password"
+                    <a-form-item :label="$t('password')" name="password"
                         :rules="[{ required: true, message: 'Please input your password!' }]"
                         :validate-status="errors.password ? 'error' : ''" :help="errors.password">
                         <a-input-password v-model:value="formState.password" autocomplete="new-password">
@@ -38,7 +38,7 @@
             <!-- role Dropdown -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Role" name="role_id"
+                    <a-form-item :label="$t('role')" name="role_id"
                         :rules="[{ required: true, message: 'Please select a role!' }]"
                         :validate-status="errors.role_id ? 'error' : ''" :help="errors.role_id">
                         <a-select v-model:value="formState.role_id" placeholder="Select Role" class="w-full">
@@ -53,7 +53,7 @@
             <!-- Group Dropdown -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Group" name="group_id">
+                    <a-form-item :label="$t('group')" name="group_id">
                         <a-select v-model:value="formState.group_id" placeholder="Select Group" class="w-full">
                             <a-select-option v-for="group in groupList" :key="group.id" :value="group.id">
                                 {{ group.name }}
@@ -66,9 +66,9 @@
             <!-- Websites Selection (Multiple) -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Websites">
-                        <a-select v-model:value="formState.website_ids" mode="multiple" placeholder="Select Websites"
-                            class="w-full">
+                    <a-form-item :label="$t('websites')">
+                        <a-select v-model:value="formState.website_ids" mode="multiple"
+                            :placeholder="$t('selectWebsites')" class="w-full">
                             <a-select-option v-for="website in websiteList" :key="website.id" :value="website.id">
                                 {{ website.name }}
                             </a-select-option>
@@ -79,8 +79,9 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4 pt-4">
-                <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Create</a-button>
+                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('create')
+                    }}</a-button>
             </div>
         </a-form>
     </a-modal>

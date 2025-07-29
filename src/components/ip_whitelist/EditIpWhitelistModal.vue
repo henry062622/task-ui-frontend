@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="visible" title="Edit an IP Whitelist" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('editAnIpWhitelist')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="edit_ip_whitelist" layout="vertical" autocomplete="off" @finish="onFinish"
@@ -7,7 +7,7 @@
             <!-- Ip Address -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Ip Address" name="ip_address"
+                    <a-form-item :label="$t('ipAddress')" name="ip_address"
                         :rules="[{ required: true, message: 'please input your ip address!' }]"
                         :validate-status="errors.ip_address ? 'error' : ''" :help="errors.ip_address">
                         <a-input v-model:value="formState.ip_address" class="w-full">
@@ -17,7 +17,7 @@
             </a-row>
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Description" name="description">
+                    <a-form-item :label="$t('description')" name="description">
                         <a-input v-model:value="formState.description" class="w-full">
                         </a-input>
                     </a-form-item>
@@ -26,8 +26,9 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
-                <a-button @click="closeModal">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Update</a-button>
+                <a-button @click="closeModal">{{ $t('cancel') }}</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('update')
+                    }}</a-button>
             </div>
         </a-form>
     </a-modal>

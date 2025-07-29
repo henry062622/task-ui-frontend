@@ -8,7 +8,7 @@
                 </template>
                 <template v-if="column.dataIndex === 'action'">
                     <EditOutlined v-if="hasEditPermission" @click="clickEditBtn(record)" class="!mr-2" />
-                    <a-popconfirm v-if="hasDeletePermission" title="Sure to delete?"
+                    <a-popconfirm v-if="hasDeletePermission" :title="$t('sureToDelete')"
                         @confirm="deleteIpWhitelist(record.id)">
                         <DeleteOutlined style="color: red;" />
                     </a-popconfirm>
@@ -23,9 +23,10 @@
 
 <script setup>
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import api from '@/lib/axios';
 import EditIpWhitelistModal from './EditIpWhitelistModal.vue';
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
     data: Array,
@@ -36,28 +37,31 @@ const props = defineProps({
     loading: Boolean,
 });
 
-const columns = [
+const { t } = useI18n()
+
+const columns = computed(() => [
     {
-        title: 'Ip Address',
+        title: t('ipAddress'),
         dataIndex: 'ip_address',
         key: 'ip_address',
     },
     {
-        title: 'Description',
+        title: t('description'),
         dataIndex: 'description',
         key: 'description',
     },
     {
-        title: 'Created By',
+        title: t('created_by'),
         dataIndex: 'creator',
         key: 'creator',
     },
     {
-        title: 'Action',
+        title: t('action'),
         dataIndex: 'action',
         key: 'action',
     },
-];
+])
+
 const selectedRecord = ref(null);
 const showModal = ref(false);
 

@@ -3,10 +3,10 @@
         <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
             <div class="relative h-full flex-1 space-y-6">
                 <div v-if="hasCreatePermission" class="flex justify-end mx-4 mt-4 items-center">
-                    <a-button type="primary" @click="clickCreateBtn">Create</a-button>
+                    <a-button type="primary" @click="clickCreateBtn">{{ $t('create') }}</a-button>
                 </div>
 
-                <a-input-search v-model:value="searchQuery" placeholder="Search by role name" @search="handleSearch"
+                <a-input-search v-model:value="searchQuery" :placeholder="$t('searchByRoleName')" @search="handleSearch"
                     allow-clear style="width: 250px" />
 
                 <RoleTable :roles="roleList" :permissionList="permissionList" :has-edit-permission="hasEditPermission"
@@ -28,7 +28,7 @@ import RoleTable from '@/components/role/RoleTable.vue'
 import CreateRoleModal from '@/components/role/CreateRoleModal.vue'
 import { useAuthStore } from '@/stores/auth'
 
-const breadcrumbList = ref(['Role', 'List'])
+const breadcrumbList = ref(['role', 'list'])
 const roleList = ref([])
 const permissionList = ref({})
 const showModal = ref(false)

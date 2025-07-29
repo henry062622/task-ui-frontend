@@ -1,12 +1,13 @@
 <template>
-    <span class=" text-lg !font-medium">Profile information</span>
-    <p class=" text-gray-400 !font-medium">Update your name and email address</p>
+    <span class=" text-lg !font-medium">{{ $t('pf_info') }}</span>
+    <p class=" text-gray-400 !font-medium">{{ $t('update_ur_name_and_email') }}</p>
 
     <a-form :model="formState" name="update_user" layout="vertical" autocomplete="off" @finish="onSubmit" class="w-full"
         @finishFailed="onFinishFailed">
         <a-row>
             <a-col :span="24">
-                <a-form-item label="Name" name="name" :rules="[{ required: true, message: 'please input User name!' }]"
+                <a-form-item :label="$t('name')" name="name"
+                    :rules="[{ required: true, message: 'please input User name!' }]"
                     :validate-status="errors.name ? 'error' : ''" :help="errors.name">
                     <a-input v-model:value="formState.name" class="w-full md:!w-1/2" />
                 </a-form-item>
@@ -15,7 +16,7 @@
 
         <a-row>
             <a-col span="24">
-                <a-form-item label="Email" name="email"
+                <a-form-item :label="$t('email')" name="email"
                     :rules="[{ required: true, message: 'Please input your email!' }]"
                     :validate-status="errors.email ? 'error' : ''" :help="errors.email">
                     <a-input v-model:value="formState.email" class="w-full md:!w-1/2">
@@ -27,7 +28,7 @@
         <!-- role Dropdown -->
         <a-row>
             <a-col span="24">
-                <a-form-item label="Role" name="role">
+                <a-form-item :label="$t('role')" name="role">
                     <a-input :value="user.role.name" class="w-full md:!w-1/2" disabled>
                     </a-input>
                 </a-form-item>
@@ -37,7 +38,7 @@
         <!-- Group Dropdown -->
         <a-row>
             <a-col span="24">
-                <a-form-item label="Group" name="group">
+                <a-form-item :label="$t('group')" name="group">
                     <a-input :value="user.group ? user.group.name : 'N/A'" class="w-full md:!w-1/2" disabled>
                     </a-input>
                 </a-form-item>
@@ -46,7 +47,8 @@
 
         <!-- Footer Buttons -->
         <div class="flex items-center justify-start gap-4 pt-4">
-            <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Update</a-button>
+            <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('update')
+                }}</a-button>
         </div>
     </a-form>
 </template>

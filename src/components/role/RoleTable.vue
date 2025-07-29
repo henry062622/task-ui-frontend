@@ -5,14 +5,16 @@
             <template v-if="column.dataIndex === 'permissions' && record.permissions.length > 0">
                 <div class="!space-y-3">
                     <a-tag v-for="(permission, index) in record.permissions" :key="index" color="green">
-                        {{ formatPermissionName(permission.name) }}
+                        <span v-if="isEnglish">{{ formatPermissionName(permission.name) }}</span>
+                        <span v-else>{{ permission.th_name }}</span>
+
                     </a-tag>
                 </div>
             </template>
 
             <template v-if="column.dataIndex === 'action'">
                 <EditOutlined v-if="hasEditPermission" @click="clickEditBtn(record)" class="!mr-2" />
-                <a-popconfirm v-if="hasDeletePermission" title="Sure to delete?" @confirm="handleDelete(record)">
+                <a-popconfirm v-if="hasDeletePermission" :title="$t('sureToDelete')" @confirm="handleDelete(record)">
                     <DeleteOutlined style="color: red;" />
                 </a-popconfirm>
             </template>
@@ -20,15 +22,16 @@
     </a-table>
 
     <EditRoleModal :visible="showEditModal" :permissionList="permissionList" :role="selectedRecord"
-        @close="showEditModal = false" @updated="emit('refreshTable')"></EditRoleModal>
+        @close="showEditModal = false" @updated="emit('refreshTable')" :is-english="isEnglish"></EditRoleModal>
 </template>
 
 <script setup>
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue'
 import { formatPermissionName } from '@/utils/format'
 import EditRoleModal from './EditRoleModal.vue'
-import { ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import api from '@/lib/axios'
+import { useI18n } from 'vue-i18n'
 
 const emit = defineEmits(['refreshTable'])
 
@@ -57,26 +60,28 @@ defineProps({
     }
 })
 
+const { locale, t } = useI18n()
+const isEnglish = ref(locale.value === 'en')
 const showEditModal = ref(false);
-const columns = [
+const columns = computed(() => [
     {
-        title: 'Name',
+        title: t('name'),
         dataIndex: 'name',
         key: 'name'
     },
     {
-        title: 'Permissions',
+        title: t('permissions'),
         dataIndex: 'permissions',
         key: 'permissions'
     },
     {
-        title: 'Action',
+        title: t('action'),
         dataIndex: 'action',
         key: 'action',
         fixed: 'right',
         width: 100
     }
-]
+])
 const selectedRecord = ref(null);
 
 const clickEditBtn = (role) => {
@@ -98,4 +103,8 @@ const handleDelete = async (role) => {
         console.error('Delete failed:', err)
     }
 }
+
+watch(locale, val => {
+    isEnglish.value = (val === 'en')
+})
 </script>

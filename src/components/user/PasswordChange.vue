@@ -1,12 +1,12 @@
 <template>
-    <span class=" text-lg !font-medium">Update password</span>
-    <p class=" text-gray-400 !font-medium">Ensure your account is using a long, random password to stay secure</p>
+    <span class=" text-lg !font-medium">{{ $t('update_psw') }}</span>
+    <p class=" text-gray-400 !font-medium">{{ $t('ensure_ur_acc_is_using_a_long_ran_psw') }}</p>
 
     <a-form :model="formState" name="update_user" layout="vertical" autocomplete="off" @finish="onSubmit" class="w-full"
         @finishFailed="onFinishFailed">
         <a-row>
             <a-col :span="24">
-                <a-form-item label="Current Password" name="current_password"
+                <a-form-item :label="$t('current_psw')" name="current_password"
                     :rules="[{ required: true, message: 'please input your current password!' }]"
                     :validate-status="errors.current_password ? 'error' : ''" :help="errors.current_password">
                     <a-input-password v-model:value="formState.current_password"
@@ -17,7 +17,7 @@
 
         <a-row>
             <a-col :span="24">
-                <a-form-item label="New Password" name="new_password"
+                <a-form-item :label="$t('new_psw')" name="new_password"
                     :rules="[{ required: true, message: 'please input your new password!' }]"
                     :validate-status="errors.new_password ? 'error' : ''" :help="errors.new_password">
                     <a-input-password v-model:value="formState.new_password"
@@ -28,7 +28,7 @@
 
         <a-row>
             <a-col :span="24">
-                <a-form-item label="Confirm Password" name="confirm_password"
+                <a-form-item :label="$t('confirm_psw')" name="confirm_password"
                     :rules="[{ required: true, message: 'please input your confirm password!' }]"
                     :validate-status="errors.confirm_password ? 'error' : ''" :help="errors.confirm_password">
                     <a-input-password v-model:value="formState.confirm_password"
@@ -39,7 +39,8 @@
 
         <!-- Footer Buttons -->
         <div class="flex items-center justify-start gap-4 pt-4">
-            <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Update</a-button>
+            <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('update')
+            }}</a-button>
         </div>
     </a-form>
 </template>

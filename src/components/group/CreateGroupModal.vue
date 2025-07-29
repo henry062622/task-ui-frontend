@@ -1,5 +1,5 @@
 <template>
-    <a-modal :open="visible" title="Create a Group" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('createAGroup')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="create_group" layout="vertical" autocomplete="off" @finish="onSubmit"
@@ -7,7 +7,7 @@
             <!-- Group Name -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Name" name="name"
+                    <a-form-item :label="$t('name')" name="name"
                         :rules="[{ required: true, message: 'please input group name!' }]"
                         :validate-status="errors.name ? 'error' : ''" :help="errors.name">
                         <a-input v-model:value="formState.name" class="w-full" />
@@ -18,9 +18,9 @@
             <!-- Users Section -->
             <a-row>
                 <a-col :span="24">
-                    <a-form-item label="Assign Users">
+                    <a-form-item :label="$t('assignUsers')">
                         <!-- Dropdown to select unassigned user -->
-                        <a-select v-model:value="selectedUserId" placeholder="Select user to assign" show-search
+                        <a-select v-model:value="selectedUserId" :placeholder="$t('selectUsertoAssign')" show-search
                             allow-clear style="width: 100%" @change="assignUser">
                             <a-select-option v-for="user in unassignedUserList" :key="user.id" :value="user.id">
                                 {{ user.name }} ({{ user.email }})
@@ -33,7 +33,7 @@
                         row-key="id" size="small" bordered :pagination="false">
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.dataIndex === 'action'">
-                                <a-popconfirm title="Sure to unassign?" @confirm="removeUser(record.id)">
+                                <a-popconfirm :title="$t('sureToUnassign')" @confirm="removeUser(record.id)">
                                     <DeleteOutlined style="color: red;" />
                                 </a-popconfirm>
                             </template>
@@ -45,23 +45,26 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4 pt-4">
-                <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">Create</a-button>
+                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('create')
+                    }}</a-button>
             </div>
         </a-form>
     </a-modal>
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import api from '@/lib/axios'
 import { DeleteOutlined } from '@ant-design/icons-vue'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
     visible: Boolean
 })
 const emit = defineEmits(['close', 'created'])
 
+const { t } = useI18n()
 const formState = ref({ name: '', user_ids: [] });
 const errors = ref({ name: '' });
 const isLoading = ref(false);
@@ -69,24 +72,24 @@ const unassignedUserList = ref([]);
 const selectedUserId = ref(null)
 const allUsers = ref([])
 
-const userColumns = [
+const userColumns = computed(() => [
     {
-        title: 'Name',
+        title: t('name'),
         dataIndex: 'name',
         key: 'name',
     },
     {
-        title: 'Email',
+        title: t('email'),
         dataIndex: 'email',
         key: 'email',
     },
     {
-        title: 'Action',
+        title: t('action'),
         key: 'action',
         dataIndex: 'action',
         width: 100
     },
-]
+])
 
 // Assign user to list
 const assignUser = (userId) => {

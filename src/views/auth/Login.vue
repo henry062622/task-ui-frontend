@@ -1,5 +1,5 @@
 <template>
-    <AuthLayout title="Log in to your account" description="Enter your email and password below to log in">
+    <AuthLayout :title="$t('log_in_to_your_acc')" :description="$t('enter_ur_email_and_psw_below_to_log_in')">
         <div class=" shadow-xl bg-white p-5 rounded-xl">
             <!-- <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
                 {{ status }}
@@ -9,8 +9,26 @@
             <a-form :model="formState" name="horizontal_login" layout="vertical" autocomplete="off" @finish="onFinish"
                 class="w-full" @finishFailed="onFinishFailed">
                 <a-row>
+                    <a-col span="24" class="!flex justify-center items-center !mb-3">
+                        <a-select v-model:value="selectedLang" style="width: 120px" @change="changeLanguage">
+                            <a-select-option value="en">
+                                <div class="flex justify-start items-center gap-2">
+                                    <img src="/uk.png" alt="english-flag" class=" size-4" />
+                                    {{ $t('eng') }}
+                                </div>
+                            </a-select-option>
+                            <a-select-option value="th">
+                                <div class="flex justify-start items-center gap-2">
+                                    <img src="/th.png" alt="thailand-flag" class=" size-4" />
+                                    {{ $t('th') }}
+                                </div>
+                            </a-select-option>
+                        </a-select>
+                    </a-col>
+                </a-row>
+                <a-row>
                     <a-col span="24">
-                        <a-form-item label="Email" name="email"
+                        <a-form-item :label="$t('email')" name="email"
                             :rules="[{ required: true, message: 'Please input your email!' }]"
                             :validate-status="errors.email ? 'error' : ''" :help="errors.email">
                             <a-input v-model:value="formState.email" class="w-full">
@@ -20,7 +38,7 @@
                 </a-row>
                 <a-row>
                     <a-col span="24">
-                        <a-form-item label="Password" name="password"
+                        <a-form-item :label="$t('password')" name="password"
                             :rules="[{ required: true, message: 'Please input your password!' }]"
                             :validate-status="errors.password ? 'error' : ''" :help="errors.password">
                             <a-input-password v-model:value="formState.password">
@@ -33,7 +51,8 @@
                     <a-col span="24">
                         <a-form-item>
                             <a-button type="primary" class="!bg-[#faf3e4] !w-full !shadow-none !text-[#213441]"
-                                style="font-weight: 600;" html-type="submit" :loading="isLoading">Log in</a-button>
+                                style="font-weight: 600;" html-type="submit" :loading="isLoading">{{ $t('login')
+                                }}</a-button>
                         </a-form-item>
                     </a-col>
                 </a-row>
@@ -48,6 +67,7 @@ import AuthLayout from '@/components/layout/AuthLayout.vue';
 import { computed, ref } from 'vue';
 import api, { ensureCsrfToken } from '@/lib/axios';
 import router from '@/router';
+import { useI18n } from 'vue-i18n'
 
 const formState = ref({
     email: '',
@@ -59,8 +79,16 @@ const errors = ref({
     password: '',
 });
 
+const { locale } = useI18n()
+const selectedLang = ref(locale.value)
+
 const loginError = ref('');
 const isLoading = ref(false);
+
+const changeLanguage = () => {
+    locale.value = selectedLang.value
+    localStorage.setItem('lang', locale.value)
+}
 
 const onFinish = async (values) => {
     console.log('Success:', values);

@@ -20,7 +20,7 @@
 
             <template v-if="column.dataIndex === 'action'">
                 <EditOutlined v-if="hasEditPermission" @click="clickEditBtn(record)" class="!mr-2" />
-                <a-popconfirm v-if="hasDeletePermission" title="Sure to delete?" @confirm="handleDelete(record)">
+                <a-popconfirm v-if="hasDeletePermission" :title="$t('sureToDelete')" @confirm="handleDelete(record)">
                     <DeleteOutlined style="color: red;" />
                 </a-popconfirm>
             </template>
@@ -33,9 +33,10 @@
 
 <script setup>
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons-vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import EditUserModal from './EditUserModal.vue'
 import api from '@/lib/axios'
+import { useI18n } from 'vue-i18n'
 
 const emit = defineEmits(['refreshTable'])
 
@@ -72,41 +73,42 @@ defineProps({
     }
 })
 
+const { t } = useI18n()
 const showEditModal = ref(false);
-const columns = [
+const columns = computed(() => [
     {
-        title: 'Name',
+        title: t('name'),
         dataIndex: 'name',
-        key: 'name'
+        key: 'name',
     },
     {
-        title: 'Email',
+        title: t('email'),
         dataIndex: 'email',
-        key: 'email'
+        key: 'email',
     },
     {
-        title: 'Role',
+        title: t('role'),
         dataIndex: 'role',
-        key: 'role'
+        key: 'role',
     },
     {
-        title: 'Group',
+        title: t('group'),
         dataIndex: 'group',
-        key: 'group'
+        key: 'group',
     },
     {
-        title: 'Websites',
+        title: t('websites'),
         dataIndex: 'websites',
-        key: 'websites'
+        key: 'websites',
     },
     {
-        title: 'Action',
+        title: t('action'),
         dataIndex: 'action',
         key: 'action',
         fixed: 'right',
-        width: 100
-    }
-]
+        width: 100,
+    },
+])
 const selectedRecord = ref(null);
 
 const clickEditBtn = (user) => {
