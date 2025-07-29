@@ -9,7 +9,7 @@
             <a-form :model="formState" name="horizontal_login" layout="vertical" autocomplete="off" @finish="onFinish"
                 class="w-full" @finishFailed="onFinishFailed">
                 <a-row>
-                    <a-col span="24" class="!flex justify-center items-center !mb-3">
+                    <a-col span="24" class="!flex justify-end items-center !mb-3">
                         <a-select v-model:value="selectedLang" style="width: 120px" @change="changeLanguage">
                             <a-select-option value="en">
                                 <div class="flex justify-start items-center gap-2">
