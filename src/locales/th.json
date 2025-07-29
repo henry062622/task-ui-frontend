@@ -86,21 +86,19 @@
   "enterTaskDescription": "กรอกคำอธิบายงาน",
   "enterRequesterNameFull": "กรอกชื่อผู้สั่งซื้อ...",
   "selectDate": "เลือกวันที่",
-  "validation": {
-    "jobTitleRequired": "กรุณากรอกชื่องาน",
-    "taskTypeRequired": "กรุณาเลือกประเภทงาน",
-    "customTaskTypeRequired": "กรุณากรอกประเภทงานที่กำหนดเอง",
-    "sizeRequired": "กรุณาเลือกขนาด",
-    "customSizeRequired": "กรุณากรอกขนาดที่กำหนดเอง",
-    "fileTypesRequired": "กรุณาเลือกประเภทไฟล์อย่างน้อยหนึ่งประเภท",
-    "themesRequired": "กรุณาเลือกธีมหรือกรอกธีมที่กำหนดเอง",
-    "imageTextRequired": "กรุณากรอกข้อความในภาพ",
-    "taskDescriptionRequired": "กรุณากรอกรายละเอียดงาน",
-    "taskFileRequired": "กรุณาอัปโหลดไฟล์อย่างน้อยหนึ่งไฟล์",
-    "sampleImageRequired": "กรุณาแนบภาพตัวอย่าง",
-    "requesterNameRequired": "กรุณากรอกชื่อผู้ร้องขอ",
-    "deadlineRequired": "กรุณาเลือกวันกำหนดส่งงาน"
-  },
+  "validation.jobTitleRequired": "กรุณากรอกชื่องาน",
+  "validation.taskTypeRequired": "กรุณาเลือกประเภทงาน",
+  "validation.customTaskTypeRequired": "กรุณากรอกประเภทงานที่กำหนดเอง",
+  "validation.sizeRequired": "กรุณาเลือกขนาด",
+  "validation.customSizeRequired": "กรุณากรอกขนาดที่กำหนดเอง",
+  "validation.fileTypesRequired": "กรุณาเลือกประเภทไฟล์อย่างน้อยหนึ่งประเภท",
+  "validation.themesRequired": "กรุณาเลือกธีมหรือกรอกธีมที่กำหนดเอง",
+  "validation.imageTextRequired": "กรุณากรอกข้อความในภาพ",
+  "validation.taskDescriptionRequired": "กรุณากรอกรายละเอียดงาน",
+  "validation.taskFileRequired": "กรุณาอัปโหลดไฟล์อย่างน้อยหนึ่งไฟล์",
+  "validation.sampleImageRequired": "กรุณาแนบภาพตัวอย่าง",
+  "validation.requesterNameRequired": "กรุณากรอกชื่อผู้ร้องขอ",
+  "validation.deadlineRequired": "กรุณาเลือกวันกำหนดส่งงาน",
   "ipWhitelist": "ไวท์ลิสต์ IP",
   "list": "รายการ",
   "searchByIpAddress": "ค้นหาตามที่อยู่ IP",
@@ -142,20 +140,14 @@
   "profile": "โปรไฟล์",
   "log_in_to_your_acc": "เข้าสู่ระบบบัญชีของคุณ",
   "enter_ur_email_and_psw_below_to_log_in": "กรอกอีเมลและรหัสผ่านของคุณด้านล่างเพื่อเข้าสู่ระบบ",
-  "twoFactor": {
-    "required": {
-      "title": "ต้องยืนยันตัวตนแบบสองปัจจัย",
-      "description": "กรุณากรอกรหัส 6 หลักจากแอปยืนยันตัวตนของคุณ"
-    },
-    "setup": {
-      "title": "ตั้งค่าการยืนยันตัวตนแบบสองขั้นตอน",
-      "description": "กรุณาสแกนโค้ด QR นี้ด้วยแอปยืนยันตัวตนของคุณ (เช่น Google Authenticator, Microsoft Authenticator)"
-    },
-    "code": "รหัส",
-    "verify": "ยืนยัน",
-    "or_manually_enter_the_key": "หรือป้อนคีย์ด้วยตนเอง",
-    "enter_6_digit_from_app": "กรอกรหัส 6 หลักจากแอป"
-  },
+  "twoFactor.required.title": "ต้องยืนยันตัวตนแบบสองปัจจัย",
+  "twoFactor.required.description": "กรุณากรอกรหัส 6 หลักจากแอปยืนยันตัวตนของคุณ",
+  "twoFactor.setup.title": "ตั้งค่าการยืนยันตัวตนแบบสองขั้นตอน",
+  "twoFactor.setup.description": "กรุณาสแกนโค้ด QR นี้ด้วยแอปยืนยันตัวตนของคุณ (เช่น Google Authenticator, Microsoft Authenticator)",
+  "twoFactor.code": "รหัส",
+  "twoFactor.verify": "ยืนยัน",
+  "twoFactor.or_manually_enter_the_key": "หรือป้อนคีย์ด้วยตนเอง",
+  "twoFactor.enter_6_digit_from_app": "กรอกรหัส 6 หลักจากแอป",
   "eng": "อังกฤษ",
   "th": "ไทย"
 }

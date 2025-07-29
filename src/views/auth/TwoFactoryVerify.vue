@@ -1,5 +1,5 @@
 <template>
-    <AuthLayout :title="$t(title)" :description="$t(description)">
+    <AuthLayout :title="t(title, { returnObjects: true })" :description="$t(description)">
         <div class=" shadow-xl bg-white p-5 rounded-xl">
             <!-- <div v-if="status" class="mb-4 text-center text-sm font-medium text-green-600">
                 {{ status }}
@@ -8,7 +8,7 @@
             <div class="w-full flex flex-col justify-center items-center text-center text-lg"
                 v-if="!twoFactory.isEnabled">
                 <a-qrcode :value="twoFactory.qr_url" />
-                <p class="text-sm text-muted-foreground">{{ $t('twoFactor.or_manually_enter_the_key') }}</p>
+                <p class="text-sm text-muted-foreground">{{ $t('twoFactor') }}</p>
                 <b>{{ twoFactory.secret }}</b>
             </div>
 
@@ -35,7 +35,7 @@
                 </a-row>
                 <a-row>
                     <a-col span="24">
-                        <a-form-item :label="$t('twoFactor.code')" name="code"
+                        <a-form-item :label="$t('twoFactor')" name="code"
                             :rules="[{ required: true, message: 'Please enter the 6 digit from your authentior app!' }]"
                             :validate-status="errors.code ? 'error' : ''" :help="errors.code">
                             <a-input v-model:value="formState.code" class="w-full"
