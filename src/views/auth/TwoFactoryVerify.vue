@@ -35,7 +35,7 @@
                 </a-row>
                 <a-row>
                     <a-col span="24">
-                        <a-form-item :label="$t('twoFactor')" name="code"
+                        <a-form-item :label="$t('twoFactor.code')" name="code"
                             :rules="[{ required: true, message: 'Please enter the 6 digit from your authentior app!' }]"
                             :validate-status="errors.code ? 'error' : ''" :help="errors.code">
                             <a-input v-model:value="formState.code" class="w-full"
