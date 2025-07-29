@@ -18,11 +18,11 @@ const routes = [
   { path: '/login', component: Login, meta: { guestOnly: true } },
   { path: '/two-factory/verify', component: TwoFactoryVerify, meta: { guestOnly: true } },
   { path: '/dashboard', component: DashboardView, meta: { requiresAuth: true } },
-  {
-    path: '/ip-whitelist',
-    component: IpWhitelist,
-    meta: { requiresAuth: true, permission: 'ip_whitelist_read' },
-  },
+  // {
+  //   path: '/ip-whitelist',
+  //   component: IpWhitelist,
+  //   meta: { requiresAuth: true, permission: 'ip_whitelist_read' },
+  // },
   { path: '/role', component: Role, meta: { requiresAuth: true, permission: 'role_read' } },
   { path: '/group', component: Group, meta: { requiresAuth: true, permission: 'group_read' } },
   { path: '/user', component: User, meta: { requiresAuth: true, permission: 'user_read' } },

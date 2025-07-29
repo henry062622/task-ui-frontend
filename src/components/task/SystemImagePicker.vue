@@ -1,5 +1,5 @@
 <template>
-    <a-modal :visible="visible" :title="title" @ok="handleConfirm" @cancel="handleCancel" width="800px"
+    <a-modal :open="visible" :title="title" @ok="handleConfirm" @cancel="handleCancel" width="800px"
         :ok-text="$t('select')" :cancel-text="$t('cancel')">
         <div class="h-[70vh] overflow-auto !mb-4">
             <a-select v-if="websiteList.length > 0" v-model:value="selectedWebsite"

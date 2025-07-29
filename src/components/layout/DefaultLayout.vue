@@ -97,13 +97,13 @@ const menuItems = ref([
         icon: 'mynaui:desktop',
 
     },
-    {
-        id: 2,
-        name: 'ip_whitelist',
-        url: '/ip-whitelist',
-        icon: 'hugeicons:location-03',
-        permission: 'ip_whitelist_read'
-    },
+    // {
+    //     id: 2,
+    //     name: 'ip_whitelist',
+    //     url: '/ip-whitelist',
+    //     icon: 'hugeicons:location-03',
+    //     permission: 'ip_whitelist_read'
+    // },
     {
         id: 3,
         name: 'user',

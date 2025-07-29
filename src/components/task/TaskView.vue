@@ -6,7 +6,9 @@
             </a-col>
             <a-col :span="18">
                 <div class="flex gap-2 justify-end">
-                    <a-button v-if="hasEditPermission && task.status != 'complete'" @click="emit('clickEdit')">
+                    <a-button v-if="hasEditPermission && task.status != 'complete'" @click="emit('clickEdit')"
+                        class="!flex items-center justify-center gap-1">
+                        <EditOutlined />
                         {{ $t('edit') }}
                     </a-button>
                     <a-button v-if="task.status == 'pending' && task.assignee?.id == userId"
@@ -24,7 +26,9 @@
                         {{ $t('cancel') }}
                     </a-button>
 
-                    <a-button v-if="task.assignee == null && uiRoleId != userRoleId" @click="assignTask(task.id)">
+                    <a-button v-if="task.assignee == null && uiRoleId != userRoleId" @click="assignTask(task.id)"
+                        class="!flex items-center justify-center gap-1">
+                        <Icon icon="teenyicons:send-outline" />
                         {{ $t('assign') }}
                     </a-button>
                 </div>
@@ -360,7 +364,8 @@ import api from '@/lib/axios';
 import { getColor } from '@/utils/initials';
 import ImageList from '../ui/ImageList.vue';
 import ImageView from '../ui/ImageView.vue';
-import { DownloadOutlined } from '@ant-design/icons-vue';
+import { DownloadOutlined, EditOutlined } from '@ant-design/icons-vue';
+import { Icon } from '@iconify/vue';
 
 const props = defineProps({
     task: {

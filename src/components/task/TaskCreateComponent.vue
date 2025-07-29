@@ -97,8 +97,10 @@
                 <a-form-item :label="$t('colors_optional')" name="colors">
                     <a-select mode="multiple" v-model:value="formState.colors" :placeholder="t('selectUpTo3Colors')"
                         :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" class="w-full" show-search :filter-option="(input, option) =>
-                            option.children.toLowerCase().includes(input.toLowerCase())" @change="handleColorChange">
-                        <a-select-option v-for="color in colorList" :key="color.color_code" :value="color.color_code">
+                            option.label.toLowerCase().includes(input.toLowerCase())
+                            " @change="handleColorChange">
+                        <a-select-option v-for="color in colorList" :key="color.color_code" :value="color.color_code"
+                            :label="`${color.th} / ${color.en}`">
                             <div class="flex items-center gap-2">
                                 <span class="w-4 h-4 rounded-full border border-gray-300 inline-block"
                                     :style="{ backgroundColor: color.color_code }"></span>
@@ -154,9 +156,9 @@
         </a-row>
 
         <!-- Custom Theme Inputs (below dropdown) -->
-        <a-row class="mt-2" v-if="formState.custom_themes.length < 3">
+        <a-row class="!mt-1" v-if="formState.custom_themes.length < 3">
             <a-col :span="24">
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-4">
                     <div v-for="(val, index) in formState.custom_themes" :key="index" class="flex gap-2 items-center">
                         <a-input v-model:value="formState.custom_themes[index]" :placeholder="t('enterCustomTheme')"
                             class="w-full" />
@@ -171,7 +173,7 @@
         </a-row>
 
         <!-- Image Text -->
-        <a-row>
+        <a-row class="!mt-10">
             <a-col :span="24">
                 <a-form-item :label="$t('image_text')" name="image_text"
                     :rules="[{ required: true, message: 'Please input image text' }]"
@@ -330,11 +332,11 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-            }}</a-button>
+                }}</a-button>
         </div>
     </a-form>
 
-    <a-modal v-model:visible="sampleModalVisible" :title="$t('select_sample_img')" @ok="confirmSystemImageSelection"
+    <a-modal v-model:open="sampleModalVisible" :title="$t('select_sample_img')" @ok="confirmSystemImageSelection"
         @cancel="cancelSystemImageSelection" :ok-button-props="{ disabled: !selectedSystemImage }"
         :ok-text="$t('select')" :cancel-text="$t('cancel')" width="800px">
         <div class="h-[70vh] overflow-auto !mb-4">
