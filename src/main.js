@@ -7,9 +7,9 @@ import App from './App.vue'
 import router from './router'
 import Antd from 'ant-design-vue'
 import 'ant-design-vue/dist/reset.css'
-import en from '@/locales/en.json'
-import th from '@/locales/th.json'
 import { createI18n } from 'vue-i18n'
+import en from './locales/en.json'
+import th from './locales/th.json'
 
 const messages = { en, th }
 
