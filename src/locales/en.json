@@ -158,5 +158,7 @@
   "needs_revision": "Needs Revision",
   "submit_for_review": "Submit for Review",
   "reviewed": "Mark as Reviewed",
-  "revision_reason": "Revision Reason"
+  "revision_reason": "Revision Reason",
+  "fromDate": "From date",
+  "toDate": "To date"
 }

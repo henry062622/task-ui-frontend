@@ -34,6 +34,10 @@
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
                             }} </a-select-option>
                         </a-select>
+
+                        <a-range-picker v-model:value="filters.dateRange" :placeholder="[t('fromDate'), t('toDate')]"
+                            :disabled-date="disabledDate" @calendarChange="onCalendarChange" @change="handleFilter"
+                            style="width: 250px" />
                     </div>
 
                     <!-- Table -->
@@ -127,6 +131,7 @@ import { getColor } from '@/utils/initials';
 import { useI18n } from 'vue-i18n';
 import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
 import { getStatusLabel } from '@/utils/status';
+import moment from 'moment'
 
 const auth = useAuthStore();
 const breadcrumbList = ref(['manager', 'dashboard']);
@@ -148,7 +153,7 @@ const hasReviewPermission = ref(false);
 const tasks = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
-const filters = reactive({ status: null, type: null, assignee: null });
+const filters = reactive({ status: null, type: null, assignee: null, dateRange: [] });
 const taskTypeList = ref([]);
 const userList = ref([]);
 const selectedTaskId = ref(null);
@@ -184,7 +189,9 @@ const fetchTasks = async (page = 1) => {
                 search: searchQuery.value,
                 status: filters.status,
                 type: filters.type,
-                assignee: filters.assignee
+                assignee: filters.assignee,
+                start_date: filters.dateRange ? filters.dateRange[0]?.format('YYYY-MM-DD') : '',
+                end_date: filters.dateRange ? filters.dateRange[1]?.format('YYYY-MM-DD') : '',
             }
         });
 
@@ -197,6 +204,29 @@ const fetchTasks = async (page = 1) => {
         loading.value = false;
     }
 };
+
+const provisionalRange = ref([null, null])  // updated on each calendar click
+
+function onCalendarChange(dates) {
+    // dates will be null when the user clears the picker
+    provisionalRange.value = Array.isArray(dates) ? dates : [null, null]
+}
+
+function disabledDate(current) {
+    // safely pull a Moment out of provisionalRange or filters.dateRange
+    const start =
+        provisionalRange.value?.[0] ??
+        (Array.isArray(filters.dateRange) ? filters.dateRange[0] : null)
+
+    // nothing chosen yet
+    if (!start) return false
+
+    // disable before start or after  2 months
+    return (
+        current.isBefore(start, 'day') ||
+        current.isAfter(start.clone().add(2, 'months'), 'day')
+    )
+}
 
 const removeAssignedTaskFromList = (task) => {
     removeTaskFromList(task.id);
@@ -213,7 +243,7 @@ const handleFilter = () => {
 const onTabChange = () => {
     pagination.current = 1;
     searchQuery.value = '';
-    Object.assign(filters, { status: null, type: null, assignee: null });
+    Object.assign(filters, { status: null, type: null, assignee: null, dateRange: [] });
     fetchTasks(1);
 };
 const handleTableChange = (pag) => fetchTasks(pag.current);

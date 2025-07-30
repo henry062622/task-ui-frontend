@@ -158,5 +158,7 @@
   "needs_revision": "ต้องแก้ไข",
   "submit_for_review": "ส่งตรวจงาน",
   "reviewed": "ตรวจงานแล้ว",
-  "revision_reason": "เหตุผลในการแก้ไข"
+  "revision_reason": "เหตุผลในการแก้ไข",
+  "fromDate": "จากวันที่",
+  "toDate": "ถึงวันที่"
 }
