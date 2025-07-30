@@ -149,5 +149,14 @@
   "twoFactor.or_manually_enter_the_key": "Or manually enter the key",
   "twoFactor.enter_6_digit_from_app": "Enter 6-digit code from app",
   "eng": "English",
-  "th": "Thailand"
+  "th": "Thailand",
+  "pasteImageHere": "You pasted an image — where would you like to put it?",
+  "selectPasteTarget": "Select Target Field",
+  "submitted_tasks": "Submitted Tasks",
+  "waiting_for_review": "Waiting for Review",
+  "revisions_required": "Revisions Required",
+  "needs_revision": "Needs Revision",
+  "submit_for_review": "Submit for Review",
+  "reviewed": "Mark as Reviewed",
+  "revision_reason": "Revision Reason"
 }

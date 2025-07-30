@@ -16,12 +16,24 @@
                         {{ $t('in_progress') }}
                     </a-button>
 
-                    <a-button v-if="task.status == 'in-progress' && task.assignee?.id == userId"
-                        @click="clickCompleteBtn()">
-                        {{ $t('complete') }}
+                    <a-button
+                        v-if="(task.status === 'in-progress' || task.status === 'needs-revision') && task.assignee?.id == userId"
+                        @click="clickSubmitReview(task.id)">
+                        {{ $t('submit_for_review') }}
                     </a-button>
 
-                    <a-button v-if="task.status != 'cancel' && task.status != 'complete' && task.assignee?.id == userId"
+                    <a-button v-if="task.status === 'waiting-for-review' && hasReviewPermission"
+                        @click="clickMarkReview(task.id)">
+                        {{ $t('reviewed') }}
+                    </a-button>
+
+                    <!-- <a-button v-if="task.status == 'in-progress' && task.assignee?.id == userId"
+                        @click="clickCompleteBtn()">
+                        {{ $t('complete') }}
+                    </a-button> -->
+
+                    <a-button
+                        v-if="(task.status == 'in-progress' || task.status == 'pending') && task.assignee?.id == userId"
                         danger @click="clickCancelBtn()">
                         {{ $t('cancel') }}
                     </a-button>
@@ -77,7 +89,7 @@
                         {{ $t('status') }} :
                     </a-col>
                     <a-col :span="18">
-                        <a-tag :color="getColor(task.status)"> {{ task.status }}</a-tag>
+                        <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status) }}</a-tag>
                     </a-col>
                 </a-row>
             </a-col>
@@ -229,32 +241,44 @@
                 </a-row>
             </a-col>
         </a-row>
-        <a-row :gutter="16" v-if="task.status == 'complete'">
-            <a-col :span="24" class="!font-semibold !text-base">
-                {{ $t('task_submission') }} :
-            </a-col>
-            <a-col :span="24">
-                <div class="flex h-auto gap-4 !mt-4 flex-wrap">
-                    <div v-for="file in task.task_submissions" :key="file.storage_url">
-                        <!-- Image: keep original style -->
-                        <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
-                            <!-- Download Icon -->
-                            <DownloadOutlined @click="downloadImage(file)"
-                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
-                            <!-- Image -->
-                            <ImageView :image="file" />
-                        </div>
+        <a-row :gutter="16">
+            <a-col :span="12" v-if="task.task_submissions.length > 0">
+                <a-row>
+                    <a-col :span="24" class="!font-semibold !text-base">{{ $t('task_submission') }} :</a-col>
+                    <a-col :span="12">
+                        <div class="flex h-auto gap-4 !mt-4 flex-wrap">
+                            <div v-for="file in task.task_submissions" :key="file.storage_url">
+                                <!-- Image: keep original style -->
+                                <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
+                                    <!-- Download Icon -->
+                                    <DownloadOutlined @click="downloadImage(file)"
+                                        class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                                    <!-- Image -->
+                                    <ImageView :image="file" />
+                                </div>
 
-                        <!-- Video: enforce 16:9 aspect ratio -->
-                        <div v-else-if="isVideo(file.storage_url)"
-                            class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
-                            <video controls class="aspect-[16/9] object-fill">
-                                <source :src="file.storage_url" type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
+                                <!-- Video: enforce 16:9 aspect ratio -->
+                                <div v-else-if="isVideo(file.storage_url)"
+                                    class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
+                                    <video controls class="aspect-[16/9] object-fill">
+                                        <source :src="file.storage_url" type="video/mp4" />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </a-col>
+                </a-row>
+            </a-col>
+            <a-col :span="12" v-if="task.revision_reason && task.status != 'complete'">
+                <a-row>
+                    <a-col :span="24" class="!font-semibold !text-base !mb-2">
+                        {{ $t('revision_reason') }} :
+                    </a-col>
+                    <a-col :span="24">
+                        <a-textarea :value="task.revision_reason" class="w-full" readonly></a-textarea>
+                    </a-col>
+                </a-row>
             </a-col>
         </a-row>
         <!-- task files -->
@@ -349,6 +373,8 @@
         @assigned="refetchDetail"></AssignPopup>
     <CompletePopup :visible="showCompleteModel" :task-id="task.id" @completed="refetchDetail"
         @close="showCompleteModel = false"></CompletePopup>
+    <SubmitTaskForReview :visible="showSubmitTaskModel" :task-id="task.id" :task="task" @submitTask="refetchDetail"
+        @close="showSubmitTaskModel = false"></SubmitTaskForReview>
     <CancelPopup :visible="showCancelModel" :task-id="task.id" @close="showCancelModel = false"
         @cancelled="refetchDetail">
     </CancelPopup>
@@ -366,6 +392,8 @@ import ImageList from '../ui/ImageList.vue';
 import ImageView from '../ui/ImageView.vue';
 import { DownloadOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { Icon } from '@iconify/vue';
+import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
+import { getStatusLabel } from '@/utils/status';
 
 const props = defineProps({
     task: {
@@ -385,6 +413,9 @@ const userId = user.id;
 const userRoleId = user.role_id;
 const uiRoleId = import.meta.env.VITE_UI_ROLE_ID;
 const hasEditPermission = ref(false);
+const showSubmitTaskModel = ref(false);
+const showMarkReviewTaskModel = ref(false);
+const hasReviewPermission = ref(false);
 
 const showModal = ref(false);
 const showCompleteModel = ref(false);
@@ -424,6 +455,14 @@ const clickCancelBtn = () => {
     showCancelModel.value = true
 };
 
+const clickSubmitReview = () => {
+    showSubmitTaskModel.value = true;
+}
+
+const clickMarkReview = () => {
+    showCompleteModel.value = true;
+}
+
 const updateTaskStatus = (status) => {
     api.post('/api/task/change-status', { status, task_id: props.task.id }).then(res => {
         emit('fetchDetail');
@@ -452,6 +491,7 @@ const isVideo = (url) => {
 
 onMounted(() => {
     hasEditPermission.value = auth.hasPermission('task_edit');
+    hasReviewPermission.value = auth.hasPermission('task_review');
 })
 
 </script>

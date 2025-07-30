@@ -7,7 +7,7 @@
 
             <!-- tabs section -->
             <a-tabs v-if="tabs.length > 0" v-model:activeKey="activeTab" @change="onTabChange">
-                <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="$t(tab.value)">
+                <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="$t(tab.label)">
 
                     <!-- Search and Filters -->
                     <div class="flex gap-4 !mb-4">
@@ -44,7 +44,7 @@
                                 <span>{{ formatDate(record.created_at) }}</span>
                             </template>
                             <template v-if="column.key === 'status'">
-                                <a-tag :color="getColor(record.status)"> {{ record.status }}</a-tag>
+                                <a-tag :color="getColor(record.status)"> {{ getStatusLabel(record.status) }}</a-tag>
                             </template>
                             <template v-if="column.key === 'action'">
                                 <div class="flex justify-center items-center gap-2">
@@ -58,25 +58,39 @@
                                         {{ $t('in_progress') }}
                                     </a-button>
 
+                                    <!-- 1) Submit for Review (UI role only) -->
                                     <a-button
+                                        v-if="currentTab?.buttons.includes('submit') && (record.status == 'in-progress') && record.assignee?.id == auth.user.id"
+                                        @click="clickSubmitReview(record.id)">
+                                        {{ $t('submit_for_review') }}
+                                    </a-button>
+
+                                    <!-- 2) Mark as Reviewed (lead/other role only) -->
+                                    <a-button
+                                        v-if="currentTab?.buttons.includes('review') && record.status === 'waiting-for-review' && hasReviewPermission"
+                                        @click="clickMarkReview(record.id)">
+                                        {{ $t('reviewed') }}
+                                    </a-button>
+
+                                    <!-- <a-button
                                         v-if="currentTab?.buttons.includes('complete') && record.status == 'in-progress'"
                                         @click="clickCompleteBtn(record.id)">
                                         {{ $t('complete') }}
-                                    </a-button>
+                                    </a-button> -->
 
                                     <a-button
-                                        v-if="currentTab?.buttons.includes('cancel') && record.status != 'cancel' && record.status != 'complete'"
+                                        v-if="currentTab?.buttons.includes('cancel') && (record.status == 'pending' || record.status == 'in-progress')"
                                         danger @click="clickCancelBtn(record.id)">
                                         {{ $t('cancel') }}
                                     </a-button>
 
-                                    <a-button v-if="currentTab?.buttons.includes('assign')"
+                                    <a-button v-if="currentTab?.buttons.includes('assign') && hasAssignPermission"
                                         @click="assignTask(record.id)">
                                         {{ $t('assign') }}
                                     </a-button>
 
                                     <a-popconfirm
-                                        v-if="currentTab?.buttons.includes('delete') && !record.assignee && record.created_by.id == auth.user.id"
+                                        v-if="currentTab?.buttons.includes('delete') && !record.assignee && record.created_by.id == auth.user.id && hasDeletePermission"
                                         :title="$t('sureToDelete')" @confirm="deleteTask(record.id)">
                                         <DeleteOutlined style="color: red;" />
                                     </a-popconfirm>
@@ -92,6 +106,8 @@
             @assigned="removeAssignedTaskFromList"></AssignPopup>
         <CompletePopup :visible="showCompleteModel" :task-id="selectedTaskId" @completed="actionAfterStatusUpdate"
             @close="showCompleteModel = false"></CompletePopup>
+        <SubmitTaskForReview :visible="showSubmitTaskModel" :task-id="selectedTaskId"
+            @submitTask="actionAfterStatusUpdate" @close="showSubmitTaskModel = false"></SubmitTaskForReview>
         <CancelPopup :visible="showCancelModel" :task-id="selectedTaskId" @close="showCancelModel = false"
             @cancelled="actionAfterStatusUpdate"></CancelPopup>
     </DefaultLayout>
@@ -109,6 +125,8 @@ import { formatDate } from '@/utils/format';
 import CancelPopup from '@/components/task/CancelPopup.vue';
 import { getColor } from '@/utils/initials';
 import { useI18n } from 'vue-i18n';
+import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
+import { getStatusLabel } from '@/utils/status';
 
 const auth = useAuthStore();
 const breadcrumbList = ref(['manager', 'dashboard']);
@@ -116,12 +134,17 @@ const activeTab = ref('');
 const showModal = ref(false);
 const showCompleteModel = ref(false);
 const showCancelModel = ref(false);
+const showSubmitTaskModel = ref(false);
+const showMarkReviewTaskModel = ref(false);
 
 const tabs = ref([]);
 
 const currentTab = computed(() => tabs.value.find((t) => t.value === activeTab.value));
 const hasCreatePermission = ref(false);
 const hasViewPermission = ref(false);
+const hasAssignPermission = ref(false);
+const hasDeletePermission = ref(false);
+const hasReviewPermission = ref(false);
 const tasks = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
@@ -144,6 +167,8 @@ const endpointMap = {
     my_tasks: '/api/tasks/my',
     all_tasks: '/api/tasks/all',
     in_progress: '/api/tasks/in-progress',
+    waiting_for_review: '/api/tasks/waiting-for-review',
+    needs_revision: '/api/tasks/needs-revision',
     complete: '/api/tasks/completed',
     cancel: '/api/tasks/cancelled',
     task_distribution: '/api/tasks/unassigned'
@@ -197,14 +222,26 @@ const viewTask = (id) => {
     router.push(`/tasks/${id}`);
 };
 
+const clickSubmitReview = (id) => {
+    selectedTaskId.value = id;
+    showSubmitTaskModel.value = true;
+}
+
+const clickMarkReview = (id) => {
+    selectedTaskId.value = id;
+    showCompleteModel.value = true;
+}
+
 const clickCompleteBtn = (id) => {
     selectedTaskId.value = id;
     showCompleteModel.value = true;
 }
 
 const actionAfterStatusUpdate = (task) => {
+    console.log(task);
     if (currentTab.value.value == 'my_tasks') {
         const index = tasks.value.findIndex(data => data.id === task.id);
+        console.log(index);
         if (index !== -1) {
             tasks.value[index].status = task.status;
             console.log(tasks.value[index]);
@@ -289,21 +326,43 @@ const getUserNameList = () => {
 }
 
 const getAvailableTabs = () => {
+    const isUi = userRoleId == uiRoleId;
+
     const allTabs = [
-        { label: 'งานของฉัน / My Tasks', value: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'complete', 'cancel'] },
-        { label: 'งานทั้งหมด / All Tasks', value: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
-        { label: 'อยู่ระหว่างดำเนินการ / In Progress', value: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'complete', 'cancel'] },
-        { label: 'สมบูรณ์ / Completed', value: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more'] },
-        { label: 'ยกเลิก / Cancelled', value: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more'] },
-        { label: 'การกระจายงาน / Task Distribution', value: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete'] }
+        { value: 'my_tasks', label: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'submit', 'cancel'] },
+        { value: 'all_tasks', label: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
+        { value: 'in_progress', label: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'submit', 'cancel'] },
+
+        // ⬇️ new “waiting for review” tab
+        {
+            value: 'waiting_for_review',
+            label: isUi ? 'submitted_tasks'   // UI sees “Submitted Tasks”
+                : 'waiting_for_review', // others see “Waiting for Review”
+            showSearch: false,
+            filters: ['type'],
+            buttons: ['see_more', 'review']
+        },
+
+        // ⬇️ new “needs revision” tab
+        {
+            value: 'needs_revision',
+            label: isUi ? 'revisions_required' // UI sees “Revisions Required”
+                : 'needs_revision',    // others see “Needs Revision”
+            showSearch: false,
+            filters: ['type'],
+            buttons: ['see_more', 'submit']
+        },
+
+        { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more'] },
+        { value: 'cancel', label: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more'] },
+        { value: 'task_distribution', label: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete'] },
     ];
 
-    if (userRoleId == uiRoleId) {
-        return allTabs.filter(tab => tab.value !== 'task_distribution');
-    } else {
-        return allTabs.filter(tab => tab.value !== 'my_tasks');
-    }
-};
+    // hide “My Tasks” for UI role, hide “Task Distribution” for others
+    return isUi
+        ? allTabs.filter(t => t.value !== 'task_distribution')
+        : allTabs.filter(t => t.value !== 'my_tasks');
+}
 
 // Init
 onMounted(() => {
@@ -314,5 +373,8 @@ onMounted(() => {
     getUserNameList();
     hasCreatePermission.value = auth.hasPermission('task_create');
     hasViewPermission.value = auth.hasPermission('task_read');
+    hasAssignPermission.value = auth.hasPermission('task_assign');
+    hasDeletePermission.value = auth.hasPermission('task_delete');
+    hasReviewPermission.value = auth.hasPermission('task_review');
 })
 </script>

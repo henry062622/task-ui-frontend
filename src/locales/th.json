@@ -149,5 +149,14 @@
   "twoFactor.or_manually_enter_the_key": "หรือป้อนคีย์ด้วยตนเอง",
   "twoFactor.enter_6_digit_from_app": "กรอกรหัส 6 หลักจากแอป",
   "eng": "อังกฤษ",
-  "th": "ไทย"
+  "th": "ไทย",
+  "pasteImageHere": "คุณวางภาพ — ต้องการใส่ที่ใด?",
+  "selectPasteTarget": "เลือกฟิลด์เป้าหมาย",
+  "submitted_tasks": "งานที่ส่งแล้ว",
+  "waiting_for_review": "รอการตรวจสอบ",
+  "revisions_required": "งานที่ต้องแก้ไข",
+  "needs_revision": "ต้องแก้ไข",
+  "submit_for_review": "ส่งตรวจงาน",
+  "reviewed": "ตรวจงานแล้ว",
+  "revision_reason": "เหตุผลในการแก้ไข"
 }

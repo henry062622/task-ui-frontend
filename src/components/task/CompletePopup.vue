@@ -1,30 +1,31 @@
 <template>
-    <a-modal :open="visible" title="Upload file(s)" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" title="Update Task Status" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
-        <a-form :model="formState" name="assign_task" layout="vertical" autocomplete="off" @finish="onSubmit"
-            class="w-full" @finishFailed="onFinishFailed">
-            <!-- upload file -->
-            <a-row>
-                <a-col :span="24">
-                    <a-form-item label="อัพโหลดไฟล์ที่เสร็จสิ้น / Upload finished file" name="file"
-                        :rules="[{ required: true, message: 'Please upload at least one file' }]"
-                        :validate-status="errors.file ? 'error' : ''" :help="errors.file">
-                        <a-upload list-type="picture-card" multiple :file-list="formState.file"
-                            :before-upload="() => false" @change="handleFileUpload">
-                            <div>
-                                <plus-outlined />
-                                <div style="margin-top: 8px">Upload</div>
-                            </div>
-                        </a-upload>
-                    </a-form-item>
-                </a-col>
-            </a-row>
+        <a-form :model="formState" name="update_task_status" layout="vertical" autocomplete="off" @finish="onSubmit"
+            @finishFailed="onFinishFailed" class="w-full">
+
+            <!-- Status selection -->
+            <a-form-item label="Status" name="status" :rules="[{ required: true, message: 'Please select a status' }]">
+                <a-radio-group v-model:value="formState.status">
+                    <a-radio value="complete">Complete</a-radio>
+                    <a-radio value="needs-revision">Need Revision</a-radio>
+                </a-radio-group>
+            </a-form-item>
+
+            <!-- Revision reason (only if Need Revision) -->
+            <a-form-item v-if="formState.status === 'needs-revision'" label="Revision Reason" name="revision_reason"
+                :rules="[{ required: true, message: 'Please enter revision reason' }]">
+                <a-textarea v-model:value="formState.revision_reason" rows="4"
+                    placeholder="Please provide the reason for revision" />
+            </a-form-item>
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
                 <a-button @click="cancel">Cancel</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">submit</a-button>
+                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">
+                    Submit
+                </a-button>
             </div>
         </a-form>
     </a-modal>
@@ -32,76 +33,50 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
 import api from '@/lib/axios'
 
 const props = defineProps({
-    visible: {
-        type: Boolean,
-        required: true
-    },
-    taskId: {
-        type: Number,
-        required: true
-    }
+    visible: { type: Boolean, required: true },
+    taskId: { type: Number, required: true }
 })
 const emit = defineEmits(['close', 'completed'])
 
-const formState = ref({ task_id: props.taskId, file: [] })
-const errors = ref({ file: '' })
+const formState = ref({
+    task_id: props.taskId,
+    status: '',
+    revision_reason: ''
+})
 const isLoading = ref(false)
 
-// Reset modal when opened
 watch(() => props.visible, (val) => {
     if (val) {
         formState.value.task_id = props.taskId
-        formState.value.file = []
-        errors.value.assignee = ''
+        formState.value.status = ''
+        formState.value.revision_reason = ''
     }
 })
 
-const handleFileUpload = (info) => {
-    // Only keep images and limit total number if needed
-    const fileList = info.fileList.filter(file => {
-        return file.type.startsWith('image/') || file.type.startsWith('video/');
-    });
-
-    formState.value.file = fileList;
-
-    if (fileList.length === 0) {
-        errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ / Please upload at least one file';
-    } else {
-        errors.value.file = '';
-    }
-};
-
-// Submission logic
 const onSubmit = async () => {
-    if (!formState.value.file.length) {
-        errors.value.task_file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ / Please upload at least one file!';
-        return;
-    }
+    if (!formState.value.status) return
 
     isLoading.value = true
-    errors.value.file = ''
 
-    const formData = new FormData();
-    formData.append('task_id', formState.value.task_id);
-    formState.value.file.forEach((fileObj) => {
-        const actualFile = fileObj.originFileObj;
-        formData.append('files[]', actualFile);
-    });
+    const payload = {
+        task_id: formState.value.task_id,
+        status: formState.value.status,
+        revision_reason: formState.value.status === 'needs-revision'
+            ? formState.value.revision_reason
+            : null
+    }
 
-    await api.post('/api/task/complete', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => {
-        const task = res.data.data;
-        emit('completed', task);
-        emit('close')
-    })
-
-    isLoading.value = false
-
+    await api.post('/api/task/change-status', payload)
+        .then(res => {
+            emit('completed', res.data.data)
+            emit('close')
+        })
+        .finally(() => {
+            isLoading.value = false
+        })
 }
 
 const onFinishFailed = (errorInfo) => {

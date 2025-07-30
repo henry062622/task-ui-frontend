@@ -21,10 +21,10 @@
                     :rules="[{ required: true, message: 'please select task type!' }]"
                     :validate-status="errors.task_type ? 'error' : ''" :help="errors.task_type">
                     <a-select v-model:value="formState.task_type" :placeholder="$t('selectTaskType')" class="w-full">
+                        <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
                         <a-select-option v-for="task in taskTypeList" :key="task.id" :value="task.id">
                             {{ task.name }}
                         </a-select-option>
-                        <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
@@ -56,10 +56,10 @@
 
                         <!-- Otherwise show list from API -->
                         <template v-else>
+                            <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
                             <a-select-option v-for="size in sizeList" :key="size.id" :value="size.id">
                                 {{ size.name }}
                             </a-select-option>
-                            <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
                         </template>
                     </a-select>
                 </a-form-item>
@@ -125,9 +125,7 @@
         <a-row :gutter="16">
             <!-- Dropdown -->
             <a-col :span="12">
-                <a-form-item :label="$t('themes')" name="themes"
-                    :rules="[{ required: true, message: 'Please select at least one theme or enter a custom one' }]"
-                    :validate-status="errors.themes ? 'error' : ''" :help="errors.themes">
+                <a-form-item :label="$t('themes')" name="themes">
                     <a-select mode="multiple" v-model:value="formState.themes" :placeholder="t('selectUpTo3Themes')"
                         :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" show-search :filter-option="(input, option) =>
                             option.label.toLowerCase().includes(input.toLowerCase())" :options="themeList.map(theme => ({
@@ -198,9 +196,7 @@
         <!-- Task File Upload -->
         <a-row>
             <a-col :span="24">
-                <a-form-item :label="$t('files_required_for_task')" name="task_file"
-                    :rules="[{ required: true, message: 'Please upload at least one file' }]"
-                    :validate-status="errors.task_file ? 'error' : ''" :help="errors.task_file">
+                <a-form-item :label="$t('files_required_for_task')" name="task_file">
                     <a-upload list-type="picture-card" multiple :file-list="formState.task_file"
                         :before-upload="() => false" accept="image/*,video/*" @change="handleFileUpload">
                         <div>
@@ -233,7 +229,7 @@
                 <span>{{ $t('samples_img_preview') }}</span>
                 <div v-if="formState.sample_image" class="mt-4">
                     <ImageView v-if="formState.sample_image_type === 'system'" :image="formState.sample_image"
-                        class="w-[120px]" />
+                        class="!w-[120px]" />
                     <LocalImageView v-else-if="formState.sample_image"
                         :image-url="createObjectURL(formState.sample_image)" class="!w-[120px]" />
                 </div>
@@ -332,7 +328,7 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-                }}</a-button>
+            }}</a-button>
         </div>
     </a-form>
 
@@ -379,6 +375,9 @@
         @cancel="decorativeModalVisible = false" @page-change="loadDecorativePageWithPagination"
         @decorative-type-change="loadDecorativePageWithType" />
 
+    <!-- & at the very bottom: -->
+    <PasteImageModal v-model="pasteModalVisible" :options="pasteTargetOptions" @confirm="onPasteConfirm" />
+
 </template>
 <script setup>
 import api from '@/lib/axios';
@@ -390,6 +389,7 @@ import router from '@/router';
 import ImageView from '../ui/ImageView.vue';
 import LocalImageView from '../ui/LocalImageView.vue';
 import { useI18n } from 'vue-i18n'
+import PasteImageModal from './PasteImageModal.vue';
 
 const { t } = useI18n()
 
@@ -453,6 +453,43 @@ const decorativeTotal = ref(0);
 const selectedDecorativeIds = ref([]);
 
 const previewPreviousFiles = ref([]);
+
+const pasteModalVisible = ref(false)
+
+const pasteTargetOptions = [
+    { label: t('files_required_for_task'), value: 'task_file' },
+    { label: t('sample_img'), value: 'sample_image' },
+    { label: t('actor_images'), value: 'actor_images' },
+    { label: t('decorative_image'), value: 'decorative_images' },
+]
+
+function onPasteConfirm({ file, target }) {
+    switch (target) {
+        case 'task_file':
+            formState.value.task_file.push({
+                uid: Date.now().toString(),
+                name: file.name,
+                status: 'done',
+                originFileObj: file,
+            })
+            errors.value.task_file = ''
+            break
+
+        case 'sample_image':
+            formState.value.sample_image = file
+            formState.value.sample_image_type = 'upload'
+            errors.value.sample_image = ''
+            break
+
+        case 'actor_images':
+            formState.value.actor_images.push(file)
+            break
+
+        case 'decorative_images':
+            formState.value.decorative_images.push(file)
+            break
+    }
+}
 
 const handleFileTypeChange = (selected) => {
     if (selected.length > 3) {
@@ -867,12 +904,12 @@ const validateForm = () => {
     }
 
     // Themes
-    const totalThemes =
-        formState.value.themes.length + formState.value.custom_themes.length
-    if (totalThemes === 0) {
-        errors.value.themes = t('validation.themesRequired')
-        hasError = true
-    }
+    // const totalThemes =
+    //     formState.value.themes.length + formState.value.custom_themes.length
+    // if (totalThemes === 0) {
+    //     errors.value.themes = t('validation.themesRequired')
+    //     hasError = true
+    // }
 
     // Image Text
     if (!formState.value.image_text?.trim()) {
@@ -887,10 +924,10 @@ const validateForm = () => {
     }
 
     // Task File
-    if (!formState.value.task_file.length) {
-        errors.value.task_file = t('validation.taskFileRequired')
-        hasError = true
-    }
+    // if (!formState.value.task_file.length) {
+    //     errors.value.task_file = t('validation.taskFileRequired')
+    //     hasError = true
+    // }
 
     // Sample Image
     if (!formState.value.sample_image) {

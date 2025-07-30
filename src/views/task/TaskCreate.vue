@@ -24,7 +24,6 @@ import TaskCreateComponent from '@/components/task/TaskCreateComponent.vue';
 const websiteList = ref([]);
 const selectedSite = ref(null);
 
-
 const clickSite = (site) => {
     selectedSite.value = site;
     // formState.value.website_id = site.id;
