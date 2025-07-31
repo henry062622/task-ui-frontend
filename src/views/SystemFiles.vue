@@ -12,7 +12,7 @@
                         <a-select v-if="currentTab?.filters.includes('file_type')" v-model:value="filters.file_type"
                             :placeholder="$t('type')" @change="handleFilter" allow-clear style="width: 220px">
                             <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                            }} </a-select-option>
+                                }} </a-select-option>
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('model_type')" v-model:value="filters.model_type"

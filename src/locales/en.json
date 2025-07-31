@@ -161,5 +161,12 @@
   "revision_reason": "Revision Reason",
   "fromDate": "From date",
   "toDate": "To date",
-  "system_files": "System Files"
+  "system_files": "System Files",
+  "create_decorative": "Create Decorative Images",
+  "upload_files": "Upload Files",
+  "theme": "Theme",
+  "create_model": "Create Model Images",
+  "model_list": "Model List",
+  "models": "Models",
+  "decorative": "Decorative"
 }

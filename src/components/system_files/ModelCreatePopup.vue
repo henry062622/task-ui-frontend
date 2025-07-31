@@ -2,7 +2,7 @@
     <a-modal :open="visible" :title="$t('create_model')" @cancel="close" :footer="null">
         <a-form :model="formState" layout="vertical" @finish="onSubmit">
             <!-- Dropdown -->
-            <a-form-item :label="$t('website')" name="selectedId"
+            <a-form-item :label="$t('model_list')" name="selectedId"
                 :rules="[{ required: true, message: 'please select the model type of images!' }]">
                 <a-select v-model:value="formState.selectedId" :placeholder="$t('select_model_list')">
                     <a-select-option v-for="site in modelTypeList" :key="site.id" :value="site.id">

@@ -161,5 +161,12 @@
   "revision_reason": "เหตุผลในการแก้ไข",
   "fromDate": "จากวันที่",
   "toDate": "ถึงวันที่",
-  "system_files": "ไฟล์ระบบ"
+  "system_files": "ไฟล์ระบบ",
+  "create_decorative": "สร้างภาพตกแต่ง",
+  "upload_files": "อัปโหลดไฟล์",
+  "theme": "ธีม",
+  "create_model": "สร้างภาพโมเดล",
+  "model_list": "รายการโมเดล",
+  "models": "โมเดล",
+  "decorative": "ตกแต่ง"
 }
