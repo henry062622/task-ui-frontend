@@ -328,7 +328,7 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-            }}</a-button>
+                }}</a-button>
         </div>
     </a-form>
 
@@ -790,7 +790,7 @@ const getFileTypeList = () => {
 }
 
 const getColorList = () => {
-    api.get('/api/get-color-list').then(res => {
+    api.get(`/api/get-color-list?website_id=${formState.value.website_id}`).then(res => {
         colorList.value = res.data.data;
     });
 }
