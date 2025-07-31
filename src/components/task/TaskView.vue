@@ -388,7 +388,6 @@ import CancelPopup from '@/components/task/CancelPopup.vue';
 import { onMounted, ref } from 'vue';
 import api from '@/lib/axios';
 import { getColor } from '@/utils/initials';
-import ImageList from '../ui/ImageList.vue';
 import ImageView from '../ui/ImageView.vue';
 import { DownloadOutlined, EditOutlined } from '@ant-design/icons-vue';
 import { Icon } from '@iconify/vue';
