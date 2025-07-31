@@ -198,7 +198,7 @@
             <a-col :span="24">
                 <a-form-item :label="$t('files_required_for_task')" name="task_file">
                     <a-upload list-type="picture-card" multiple :file-list="formState.task_file"
-                        :before-upload="() => false" accept="image/*,video/*" @change="handleFileUpload">
+                        :before-upload="() => false" @change="handleFileUpload">
                         <div>
                             <plus-outlined />
                             <div style="margin-top: 8px">{{ $t('upload') }}</div>
