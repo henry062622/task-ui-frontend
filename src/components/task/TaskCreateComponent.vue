@@ -328,7 +328,7 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-                }}</a-button>
+            }}</a-button>
         </div>
     </a-form>
 
@@ -556,7 +556,14 @@ const removeCustomTheme = (index) => {
 const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
-        return file.type.startsWith('image/') || file.type.startsWith('video/');
+        // return file.type.startsWith('image/') || file.type.startsWith('video/');
+        if (file.type) {
+            if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
+            if (file.type === 'application/zip') return true;
+        }
+        // Allow zip/rar by extension (type might be blank)
+        const ext = file.name?.split('.').pop()?.toLowerCase();
+        if (ext === 'zip' || ext === 'rar') return true;
     });
 
     formState.value.task_file = fileList;

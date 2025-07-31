@@ -64,7 +64,7 @@
             </div>
             <!-- <a-layout-header :style="{ background: '#fff', padding: 0 }" /> -->
             <!-- <a-layout-content :style="{ width: '100%', height: '100vh', margin: '24px 16px 0', overflow: 'initial' }"> -->
-            <a-breadcrumb style="margin: 16px">
+            <a-breadcrumb style="margin: 16px" v-if="breadcrumbList">
                 <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{ $t(breadcrumb) }}</a-breadcrumb-item>
             </a-breadcrumb>
             <div class="!m-4 h-full">

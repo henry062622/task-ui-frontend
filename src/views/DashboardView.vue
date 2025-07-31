@@ -1,13 +1,17 @@
 <template>
-    <DefaultLayout :breadcrumb-list="breadcrumbList">
-        <div class="flex h-full w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4 pt-10">
-            <div v-if="hasCreatePermission" class="flex justify-end mx-4 mt-4 items-center">
-                <a-button type="primary" @click="goToCreatePage">{{ $t('create') }}</a-button>
-            </div>
+    <DefaultLayout>
+        <div class="flex justify-between items-center p-4 pt-3">
+            <a-breadcrumb>
+                <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{ $t(breadcrumb) }}</a-breadcrumb-item>
+            </a-breadcrumb>
+            <a-button v-if="hasCreatePermission" type="primary" @click="goToCreatePage">{{ $t('create') }}</a-button>
+        </div>
 
+        <div class="flex h-full w-full flex-1 flex-col px-4">
             <!-- tabs section -->
             <a-tabs v-if="tabs.length > 0" v-model:activeKey="activeTab" @change="onTabChange">
-                <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="$t(tab.label)">
+                <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="$t(tab.label)"
+                    class="gap-4 rounded-xl shadow-2xl p-4 pt-4">
 
                     <!-- Search and Filters -->
                     <div class="flex gap-4 !mb-4">
@@ -26,13 +30,13 @@
                         <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type"
                             :placeholder="$t('type')" @change="handleFilter" allow-clear style="width: 220px">
                             <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                            }} </a-select-option>
+                                }} </a-select-option>
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
                             :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                            }} </a-select-option>
+                                }} </a-select-option>
                         </a-select>
 
                         <a-range-picker v-model:value="filters.dateRange" :placeholder="[t('fromDate'), t('toDate')]"

@@ -245,8 +245,8 @@
             <a-col :span="12" v-if="task.task_submissions.length > 0">
                 <a-row>
                     <a-col :span="24" class="!font-semibold !text-base">{{ $t('task_submission') }} :</a-col>
-                    <a-col :span="12">
-                        <div class="flex h-auto gap-4 !mt-4 flex-wrap">
+                    <a-col :span="24">
+                        <div class="flex h-auto gap-4 !mt-4 flex-wrap w-full">
                             <div v-for="file in task.task_submissions" :key="file.storage_url">
                                 <!-- Image: keep original style -->
                                 <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
@@ -264,6 +264,22 @@
                                         <source :src="file.storage_url" type="video/mp4" />
                                         Your browser does not support the video tag.
                                     </video>
+                                </div>
+
+                                <!-- ZIP/RAR: show icon, filename, and download -->
+                                <div v-else-if="isArchive(file.storage_url)"
+                                    class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
+                                    <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
+                                        <DownloadOutlined
+                                            class=" text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10"
+                                            :title="$t('download')" />
+                                    </a>
+                                    <div>
+                                        <file-zip-outlined class="text-4xl mb-2" />
+                                    </div>
+                                    <div class="text-xs text-gray-700 text-center truncate w-[90px]">
+                                        {{ file.file_name || 'Archive' }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -306,6 +322,22 @@
                                 <source :src="file.storage_url" type="video/mp4" />
                                 Your browser does not support the video tag.
                             </video>
+                        </div>
+
+                        <!-- ZIP/RAR: show icon, filename, and download -->
+                        <div v-else-if="isArchive(file.storage_url)"
+                            class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
+                            <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
+                                <DownloadOutlined
+                                    class=" text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10"
+                                    :title="$t('download')" />
+                            </a>
+                            <div>
+                                <file-zip-outlined class="text-4xl mb-2" />
+                            </div>
+                            <div class="text-xs text-gray-700 text-center truncate w-[90px]">
+                                {{ file.file_name || 'Archive' }}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -389,7 +421,7 @@ import { onMounted, ref } from 'vue';
 import api from '@/lib/axios';
 import { getColor } from '@/utils/initials';
 import ImageView from '../ui/ImageView.vue';
-import { DownloadOutlined, EditOutlined } from '@ant-design/icons-vue';
+import { DownloadOutlined, EditOutlined, FileZipOutlined } from '@ant-design/icons-vue';
 import { Icon } from '@iconify/vue';
 import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
 import { getStatusLabel } from '@/utils/status';
@@ -430,8 +462,15 @@ const downloadImage = async (img) => {
         const blob = await response.blob();
 
         const link = document.createElement('a');
+        let filename = img.file_name;
+
+        // If no file_name, try to extract from storage_url
+        if (!filename) {
+            const urlParts = img.storage_url.split('/');
+            filename = urlParts[urlParts.length - 1] || 'download';
+        }
         link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', img.file_name || 'download.jpg');
+        link.setAttribute('download', filename);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -486,6 +525,10 @@ const isImage = (url) => {
 
 const isVideo = (url) => {
     return /\.(mp4|mov|webm|ogg|mkv)$/i.test(url);
+};
+
+const isArchive = (url) => {
+    return /\.(zip|rar)$/i.test(url);
 };
 
 onMounted(() => {

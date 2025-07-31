@@ -342,7 +342,7 @@
                     <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear
                         style="width: 100%">
                         <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                            }} </a-select-option>
+                        }} </a-select-option>
                     </a-select>
                 </a-form-item>
             </a-col>
@@ -353,7 +353,7 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="emit('clickCancelBtn')">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{ $t('update')
-                }}</a-button>
+            }}</a-button>
         </div>
     </a-form>
 
@@ -593,8 +593,12 @@ const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
         if (file.type) {
-            return file.type.startsWith('image/') || file.type.startsWith('video/');
+            if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
+            if (file.type === 'application/zip') return true;
         }
+        // Allow zip/rar by extension (type might be blank)
+        const ext = file.name?.split('.').pop()?.toLowerCase();
+        if (ext === 'zip' || ext === 'rar') return true;
         return true;
     });
 

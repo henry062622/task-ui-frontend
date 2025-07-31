@@ -25,7 +25,7 @@
             <div class="flex items-center justify-end gap-4">
                 <a-button @click="cancel">{{ $t('cancel') }}</a-button>
                 <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('submit')
-                }}</a-button>
+                    }}</a-button>
             </div>
         </a-form>
     </a-modal>
@@ -80,8 +80,13 @@ const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
         if (file.type) {
-            return file.type.startsWith('image/') || file.type.startsWith('video/');
+            if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
+            if (file.type === 'application/zip') return true;
         }
+        // Allow zip/rar by extension (type might be blank)
+        const ext = file.name?.split('.').pop()?.toLowerCase();
+        if (ext === 'zip' || ext === 'rar') return true;
+        // Also allow objects without 'type' (already uploaded files)
         return true;
     });
     // const fileList = info.fileList.filter(file => {
@@ -91,7 +96,7 @@ const handleFileUpload = (info) => {
     formState.value.file = fileList;
 
     if (fileList.length === 0) {
-        errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ / Please upload at least one file';
+        errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
     } else {
         errors.value.file = '';
     }
@@ -100,11 +105,11 @@ const handleFileUpload = (info) => {
 // Submission logic
 const onSubmit = async () => {
     if (!formState.value.file.length) {
-        errors.value.task_file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ / Please upload at least one file!';
+        errors.value.task_file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
         return;
     }
 
-    isLoading.value = true
+    // isLoading.value = true
     errors.value.file = ''
     console.log(formState.value);
 
