@@ -125,6 +125,13 @@ const menuItems = ref([
         icon: 'solar:user-id-broken',
         permission: 'role_read'
     },
+    {
+        id: 6,
+        name: 'system_files',
+        url: '/system-files',
+        icon: 'solar:folder-with-files-line-duotone',
+        // permission: 'role_read'
+    }
 ]);
 
 const router = useRouter();

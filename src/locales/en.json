@@ -160,5 +160,6 @@
   "reviewed": "Mark as Reviewed",
   "revision_reason": "Revision Reason",
   "fromDate": "From date",
-  "toDate": "To date"
+  "toDate": "To date",
+  "system_files": "System Files"
 }

@@ -12,6 +12,7 @@ import NoPermission from '@/views/NoPermission.vue'
 import UserProfile from '@/views/UserProfile.vue'
 import TaskCreate from '@/views/task/TaskCreate.vue'
 import TaskEditView from '@/views/task/TaskEditView.vue'
+import SystemFiles from '@/views/SystemFiles.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -30,6 +31,7 @@ const routes = [
   { path: '/setting', component: UserProfile },
   { path: '/task-create', component: TaskCreate, meta: { requiresAuth: true } },
   { path: '/tasks/:id', component: TaskEditView, meta: { requiresAuth: true } },
+  { path: '/system-files', component: SystemFiles, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
