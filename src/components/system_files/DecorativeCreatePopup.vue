@@ -14,12 +14,10 @@
             <!-- Upload -->
             <a-form-item :label="$t('upload_files')" name="fileList" :rules="[{ required: true }]">
                 <a-upload-dragger v-model:file-list="formState.fileList" :before-upload="() => false" :multiple="true"
-                    accept="image/*" list-type="picture">
+                    accept="image/*" list-type="picture" :maxCount="15">
                     <p class="ant-upload-drag-icon"><inbox-outlined /></p>
-                    <p class="ant-upload-text">Drag and drop or click to upload</p>
-                    <p class="ant-upload-hint">
-                        <!-- {{ $t('support_bulk_upload') }} -->
-                    </p>
+                    <p class="ant-upload-text">{{ $t('drag_and_drop') }}</p>
+                    <p class="ant-upload-hint">{{ $t('max_15_images') }}</p>
                 </a-upload-dragger>
             </a-form-item>
 

@@ -168,5 +168,9 @@
   "create_model": "Create Model Images",
   "model_list": "Model List",
   "models": "Models",
-  "decorative": "Decorative"
+  "decorative": "Decorative",
+  "update_task_status": "Update Task Status",
+  "new_upload": "Upload New",
+  "drag_and_drop": "Drag and drop or click to upload",
+  "max_15_images": "Maximum 15 images allowed!"
 }

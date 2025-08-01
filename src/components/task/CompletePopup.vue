@@ -1,12 +1,13 @@
 <template>
-    <a-modal :open="visible" title="Update Task Status" :footer="null" :closable="false" centered>
+    <a-modal :open="visible" :title="$t('update_task_status')" :footer="null" :closable="false" centered>
         <a-divider></a-divider>
 
         <a-form :model="formState" name="update_task_status" layout="vertical" autocomplete="off" @finish="onSubmit"
             @finishFailed="onFinishFailed" class="w-full">
 
             <!-- Status selection -->
-            <a-form-item label="Status" name="status" :rules="[{ required: true, message: 'Please select a status' }]">
+            <a-form-item :label="$t('status')" name="status"
+                :rules="[{ required: true, message: 'Please select a status' }]">
                 <a-radio-group v-model:value="formState.status">
                     <a-radio value="complete">Complete</a-radio>
                     <a-radio value="needs-revision">Need Revision</a-radio>
@@ -22,9 +23,9 @@
 
             <!-- Footer Buttons -->
             <div class="flex items-center justify-end gap-4">
-                <a-button @click="cancel">Cancel</a-button>
+                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
                 <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">
-                    Submit
+                    {{ $t('submit') }}
                 </a-button>
             </div>
         </a-form>

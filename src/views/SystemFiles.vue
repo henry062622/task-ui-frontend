@@ -12,7 +12,7 @@
                         <a-select v-if="currentTab?.filters.includes('file_type')" v-model:value="filters.file_type"
                             :placeholder="$t('type')" @change="handleFilter" allow-clear style="width: 220px">
                             <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                                }} </a-select-option>
+                            }} </a-select-option>
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('model_type')" v-model:value="filters.model_type"
@@ -32,8 +32,11 @@
                             </a-select-option>
                         </a-select>
 
-                        <a-button v-if="currentTab?.buttons?.includes('create')" type="primary" @click="showPopUp">{{
-                            $t('create') }}</a-button>
+                        <a-button v-if="currentTab?.buttons?.includes('create')" type="primary" @click="showPopUp"
+                            class="!flex items-center">
+                            <PlusOutlined class="!text-white" /> {{
+                                $t('new_upload') }}
+                        </a-button>
 
                         <!-- <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
                             :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
@@ -103,7 +106,7 @@ import ImageList from '@/components/ui/ImageList.vue';
 import ModelCreatePopup from '@/components/system_files/ModelCreatePopup.vue';
 import DecorativeCreatePopup from '@/components/system_files/DecorativeCreatePopup.vue';
 import ImageView from '@/components/ui/ImageView.vue';
-import { FileZipOutlined } from '@ant-design/icons-vue';
+import { FileZipOutlined, PlusOutlined } from '@ant-design/icons-vue';
 
 const breadcrumbList = ref(['manager', 'dashboard']);
 
