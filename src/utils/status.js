@@ -5,17 +5,25 @@ export const STATUS_NEEDS_REVISION = 'needs-revision'
 export const STATUS_COMPLETE = 'complete'
 export const STATUS_CANCEL = 'cancel'
 
-export const STATUSES = {
-  [STATUS_PENDING]: 'Pending',
-  [STATUS_IN_PROGRESS]: 'In Progress',
-  [STATUS_WAITING_FOR_REVIEW]: 'Waiting for Review',
-  [STATUS_NEEDS_REVISION]: 'Needs Revision',
-  [STATUS_COMPLETE]: 'Complete',
-  [STATUS_CANCEL]: 'Cancel',
+export function getStatuses(userRoleId, uiRoleId) {
+  const statuses = {
+    [STATUS_PENDING]: 'รอดำเนินการ/Pending',
+    [STATUS_IN_PROGRESS]: 'กำลังดำเนินการ/In Progress',
+    [STATUS_WAITING_FOR_REVIEW]: 'รอตรวจสอบ/Waiting for Review',
+    [STATUS_NEEDS_REVISION]: 'ต้องแก้ไข/Needs Revision',
+    [STATUS_COMPLETE]: 'เสร็จสิ้น/Complete',
+    [STATUS_CANCEL]: 'ยกเลิก/Cancel',
+  }
+  if (userRoleId == uiRoleId) {
+    statuses[STATUS_WAITING_FOR_REVIEW] = 'ส่งแล้ว/Submitted'
+    statuses[STATUS_NEEDS_REVISION] = 'รอการแก้ไข/Revisions Required'
+  }
+  return statuses
 }
 
-export function getStatusLabel(statusKey) {
-  return STATUSES[statusKey] || statusKey
+export function getStatusLabel(statusKey, userRoleId, uiRoleId) {
+  const statuses = getStatuses(userRoleId, uiRoleId)
+  return statuses[statusKey] || statusKey
 }
 
 // Helper to get only specific statuses (example: revision + complete)

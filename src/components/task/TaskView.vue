@@ -89,7 +89,8 @@
                         {{ $t('status') }} :
                     </a-col>
                     <a-col :span="18">
-                        <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status) }}</a-tag>
+                        <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
+                        }}</a-tag>
                     </a-col>
                 </a-row>
             </a-col>
@@ -286,13 +287,24 @@
                     </a-col>
                 </a-row>
             </a-col>
-            <a-col :span="12" v-if="task.revision_reason && task.status != 'complete'">
+            <a-col :span="12" v-if="task.task_revision && task.status != 'complete'">
                 <a-row>
                     <a-col :span="24" class="!font-semibold !text-base !mb-2">
                         {{ $t('revision_reason') }} :
                     </a-col>
                     <a-col :span="24">
-                        <a-textarea :value="task.revision_reason" class="w-full" readonly></a-textarea>
+                        <div class="flex gap-2">
+                            <div class="relative w-[120px]">
+                                <!-- Download Icon -->
+                                <DownloadOutlined @click="downloadImage(task.task_revision)"
+                                    class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                                <!-- Image -->
+                                <a-image :src="task.task_revision.storage_url" alt="Preview"
+                                    class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
+                            </div>
+
+                            <a-textarea :value="task.task_revision.reason" class="w-full" readonly></a-textarea>
+                        </div>
                     </a-col>
                 </a-row>
             </a-col>

@@ -30,13 +30,13 @@
                         <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type"
                             :placeholder="$t('type')" @change="handleFilter" allow-clear style="width: 220px">
                             <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                                }} </a-select-option>
+                            }} </a-select-option>
                         </a-select>
 
                         <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
                             :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
                             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                                }} </a-select-option>
+                            }} </a-select-option>
                         </a-select>
 
                         <a-range-picker v-model:value="filters.dateRange" :placeholder="[t('fromDate'), t('toDate')]"
@@ -52,7 +52,8 @@
                                 <span>{{ formatDate(record.created_at) }}</span>
                             </template>
                             <template v-if="column.key === 'status'">
-                                <a-tag :color="getColor(record.status)"> {{ getStatusLabel(record.status) }}</a-tag>
+                                <a-tag :color="getColor(record.status)"> {{ getStatusLabel(record.status, userRoleId,
+                                    uiRoleId) }}</a-tag>
                             </template>
                             <template v-if="column.key === 'action'">
                                 <div class="flex justify-center items-center gap-2">
