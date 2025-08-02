@@ -173,5 +173,6 @@
   "new_upload": "Upload New",
   "drag_and_drop": "Drag and drop or click to upload",
   "max_15_images": "Maximum 15 images allowed!",
-  "upload_image": "Upload Image"
+  "upload_image": "Upload Image",
+  "select_upload_max_3_imgs": "Select or upload a maximum of 3 images"
 }

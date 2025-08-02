@@ -208,30 +208,40 @@
             </a-col>
         </a-row>
 
-        <!-- Sample Image Section -->
+        <!-- Sample Images Section -->
         <a-row :gutter="16">
-            <a-col :span="16">
-                <a-form-item :label="$t('sample_img')" name="sample_image"
-                    :rules="[{ required: true, message: 'Please provide a sample image' }]"
+            <a-col :span="24">
+                <a-form-item :label="`${$t('sample_img')} (${$t('select_upload_max_3_imgs')})`" name="sample_images"
+                    :rules="[{ required: true, message: 'Please provide sample images' }]"
                     :validate-status="errors.sample_image ? 'error' : ''" :help="errors.sample_image">
                     <div class="flex gap-4">
-                        <a-button @click="openSampleModal">{{ $t('select_from_system') }}</a-button>
-                        <a-upload :before-upload="handleSampleUpload" :show-upload-list="false" accept="image/*">
+                        <a-button @click="openSampleModal" :disabled="formState.sample_images.length >= 3">
+                            {{ $t('select_from_system') }}
+                        </a-button>
+                        <a-upload multiple :before-upload="handleSampleUpload" :show-upload-list="false"
+                            accept="image/*" :disabled="formState.sample_images.length >= 3">
                             <a-button>{{ $t('upload_your_own_img') }}</a-button>
                         </a-upload>
                     </div>
-
-                    <!-- Image Preview -->
-
                 </a-form-item>
             </a-col>
-            <a-col :span="6">
+        </a-row>
+        <a-row>
+            <a-col :span="24">
+                <!-- Preview -->
                 <span>{{ $t('samples_img_preview') }}</span>
-                <div v-if="formState.sample_image" class="mt-4">
-                    <ImageView v-if="formState.sample_image_type === 'system'" :image="formState.sample_image"
-                        class="!w-[120px]" />
-                    <LocalImageView v-else-if="formState.sample_image"
-                        :image-url="createObjectURL(formState.sample_image)" class="!w-[120px]" />
+                <div class="flex h-auto gap-4 !mt-4 flex-wrap">
+                    <template v-for="(img, i) in formState.sample_images" :key="i">
+                        <div class="relative">
+                            <!-- Delete Icon -->
+                            <MinusCircleOutlined
+                                class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
+                                @click="removeSampleImage(i)" />
+                            <!-- Image -->
+                            <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+                            <LocalImageView v-else :image-url="createObjectURL(img)" class="!w-[120px]" />
+                        </div>
+                    </template>
                 </div>
             </a-col>
         </a-row>
@@ -333,21 +343,21 @@
     </a-form>
 
     <a-modal v-model:open="sampleModalVisible" :title="$t('select_sample_img')" @ok="confirmSystemImageSelection"
-        @cancel="cancelSystemImageSelection" :ok-button-props="{ disabled: !selectedSystemImage }"
+        @cancel="cancelSystemImageSelection" :ok-button-props="{ disabled: selectedSystemImages.length == 0 }"
         :ok-text="$t('select')" :cancel-text="$t('cancel')" width="800px">
         <div class="h-[70vh] overflow-auto !mb-4">
             <div class="flex h-auto gap-4 !mt-4 flex-wrap">
                 <div v-for="item in sampleImageList" :key="item.id" :class="[
                     'cursor-pointer border border-gray-200 rounded-lg overflow-hidden transition',
-                    selectedSystemImage && selectedSystemImage.id === item.id
+                    selectedSystemImages.some(img => img.id === item.id)
                         ? 'bg-blue-200'
-                        : 'hover:bg-blue-100'
-                ]" @click="selectSystemImage(item)">
+                        : selectedSystemImages.length >= 3
+                            ? 'opacity-50 pointer-events-none'
+                            : 'hover:bg-blue-100'
+                ]" @click="toggleSystemImage(item)">
                     <div class="relative !w-30">
-                        <!-- Delete Icon -->
-                        <CheckCircleOutlined v-if="selectedSystemImage && selectedSystemImage.id === item.id"
+                        <CheckCircleOutlined v-if="selectedSystemImages.some(img => img.id === item.id)"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
-                        <!-- Image -->
                         <img :src="item.thumbnail_url" alt="sample" class="!w-30 aspect-[4/5] object-fill" />
                     </div>
                 </div>
@@ -409,8 +419,7 @@ const formState = ref({
     job_title: '', task_type: null, custom_task_type: '', size: null, custom_size: '', file_types: [], colors: [], themes: [], custom_themes: [], image_text: '',
     task_description: '',
     task_file: [],
-    sample_image: null,
-    sample_image_type: '',
+    sample_images: [],
     actor_images: [],
     decorative_images: [],
     requester_name: '',
@@ -436,7 +445,7 @@ const decorativeImageList = ref([]);
 const samplePage = ref(1);
 const sampleTotal = ref(0);
 const sampleModalVisible = ref(false);
-const selectedSystemImage = ref(null);
+const selectedSystemImages = ref([]);
 const decorativeTypeList = ref([]);
 
 // Actor image logic
@@ -476,8 +485,8 @@ function onPasteConfirm({ file, target }) {
             break
 
         case 'sample_image':
-            formState.value.sample_image = file
-            formState.value.sample_image_type = 'upload'
+            formState.value.sample_images.push(file)
+            // formState.value.sample_image_type = 'upload'
             errors.value.sample_image = ''
             break
 
@@ -576,18 +585,25 @@ const handleFileUpload = (info) => {
 };
 
 const handleSampleUpload = (file) => {
-    formState.value.sample_image = file;
-    formState.value.sample_image_type = 'upload';
+    if (formState.value.sample_images.length >= 3) {
+        errors.value.sample_image = 'Maximum 3 sample images allowed';
+        return false;
+    }
+    formState.value.sample_images.push(file);
     errors.value.sample_image = '';
     return false; // prevent auto upload
+};
+
+const removeSampleImage = (index) => {
+    formState.value.sample_images.splice(index, 1);
 };
 
 const openSampleModal = () => {
     getSampleImageList();
     samplePage.value = 1;
-    selectedSystemImage.value = formState.value.sample_image_type === 'system'
-        ? formState.value.sample_image
-        : null;
+    // Pre-select currently chosen
+    selectedSystemImages.value = formState.value.sample_images
+        .filter(img => img.id); // Only system images
     sampleModalVisible.value = true;
 };
 
@@ -596,8 +612,18 @@ const handleSamplePageChange = (page) => {
     getSampleImageList(page);
 };
 
-const selectSystemImage = (item) => {
-    selectedSystemImage.value = item;
+// const selectSystemImage = (item) => {
+//     selectedSystemImage.value = item;
+// };
+
+const toggleSystemImage = (item) => {
+    const idx = selectedSystemImages.value.findIndex(img => img.id === item.id);
+    if (idx === -1) {
+        if (selectedSystemImages.value.length < 3)
+            selectedSystemImages.value.push(item);
+    } else {
+        selectedSystemImages.value.splice(idx, 1);
+    }
 };
 
 const createObjectURL = (file) => {
@@ -605,16 +631,16 @@ const createObjectURL = (file) => {
 }
 
 const confirmSystemImageSelection = () => {
-    if (selectedSystemImage.value) {
-        formState.value.sample_image = selectedSystemImage.value;
-        formState.value.sample_image_type = 'system';
-        errors.value.sample_image = '';
-        sampleModalVisible.value = false;
-    }
+    // Merge system-selected and uploaded (not exceeding 3)
+    const uploaded = formState.value.sample_images.filter(img => !img.id);
+    let merged = [...selectedSystemImages.value, ...uploaded].slice(0, 3);
+    formState.value.sample_images = merged;
+    errors.value.sample_image = '';
+    sampleModalVisible.value = false;
 };
 
 const cancelSystemImageSelection = () => {
-    selectedSystemImage.value = null;
+    selectedSystemImages.value = [];
     sampleModalVisible.value = false;
 };
 
@@ -687,14 +713,23 @@ const submitForm = async () => {
     formData.append('task_description', formState.value.task_description);
     formData.append('requester_name', formState.value.requester_name);
     formData.append('deadline', formState.value.deadline);
-    formData.append('sample_image_type', formState.value.sample_image_type);
+    // formData.append('sample_image_type', formState.value.sample_image_type);
 
     // 🖼 Sample image
-    if (formState.value.sample_image_type === 'upload') {
-        formData.append('sample_image', formState.value.sample_image);
-    } else if (formState.value.sample_image_type === 'system') {
-        formData.append('sample_image', String(formState.value.sample_image.id));
-    }
+    // if (formState.value.sample_image_type === 'upload') {
+    //     formData.append('sample_image', formState.value.sample_image);
+    // } else if (formState.value.sample_image_type === 'system') {
+    //     formData.append('sample_image', String(formState.value.sample_image.id));
+    // }
+
+    formState.value.sample_images.forEach((img, i) => {
+        if (img.id) {
+            formData.append(`sample_images[${i}]`, String(img.id));
+        } else {
+            const actualFile = img.originFileObj || img;
+            formData.append(`sample_images[${i}]`, actualFile);
+        }
+    });
 
     // 🧾 File types (array of strings)
     formState.value.file_types.forEach((type) => {
@@ -723,22 +758,22 @@ const submitForm = async () => {
     });
 
     // 👤 Actor images (mixed id or file)
-    formState.value.actor_images.forEach((img) => {
+    formState.value.actor_images.forEach((img, i) => {
         if (img.id) {
-            formData.append('actor_images[]', String(img.id));
+            formData.append(`actor_images[${i}]`, String(img.id));
         } else {
             const actualFile = img.originFileObj || img;
-            formData.append('actor_images[]', actualFile);
+            formData.append(`actor_images[${i}]`, actualFile);
         }
     });
 
     // 🖼 Decorative images (mixed id or file)
-    formState.value.decorative_images.forEach((img) => {
+    formState.value.decorative_images.forEach((img, i) => {
         if (img.id) {
-            formData.append('decorative_images[]', String(img.id));
+            formData.append(`decorative_images[${i}]`, String(img.id));
         } else {
             const actualFile = img.originFileObj || img;
-            formData.append('decorative_images[]', actualFile);
+            formData.append(`decorative_images[${i}]`, actualFile);
         }
     });
 
@@ -937,8 +972,11 @@ const validateForm = () => {
     // }
 
     // Sample Image
-    if (!formState.value.sample_image) {
+    if (!formState.value.sample_images.length) {
         errors.value.sample_image = t('validation.sampleImageRequired')
+        hasError = true
+    } else if (formState.value.sample_images.length > 3) {
+        errors.value.sample_image = 'Maximum 3 sample images allowed'
         hasError = true
     }
 

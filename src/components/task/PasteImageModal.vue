@@ -1,5 +1,5 @@
 <template>
-    <a-modal v-model:visible="visibleLocal" :title="$t('pasteImageHere')" @ok="handleOk"
+    <a-modal v-model:open="visibleLocal" :title="$t('pasteImageHere')" @ok="handleOk"
         @cancel="() => visibleLocal = false" :ok-button-props="{ disabled: !selectedTarget }">
         <div class="flex flex-col items-center gap-4">
             <img v-if="pastedFile" :src="previewUrl" class="max-w-full max-h-64 border" alt="pasted img" />

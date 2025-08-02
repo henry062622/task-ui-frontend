@@ -90,7 +90,7 @@
                     </a-col>
                     <a-col :span="18">
                         <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-                        }}</a-tag>
+                            }}</a-tag>
                     </a-col>
                 </a-row>
             </a-col>
@@ -362,12 +362,16 @@
         </a-row>
         <a-row>
             <a-col :span="24">
-                <div class="relative !w-[120px]">
-                    <!-- download Icon -->
-                    <DownloadOutlined @click="downloadImage(task.sample_image)"
-                        class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
-                    <!-- Image -->
-                    <ImageView :image="task.sample_image" />
+                <div class="flex h-auto gap-4 !mt-4 flex-wrap" v-if="task.sample_images.length > 0">
+                    <template v-for="(img, i) in task.sample_images" :key="i">
+                        <div class="relative">
+                            <!-- Download Icon -->
+                            <DownloadOutlined @click="downloadImage(img)"
+                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                            <!-- Image -->
+                            <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+                        </div>
+                    </template>
                 </div>
             </a-col>
         </a-row>
@@ -387,7 +391,6 @@
                             <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
                         </div>
                     </template>
-                    <!-- <ImageList :image-list="task.actor_images" /> -->
                 </div>
             </a-col>
         </a-row>
