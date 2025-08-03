@@ -26,10 +26,40 @@
                     <img :src="site.logo_url" alt="site_logo" class="site-logo w-15 h-8 ">
                     <span class=" !text-xl !font-semibold">{{ $t('new_order') }}</span>
                 </div>
-                <div class="flex flex-1 justify-end items-center gap-4">
+                <div class="flex flex-1 justify-end items-center gap-3">
+                    <a-dropdown class="cursor-pointer" :trigger="['click']" @click="onNotificationClick">
+                        <div class="relative">
+                            <Icon icon="ion:notifications-outline" class="size-6 focus:outline-none" />
+                            <!-- Red dot if unread notifications -->
+                            <span v-if="noti.hasUnread"
+                                class="absolute top-0 right-0 block h-3 w-3 rounded-full bg-red-500 ring-2 ring-white"></span>
+                        </div>
+                        <template #overlay>
+                            <a-menu class="!mt-5 relative right-10">
+                                <!-- If no notifications -->
+                                <a-menu-item v-if="noti.notificationList.length === 0" disabled key="empty"
+                                    class="size-60 !flex justify-center items-center">
+                                    <span class="text-center flex justify-center !font-normal text-gray-500">No new
+                                        notifications</span>
+                                </a-menu-item>
+
+                                <!-- List notifications -->
+                                <a-menu-item v-for="(notification, index) in noti.notificationList"
+                                    :key="notification.id || index" @click="goToNotification(notification.data.url)"
+                                    class="cursor-pointer">
+                                    <div class="flex flex-col gap-1">
+                                        <span class="!font-semibold text-sm">{{ notification.data.title }}</span>
+                                        <span class="text-xs text-gray-600">{{ notification.data.body }}</span>
+                                    </div>
+                                </a-menu-item>
+                            </a-menu>
+                        </template>
+                    </a-dropdown>
+
+                    <a-divider type="vertical" class="!h-full" />
                     <a-switch :checked="isEnglish" @change="toggleLanguage" class="flag-switch" />
                     <a-divider type="vertical" class="!h-full" />
-                    <a-dropdown class=" cursor-pointer " :trigger="['click']">
+                    <a-dropdown class="cursor-pointer" :trigger="['click']">
                         <div class="flex justify-center items-center gap-2">
                             <UserInfo :user="user" @click.prevent class="w-38" />
                             <DownOutlined />
@@ -83,6 +113,8 @@ import UserInfo from '../user/UserInfo.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
+import api from '@/lib/axios';
+import { useNotiStore } from '@/stores/notifications';
 
 defineProps({
     breadcrumbList: Array,
@@ -137,12 +169,15 @@ const menuItems = ref([
 const router = useRouter();
 const route = useRoute();
 const auth = useAuthStore();
+const noti = useNotiStore();
 const { locale, t } = useI18n()
 // reactive for switch position
 const isEnglish = ref(locale.value === 'en')
 const user = auth.user;
 // selectedKeys holds an array of active keys (we use the URL string)
 const selectedKeys = ref([]);
+const notiList = noti.notificationList;
+// const noti = useNotifi
 
 const Logout = async () => {
     auth.logout();
@@ -150,6 +185,24 @@ const Logout = async () => {
 
 const goToProfilePage = () => {
     router.push('/setting');
+}
+
+const goToNotification = (url) => {
+    if (url) {
+        router.push(url)
+    }
+}
+
+const onNotificationClick = async () => {
+    if (noti.hasUnread) {
+        await noti.markAllNotificationsAsRead()
+        // Update local read_at to simulate all read:
+        const now = new Date().toISOString()
+        noti.notificationList = noti.notificationList.map(notiItem => ({
+            ...notiItem,
+            read_at: now
+        }))
+    }
 }
 
 // when switch flips, swap locale
@@ -167,9 +220,13 @@ const filteredMenuItems = computed(() => {
     });
 });
 
+
+
 // On component mount, set the active menu based on current route
 onMounted(() => {
     selectedKeys.value = [route.path];
+    noti.getLatestNotificationList();
+    // getLatestNoti();
 });
 
 // update the active menu item

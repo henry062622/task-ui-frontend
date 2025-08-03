@@ -45,7 +45,18 @@ self.addEventListener('push', (event) => {
 
     // The `event.waitUntil()` method ensures the service worker remains active until
     // the promise inside it (in this case, showing the notification) is resolved.
-    event.waitUntil(self.registration.showNotification(title, options))
+    event.waitUntil(
+      self.registration.showNotification(title, options).then(() => {
+        // Broadcast push data to all clients
+        return self.clients
+          .matchAll({ includeUncontrolled: true, type: 'window' })
+          .then((clients) => {
+            clients.forEach((client) => {
+              client.postMessage({ type: 'push-received', payload: payload || {} })
+            })
+          })
+      }),
+    )
   } else {
     // Handle cases where the push event has no payload.
     console.log('Push received with no data.')
