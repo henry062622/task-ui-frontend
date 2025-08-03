@@ -22,12 +22,16 @@
                         ? 'bg-blue-200'
                         : 'hover:bg-blue-100'
                 ]" @click="toggleSelection(item.id)">
-                    <div class="relative !w-30">
+                    <div class="relative !w-30 group">
                         <!-- Delete Icon -->
                         <CheckCircleOutlined v-if="selectedIds.has(item.id)"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
                         <!-- Image -->
                         <img :src="item.thumbnail_url" alt="actor" class="!w-30 aspect-[4/5] object-fill" />
+                        <!-- View icon overlay -->
+                        <EyeOutlined
+                            class="absolute bottom-1 right-1 cursor-pointer bg-gray-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            @click.stop="previewRef.openPreview(item.storage_url)" />
                     </div>
                 </div>
             </div>
@@ -37,11 +41,14 @@
             width="100%" show-quick-jumper @change="handlePageChange" show-less-items :showSizeChanger="false" />
 
     </a-modal>
+    <!-- show preview for sample -->
+    <CustomPreviewImage ref="previewRef" />
 </template>
 
 <script setup>
 import { ref, watch } from 'vue';
-import { CheckCircleOutlined } from '@ant-design/icons-vue';
+import { CheckCircleOutlined, EyeOutlined } from '@ant-design/icons-vue';
+import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
 
 const props = defineProps({
     visible: Boolean,
@@ -72,6 +79,7 @@ const props = defineProps({
 
 const selectedWebsite = ref(null);
 const selectedtype = ref(null);
+const previewRef = ref(null);
 
 const emit = defineEmits([
     'update:selected',

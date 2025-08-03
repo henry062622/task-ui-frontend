@@ -1,12 +1,10 @@
 <template>
     <a-layout has-sider :style="{ width: '100%', height: '100svh', background: '#fff' }">
+        <!-- side bar -->
         <a-layout-sider :style="{ overflow: 'auto', height: '100%', position: 'fixed', left: 0, top: 0, bottom: 0, }">
             <div class="w-full text-white p-4 border-b border-gray-700 text-center text-lg !mb-4 !font-bold">
                 {{ $t('task_management') }}
             </div>
-            <!-- <div class="!m-4 h-8 flex justify-center items-center rounded-2xl bg-[rgba(255,255,255,0.2)]"> -->
-            <!-- <h3 class="text-white">Task Management</h3> -->
-            <!-- </div> -->
             <a-menu :selectedKeys="selectedKeys" theme="dark" mode="inline" @update:selectedKeys="onSelect">
                 <a-menu-item v-for="(menu, index) in filteredMenuItems" :key="menu.url">
                     <div class="flex items-center gap-3">
@@ -15,12 +13,10 @@
                     </div>
                 </a-menu-item>
             </a-menu>
-
-            <!-- <div class="absolute bottom-0 w-full text-white p-4 border-t border-gray-700">
-
-            </div> -->
         </a-layout-sider>
+        <!-- main layout -->
         <a-layout :style="{ marginLeft: '200px', height: '100svh', background: '#fff', overflow: 'auto' }">
+            <!-- nav bar -->
             <div class="p-5 shadow-md flex gap-4">
                 <div v-if="site" class="flex gap-4">
                     <img :src="site.logo_url" alt="site_logo" class="site-logo w-15 h-8 ">
@@ -87,21 +83,16 @@
                             </a-menu>
                         </template>
                     </a-dropdown>
-
                 </div>
-
-
             </div>
-            <!-- <a-layout-header :style="{ background: '#fff', padding: 0 }" /> -->
-            <!-- <a-layout-content :style="{ width: '100%', height: '100vh', margin: '24px 16px 0', overflow: 'initial' }"> -->
+            <!-- breadcrumb -->
             <a-breadcrumb style="margin: 16px" v-if="breadcrumbList">
                 <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{ $t(breadcrumb) }}</a-breadcrumb-item>
             </a-breadcrumb>
+            <!-- main content -->
             <div class="!m-4 h-full">
                 <slot />
             </div>
-
-            <!-- </a-layout-content> -->
         </a-layout>
     </a-layout>
 </template>
@@ -113,7 +104,6 @@ import UserInfo from '../user/UserInfo.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useI18n } from 'vue-i18n';
 import { DownOutlined } from '@ant-design/icons-vue';
-import api from '@/lib/axios';
 import { useNotiStore } from '@/stores/notifications';
 
 defineProps({
@@ -121,6 +111,7 @@ defineProps({
     site: Object
 });
 
+// menu items for side bar
 const menuItems = ref([
     {
         id: 1,
@@ -129,13 +120,6 @@ const menuItems = ref([
         icon: 'mynaui:desktop',
 
     },
-    // {
-    //     id: 2,
-    //     name: 'ip_whitelist',
-    //     url: '/ip-whitelist',
-    //     icon: 'hugeicons:location-03',
-    //     permission: 'ip_whitelist_read'
-    // },
     {
         id: 3,
         name: 'user',
@@ -162,7 +146,6 @@ const menuItems = ref([
         name: 'system_files',
         url: '/system-files',
         icon: 'solar:folder-with-files-line-duotone',
-        // permission: 'role_read'
     }
 ]);
 
@@ -176,8 +159,6 @@ const isEnglish = ref(locale.value === 'en')
 const user = auth.user;
 // selectedKeys holds an array of active keys (we use the URL string)
 const selectedKeys = ref([]);
-const notiList = noti.notificationList;
-// const noti = useNotifi
 
 const Logout = async () => {
     auth.logout();
@@ -220,13 +201,10 @@ const filteredMenuItems = computed(() => {
     });
 });
 
-
-
 // On component mount, set the active menu based on current route
 onMounted(() => {
     selectedKeys.value = [route.path];
     noti.getLatestNotificationList();
-    // getLatestNoti();
 });
 
 // update the active menu item
@@ -237,7 +215,6 @@ watch(() => route.path, (newPath) => {
 // if you want the switch to reflect outside changes to locale:
 watch(locale, val => {
     isEnglish.value = (val === 'en')
-    console.log(isEnglish.value)
 })
 
 // Called whenever a user clicks a menu item
@@ -254,15 +231,12 @@ function onSelect(keys) {
 </script>
 <style scoped>
 .flag-switch {
-    /* size it to fit your flags */
     width: 50px;
     height: 23px;
-    /* default (unchecked) = Thai flag */
     background-image: url('/th.png');
     background-size: cover;
     background-position: center;
     border: none;
-    /* remove the grey track if you like */
 }
 
 :where(.css-dev-only-do-not-override-1p3hq3p).ant-switch:hover:not(.ant-switch-disabled) {
@@ -288,15 +262,12 @@ function onSelect(keys) {
     width: 28px;
     height: 28px;
     top: 3px;
-    /* center it vertically */
     left: 3px;
-    /* offset so it slides nicely */
     transition: left .2s;
 }
 
 /* make sure the handle slides all the way */
 .flag-switch.ant-switch-checked .ant-switch-handle {
     left: 29px;
-    /* = width(track) - width(handle) - margin */
 }
 </style>

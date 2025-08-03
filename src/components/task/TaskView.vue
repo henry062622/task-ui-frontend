@@ -1,5 +1,6 @@
 <template>
     <div class="flex flex-col !gap-4">
+        <!-- Title and buttons -->
         <a-row :gutter="16">
             <a-col :span="6">
                 <h2 class="!font-bold text-3xl">{{ $t('title') }}</h2>
@@ -26,11 +27,6 @@
                         @click="clickMarkReview(task.id)">
                         {{ $t('reviewed') }}
                     </a-button>
-
-                    <!-- <a-button v-if="task.status == 'in-progress' && task.assignee?.id == userId"
-                        @click="clickCompleteBtn()">
-                        {{ $t('complete') }}
-                    </a-button> -->
 
                     <a-button
                         v-if="(task.status == 'in-progress' || task.status == 'pending') && task.assignee?.id == userId"
@@ -90,7 +86,7 @@
                     </a-col>
                     <a-col :span="18">
                         <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-                            }}</a-tag>
+                        }}</a-tag>
                     </a-col>
                 </a-row>
             </a-col>

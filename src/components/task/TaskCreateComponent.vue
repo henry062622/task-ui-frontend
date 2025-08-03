@@ -145,10 +145,6 @@
                             class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
                         <div class="text-xs mt-1 truncate" :title="file.file_name">{{ file.file_name }}</div>
                     </div>
-                    <!-- <div v-for="(theme, index) in allSelectedThemes" :key="index"
-                        class="w-28 h-10 bg-gray-100 rounded border text-xs flex items-center justify-center text-center px-2">
-                        {{ theme }}
-                    </div> -->
                 </div>
             </a-col>
         </a-row>
@@ -355,10 +351,14 @@
                             ? 'opacity-50 pointer-events-none'
                             : 'hover:bg-blue-100'
                 ]" @click="toggleSystemImage(item)">
-                    <div class="relative !w-30">
+                    <div class="relative !w-30 group">
                         <CheckCircleOutlined v-if="selectedSystemImages.some(img => img.id === item.id)"
                             class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
                         <img :src="item.thumbnail_url" alt="sample" class="!w-30 aspect-[4/5] object-fill" />
+                        <!-- View icon overlay -->
+                        <EyeOutlined
+                            class="absolute bottom-1 right-1 cursor-pointer bg-gray-300 rounded-full p-1 shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            @click.stop="previewRef.openPreview(item.storage_url)" />
                     </div>
                 </div>
             </div>
@@ -388,11 +388,14 @@
     <!-- & at the very bottom: -->
     <PasteImageModal v-model="pasteModalVisible" :options="pasteTargetOptions" @confirm="onPasteConfirm" />
 
+    <!-- show preview for sample -->
+    <CustomPreviewImage ref="previewRef" />
+
 </template>
 <script setup>
 import api from '@/lib/axios';
 import { computed, onMounted, ref, watch } from 'vue';
-import { PlusOutlined, MinusCircleOutlined, CheckCircleOutlined } from '@ant-design/icons-vue';
+import { PlusOutlined, MinusCircleOutlined, CheckCircleOutlined, EyeOutlined } from '@ant-design/icons-vue';
 import SystemImagePicker from './SystemImagePicker.vue';
 import { mergeSelectedImages } from '@/utils/mergeSelectedImage';
 import router from '@/router';
@@ -400,6 +403,7 @@ import ImageView from '../ui/ImageView.vue';
 import LocalImageView from '../ui/LocalImageView.vue';
 import { useI18n } from 'vue-i18n'
 import PasteImageModal from './PasteImageModal.vue';
+import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
 
 const { t } = useI18n()
 
@@ -461,16 +465,18 @@ const decorativePage = ref(1);
 const decorativeTotal = ref(0);
 const selectedDecorativeIds = ref([]);
 
+// Paste image popup
 const previewPreviousFiles = ref([]);
-
 const pasteModalVisible = ref(false)
-
 const pasteTargetOptions = [
     { label: t('files_required_for_task'), value: 'task_file' },
     { label: t('sample_img'), value: 'sample_image' },
     { label: t('actor_images'), value: 'actor_images' },
     { label: t('decorative_image'), value: 'decorative_images' },
 ]
+
+//sample image preview
+const previewRef = ref(null)
 
 function onPasteConfirm({ file, target }) {
     switch (target) {
@@ -486,7 +492,6 @@ function onPasteConfirm({ file, target }) {
 
         case 'sample_image':
             formState.value.sample_images.push(file)
-            // formState.value.sample_image_type = 'upload'
             errors.value.sample_image = ''
             break
 
@@ -518,13 +523,6 @@ const handleColorChange = (selected) => {
 
 const totalThemeCount = computed(() => {
     return formState.value.themes.length + formState.value.custom_themes.length;
-});
-
-const allSelectedThemes = computed(() => {
-    const selectedLabels = themeList.value
-        .filter(item => formState.value.themes.includes(item.id))
-        .map(item => item.text);
-    return [...selectedLabels, ...formState.value.custom_themes];
 });
 
 const handleThemeChange = async (selected) => {
@@ -565,7 +563,6 @@ const removeCustomTheme = (index) => {
 const handleFileUpload = (info) => {
     // Only keep images and limit total number if needed
     const fileList = info.fileList.filter(file => {
-        // return file.type.startsWith('image/') || file.type.startsWith('video/');
         if (file.type) {
             if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
             if (file.type === 'application/zip') return true;
@@ -611,10 +608,6 @@ const handleSamplePageChange = (page) => {
     samplePage.value = page;
     getSampleImageList(page);
 };
-
-// const selectSystemImage = (item) => {
-//     selectedSystemImage.value = item;
-// };
 
 const toggleSystemImage = (item) => {
     const idx = selectedSystemImages.value.findIndex(img => img.id === item.id);
@@ -699,7 +692,6 @@ const submitForm = async () => {
     if (!validateForm()) return;
 
     // 👉 Form is valid — proceed with API call or form submission
-    console.log('Ready to submit:', formState.value);
     const formData = new FormData();
 
     // Scalars
@@ -713,15 +705,8 @@ const submitForm = async () => {
     formData.append('task_description', formState.value.task_description);
     formData.append('requester_name', formState.value.requester_name);
     formData.append('deadline', formState.value.deadline);
-    // formData.append('sample_image_type', formState.value.sample_image_type);
 
     // 🖼 Sample image
-    // if (formState.value.sample_image_type === 'upload') {
-    //     formData.append('sample_image', formState.value.sample_image);
-    // } else if (formState.value.sample_image_type === 'system') {
-    //     formData.append('sample_image', String(formState.value.sample_image.id));
-    // }
-
     formState.value.sample_images.forEach((img, i) => {
         if (img.id) {
             formData.append(`sample_images[${i}]`, String(img.id));
@@ -777,16 +762,14 @@ const submitForm = async () => {
         }
     });
 
-    // TODO: Call API here
     isLoading.value = true;
     try {
-        const res = await api.post('/api/task/create', formData, {
+        await api.post('/api/task/create', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
         router.push('/dashboard');
-        console.log(res);
     } catch (err) {
-        console.log(err);
+        console.error(err);
     } finally {
         isLoading.value = false
     }
@@ -814,7 +797,6 @@ const loadDecorativePageWithPagination = ({ page, site, type }) => {
 
 const getTaskTypeList = () => {
     api.get('/api/get-task-type-name-list').then(res => {
-        console.log(res);
         taskTypeList.value = res.data.data;
     });
 }
@@ -945,14 +927,6 @@ const validateForm = () => {
         hasError = true
     }
 
-    // Themes
-    // const totalThemes =
-    //     formState.value.themes.length + formState.value.custom_themes.length
-    // if (totalThemes === 0) {
-    //     errors.value.themes = t('validation.themesRequired')
-    //     hasError = true
-    // }
-
     // Image Text
     if (!formState.value.image_text?.trim()) {
         errors.value.image_text = t('validation.imageTextRequired')
@@ -964,12 +938,6 @@ const validateForm = () => {
         errors.value.task_description = t('validation.taskDescriptionRequired')
         hasError = true
     }
-
-    // Task File
-    // if (!formState.value.task_file.length) {
-    //     errors.value.task_file = t('validation.taskFileRequired')
-    //     hasError = true
-    // }
 
     // Sample Image
     if (!formState.value.sample_images.length) {
