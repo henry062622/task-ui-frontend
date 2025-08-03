@@ -19,7 +19,7 @@
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue';
 import api from '@/lib/axios';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 import { useRoute, RouterLink } from 'vue-router';
 import TaskView from '@/components/task/TaskView.vue';
 import TaskEditComponent from '@/components/task/TaskEditComponent.vue';
@@ -28,11 +28,11 @@ const route = useRoute();
 
 const showView = ref(true);
 const task = ref(null);
-const taskId = route.params.id
+const taskId = ref(route.params.id)
 const userList = ref([]);
 
 const getTaskDetail = async () => {
-    await api.get(`/api/tasks/${taskId}`).then(res => {
+    await api.get(`/api/tasks/${taskId.value}`).then(res => {
         task.value = res.data.data;
     })
 }
@@ -51,5 +51,10 @@ const updated = () => {
 onMounted(() => {
     getTaskDetail();
     getUserNameList()
+})
+
+watch(() => route.params.id, (newId) => {
+    taskId.value = newId;
+    getTaskDetail()
 })
 </script>
