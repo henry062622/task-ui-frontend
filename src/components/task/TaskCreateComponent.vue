@@ -2,93 +2,13 @@
     <h2 class="!font-bold text-3xl">{{ $t('main_topic') }}</h2>
     <a-form :model="formState" name="create_task" layout="vertical" autocomplete="off" class="bg-white w-full">
 
-        <!-- Job Title Section -->
-        <a-row>
-            <a-col :span="24">
-                <a-form-item :label="$t('job_title')" name="job_title"
-                    :rules="[{ required: true, message: 'please input Job Title!' }]"
-                    :validate-status="errors.job_title ? 'error' : ''" :help="errors.job_title">
-                    <a-input v-model:value="formState.job_title" :placeholder="$t('enterProjectOrTask')"
-                        class="w-full" />
-                </a-form-item>
-            </a-col>
-        </a-row>
-
-        <!-- Task Type Section -->
-        <a-row :gutter="16">
-            <a-col :span="formState.task_type === 'custom' ? 12 : 24">
-                <a-form-item :label="$t('task_type')" name="task_type"
-                    :rules="[{ required: true, message: 'please select task type!' }]"
-                    :validate-status="errors.task_type ? 'error' : ''" :help="errors.task_type">
-                    <a-select v-model:value="formState.task_type" :placeholder="$t('selectTaskType')" class="w-full">
-                        <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
-                        <a-select-option v-for="task in taskTypeList" :key="task.id" :value="task.id">
-                            {{ task.name }}
-                        </a-select-option>
-                    </a-select>
-                </a-form-item>
-            </a-col>
-
-            <!-- Custom Task Type Input -->
-            <a-col v-if="formState.task_type === 'custom'" :span="12">
-                <a-form-item :label="$t('custom_task_type')" name="custom_task_type"
-                    :rules="[{ required: true, message: 'please input custom task type!' }]"
-                    :validate-status="errors.custom_task_type ? 'error' : ''" :help="errors.custom_task_type">
-                    <a-input v-model:value="formState.custom_task_type" :placeholder="t('enterNewTaskType')"
-                        class="w-full" />
-                </a-form-item>
-            </a-col>
-        </a-row>
-
-        <!-- Size Section -->
-        <a-row :gutter="16">
-            <a-col :span="formState.size === 'custom' ? 12 : 24">
-                <a-form-item :label="$t('size')" name="size"
-                    :rules="[{ required: true, message: 'please select size!' }]"
-                    :validate-status="errors.size ? 'error' : ''" :help="errors.size">
-                    <a-select v-model:value="formState.size" :disabled="!formState.task_type" :placeholder="!formState.task_type
-                        ? t('pleaseSelectTaskTypeFirst')
-                        : t('selectSize')" class="w-full">
-                        <!-- If task type is custom, only show custom option -->
-                        <template v-if="formState.task_type === 'custom'">
-                            <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
-                        </template>
-
-                        <!-- Otherwise show list from API -->
-                        <template v-else>
-                            <a-select-option value="custom">{{ $t('custom') }}</a-select-option>
-                            <a-select-option v-for="size in sizeList" :key="size.id" :value="size.id">
-                                {{ size.name }}
-                            </a-select-option>
-                        </template>
-                    </a-select>
-                </a-form-item>
-            </a-col>
-
-            <!-- Custom Size Input -->
-            <a-col v-if="formState.size === 'custom'" :span="12">
-                <a-form-item :label="$t('custom_size')" name="custom_size"
-                    :rules="[{ required: true, message: 'please input custom size!' }]"
-                    :validate-status="errors.custom_size ? 'error' : ''" :help="errors.custom_size">
-                    <a-input v-model:value="formState.custom_size" :placeholder="t('enterCustomSize')" class="w-full" />
-                </a-form-item>
-            </a-col>
-        </a-row>
+        <!-- Job title, task type, size -->
+        <TaskBasicInfo :formState="formState" :errors="errors" :taskTypeList="taskTypeList" :sizeList="sizeList"
+            @task-type-change="getSizesByTaskType" />
 
         <!-- File Type Section -->
-        <a-row>
-            <a-col :span="24">
-                <a-form-item :label="$t('file_types')" name="file_types"
-                    :rules="[{ required: true, message: 'Please select at least one file type' }]"
-                    :validate-status="errors.file_types ? 'error' : ''" :help="errors.file_types">
-                    <a-select mode="multiple" v-model:value="formState.file_types"
-                        :placeholder="t('selectUpTo3FileTypes')" :maxTagCount="3" :maxTagPlaceholder="() => '+ more'"
-                        :disabled="fileTypeList.length === 0"
-                        :options="fileTypeList.map(type => ({ label: type, value: type }))" class="w-full"
-                        @change="handleFileTypeChange" />
-                </a-form-item>
-            </a-col>
-        </a-row>
+        <TaskFileTypes :formState="formState" :errors="errors" :fileTypeList="fileTypeList"
+            @update:file_types="val => formState.file_types = val" />
 
         <!-- Color Selection -->
         <a-row :gutter="16">
@@ -334,7 +254,7 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-            }}</a-button>
+                }}</a-button>
         </div>
     </a-form>
 
@@ -404,6 +324,8 @@ import LocalImageView from '../ui/LocalImageView.vue';
 import { useI18n } from 'vue-i18n'
 import PasteImageModal from './PasteImageModal.vue';
 import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
+import TaskBasicInfo from './form/TaskBasicInfo.vue';
+import TaskFileTypes from './form/TaskFileTypes.vue';
 
 const { t } = useI18n()
 
@@ -691,88 +613,90 @@ const removeDecorativeImage = (index) => {
 const submitForm = async () => {
     if (!validateForm()) return;
 
+    console.log(formState.value)
+
     // 👉 Form is valid — proceed with API call or form submission
-    const formData = new FormData();
+    // const formData = new FormData();
 
-    // Scalars
-    formData.append('website_id', String(formState.value.website_id));
-    formData.append('job_title', formState.value.job_title);
-    formData.append('task_type', String(formState.value.task_type));
-    formData.append('custom_task_type', formState.value.custom_task_type || '');
-    formData.append('size', String(formState.value.size));
-    formData.append('custom_size', formState.value.custom_size || '');
-    formData.append('image_text', formState.value.image_text);
-    formData.append('task_description', formState.value.task_description);
-    formData.append('requester_name', formState.value.requester_name);
-    formData.append('deadline', formState.value.deadline);
+    // // Scalars
+    // formData.append('website_id', String(formState.value.website_id));
+    // formData.append('job_title', formState.value.job_title);
+    // formData.append('task_type', String(formState.value.task_type));
+    // formData.append('custom_task_type', formState.value.custom_task_type || '');
+    // formData.append('size', String(formState.value.size));
+    // formData.append('custom_size', formState.value.custom_size || '');
+    // formData.append('image_text', formState.value.image_text);
+    // formData.append('task_description', formState.value.task_description);
+    // formData.append('requester_name', formState.value.requester_name);
+    // formData.append('deadline', formState.value.deadline);
 
-    // 🖼 Sample image
-    formState.value.sample_images.forEach((img, i) => {
-        if (img.id) {
-            formData.append(`sample_images[${i}]`, String(img.id));
-        } else {
-            const actualFile = img.originFileObj || img;
-            formData.append(`sample_images[${i}]`, actualFile);
-        }
-    });
+    // // 🖼 Sample image
+    // formState.value.sample_images.forEach((img, i) => {
+    //     if (img.id) {
+    //         formData.append(`sample_images[${i}]`, String(img.id));
+    //     } else {
+    //         const actualFile = img.originFileObj || img;
+    //         formData.append(`sample_images[${i}]`, actualFile);
+    //     }
+    // });
 
-    // 🧾 File types (array of strings)
-    formState.value.file_types.forEach((type) => {
-        formData.append('file_types[]', type);
-    });
+    // // 🧾 File types (array of strings)
+    // formState.value.file_types.forEach((type) => {
+    //     formData.append('file_types[]', type);
+    // });
 
-    // 🎨 Colors (array of hex values)
-    formState.value.colors.forEach((color) => {
-        formData.append('colors[]', color);
-    });
+    // // 🎨 Colors (array of hex values)
+    // formState.value.colors.forEach((color) => {
+    //     formData.append('colors[]', color);
+    // });
 
-    // 🎭 Themes (existing)
-    formState.value.themes.forEach((themeId) => {
-        formData.append('themes[]', String(themeId));
-    });
+    // // 🎭 Themes (existing)
+    // formState.value.themes.forEach((themeId) => {
+    //     formData.append('themes[]', String(themeId));
+    // });
 
-    // 🧠 Custom themes
-    formState.value.custom_themes.forEach((text) => {
-        formData.append('custom_themes[]', text);
-    });
+    // // 🧠 Custom themes
+    // formState.value.custom_themes.forEach((text) => {
+    //     formData.append('custom_themes[]', text);
+    // });
 
-    // 📂 Task files (Upload file list -> extract File object)
-    formState.value.task_file.forEach((fileObj) => {
-        const actualFile = fileObj.originFileObj;
-        formData.append('task_file[]', actualFile);
-    });
+    // // 📂 Task files (Upload file list -> extract File object)
+    // formState.value.task_file.forEach((fileObj) => {
+    //     const actualFile = fileObj.originFileObj;
+    //     formData.append('task_file[]', actualFile);
+    // });
 
-    // 👤 Actor images (mixed id or file)
-    formState.value.actor_images.forEach((img, i) => {
-        if (img.id) {
-            formData.append(`actor_images[${i}]`, String(img.id));
-        } else {
-            const actualFile = img.originFileObj || img;
-            formData.append(`actor_images[${i}]`, actualFile);
-        }
-    });
+    // // 👤 Actor images (mixed id or file)
+    // formState.value.actor_images.forEach((img, i) => {
+    //     if (img.id) {
+    //         formData.append(`actor_images[${i}]`, String(img.id));
+    //     } else {
+    //         const actualFile = img.originFileObj || img;
+    //         formData.append(`actor_images[${i}]`, actualFile);
+    //     }
+    // });
 
-    // 🖼 Decorative images (mixed id or file)
-    formState.value.decorative_images.forEach((img, i) => {
-        if (img.id) {
-            formData.append(`decorative_images[${i}]`, String(img.id));
-        } else {
-            const actualFile = img.originFileObj || img;
-            formData.append(`decorative_images[${i}]`, actualFile);
-        }
-    });
+    // // 🖼 Decorative images (mixed id or file)
+    // formState.value.decorative_images.forEach((img, i) => {
+    //     if (img.id) {
+    //         formData.append(`decorative_images[${i}]`, String(img.id));
+    //     } else {
+    //         const actualFile = img.originFileObj || img;
+    //         formData.append(`decorative_images[${i}]`, actualFile);
+    //     }
+    // });
 
-    isLoading.value = true;
-    try {
-        await api.post('/api/task/create', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        router.push('/dashboard');
-    } catch (err) {
-        console.error(err);
-    } finally {
-        isLoading.value = false
-    }
+    // isLoading.value = true;
+    // try {
+    //     await api.post('/api/task/create', formData, {
+    //         headers: { 'Content-Type': 'multipart/form-data' }
+    //     });
+    //     router.push('/dashboard');
+    // } catch (err) {
+    //     console.error(err);
+    // } finally {
+    //     isLoading.value = false
+    // }
 };
 
 const clickCancelBtn = () => {
@@ -867,15 +791,15 @@ const fetchDecorativeTypes = async () => {
     decorativeTypeList.value = res.data.data;
 };
 
-watch(() => formState.value.task_type, (newVal) => {
-    formState.value.size = null; // reset size selection
+// watch(() => formState.value.task_type, (newVal) => {
+//     formState.value.size = null; // reset size selection
 
-    if (newVal === 'custom') {
-        sizeList.value = []; // clear size list
-    } else if (newVal) {
-        getSizesByTaskType(newVal); // fetch size list from API
-    }
-});
+//     if (newVal === 'custom') {
+//         sizeList.value = []; // clear size list
+//     } else if (newVal) {
+//         getSizesByTaskType(newVal); // fetch size list from API
+//     }
+// });
 
 onMounted(() => {
     getTaskTypeList()
