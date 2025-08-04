@@ -86,7 +86,7 @@
                     </a-col>
                     <a-col :span="18">
                         <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-                        }}</a-tag>
+                            }}</a-tag>
                     </a-col>
                 </a-row>
             </a-col>
@@ -238,8 +238,10 @@
                 </a-row>
             </a-col>
         </a-row>
-        <a-row :gutter="16">
-            <a-col :span="12" v-if="task.task_submissions.length > 0">
+
+        <!-- task submission -->
+        <a-row :gutter="16" v-if="task.task_submissions.length > 0">
+            <a-col :span="12">
                 <a-row>
                     <a-col :span="24" class="!font-semibold !text-base">{{ $t('task_submission') }} :</a-col>
                     <a-col :span="24">
@@ -278,33 +280,71 @@
                                         {{ file.file_name || 'Archive' }}
                                     </div>
                                 </div>
+                                <div v-else
+                                    class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-4 px-2">
+                                    <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
+                                        class="absolute top-1 right-1 hover:!bg-gray-100">
+                                        <DownloadOutlined
+                                            class="text-lg !text-blue-600 rounded-full shadow cursor-pointer z-10"
+                                            :title="$t('download')" />
+                                    </a>
+                                    <div>
+                                        <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
+                                    </div>
+                                    <div class="text-xs text-gray-700 text-center truncate w-[90px]"
+                                        :title="file.file_name">
+                                        {{ file.file_name || 'Document' }}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </a-col>
                 </a-row>
             </a-col>
-            <a-col :span="12" v-if="task.task_revision && task.status != 'complete'">
+            <a-col :span="12">
+                <a-row>
+                    <a-col :span="24" class="!font-semibold !text-base !mb-2">
+                        {{ $t('text_submission') }} :
+                    </a-col>
+                    <a-col :span="24">
+                        <a-textarea :value="task.submitted_text" class="w-full" readonly></a-textarea>
+                    </a-col>
+                </a-row>
+            </a-col>
+        </a-row>
+
+        <!-- task revision -->
+        <a-row :gutter="16" v-if="task.task_revision && task.status != 'complete'">
+            <a-col :span="12">
                 <a-row>
                     <a-col :span="24" class="!font-semibold !text-base !mb-2">
                         {{ $t('revision_reason') }} :
                     </a-col>
                     <a-col :span="24">
-                        <div class="flex gap-2">
-                            <div class="relative w-[120px]">
-                                <!-- Download Icon -->
-                                <DownloadOutlined @click="downloadImage(task.task_revision)"
-                                    class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
-                                <!-- Image -->
-                                <a-image :src="task.task_revision.storage_url" alt="Preview"
-                                    class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
-                            </div>
-
-                            <a-textarea :value="task.task_revision.reason" class="w-full" readonly></a-textarea>
+                        <div class="relative w-[120px]">
+                            <!-- Download Icon -->
+                            <DownloadOutlined @click="downloadImage(task.task_revision)"
+                                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                            <!-- Image -->
+                            <a-image :src="task.task_revision.storage_url" alt="Preview"
+                                class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
                         </div>
+                    </a-col>
+                </a-row>
+
+            </a-col>
+            <a-col :span="12">
+                <a-row>
+                    <a-col :span="24" class="!font-semibold !text-base !mb-2">
+                        {{ $t('revision_reason_text') }} :
+                    </a-col>
+                    <a-col :span="24">
+                        <a-textarea :value="task.task_revision.reason" class="w-full" readonly></a-textarea>
                     </a-col>
                 </a-row>
             </a-col>
         </a-row>
+
         <!-- task files -->
         <a-row>
             <a-col :span="24" class="!font-semibold !text-base">{{ $t('files_required_for_task') }}
@@ -345,6 +385,21 @@
                             </div>
                             <div class="text-xs text-gray-700 text-center truncate w-[90px]">
                                 {{ file.file_name || 'Archive' }}
+                            </div>
+                        </div>
+                        <!-- Document files (Word, Excel, PowerPoint, PDF, others) -->
+                        <div v-else
+                            class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-4 px-2">
+                            <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
+                                class="absolute top-1 right-1 hover:!bg-gray-100">
+                                <DownloadOutlined class="text-lg !text-blue-600 rounded-full shadow cursor-pointer z-10"
+                                    :title="$t('download')" />
+                            </a>
+                            <div>
+                                <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
+                            </div>
+                            <div class="text-xs text-gray-700 text-center truncate w-[90px]" :title="file.file_name">
+                                {{ file.file_name || 'Document' }}
                             </div>
                         </div>
                     </div>
@@ -432,10 +487,11 @@ import { onMounted, ref } from 'vue';
 import api from '@/lib/axios';
 import { getColor } from '@/utils/initials';
 import ImageView from '../ui/ImageView.vue';
-import { DownloadOutlined, EditOutlined, FileZipOutlined } from '@ant-design/icons-vue';
+import { DownloadOutlined, EditOutlined, FileZipOutlined, FileWordOutlined, FileExcelOutlined, FilePptOutlined, FilePdfOutlined, FileOutlined } from '@ant-design/icons-vue';
 import { Icon } from '@iconify/vue';
 import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
 import { getStatusLabel } from '@/utils/status';
+import { getIconComponent } from '@/utils/getFileTypeIcon';
 
 const props = defineProps({
     task: {

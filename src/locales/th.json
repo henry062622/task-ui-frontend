@@ -92,6 +92,7 @@
   "validation.sizeRequired": "กรุณาเลือกขนาด",
   "validation.customSizeRequired": "กรุณากรอกขนาดที่กำหนดเอง",
   "validation.fileTypesRequired": "กรุณาเลือกประเภทไฟล์อย่างน้อยหนึ่งประเภท",
+  "validation.ColorsRequired": "กรุณาเลือกสีอย่างน้อยหนึ่งสี!",
   "validation.themesRequired": "กรุณาเลือกธีมหรือกรอกธีมที่กำหนดเอง",
   "validation.imageTextRequired": "กรุณากรอกข้อความในภาพ",
   "validation.taskDescriptionRequired": "กรุณากรอกรายละเอียดงาน",
@@ -157,7 +158,7 @@
   "revisions_required": "งานที่ต้องแก้ไข",
   "needs_revision": "ต้องแก้ไข",
   "submit_for_review": "ส่งตรวจงาน",
-  "reviewed": "ตรวจงานแล้ว",
+  "reviewed": "ตรวจงาน",
   "revision_reason": "เหตุผลในการแก้ไข",
   "fromDate": "จากวันที่",
   "toDate": "ถึงวันที่",
@@ -174,5 +175,8 @@
   "drag_and_drop": "ลากและวางหรือคลิกเพื่ออัปโหลด",
   "max_15_images": "อนุญาตให้อัปโหลดได้สูงสุด 15 รูปภาพ!",
   "upload_image": "อัปโหลดรูปภาพ",
-  "select_upload_max_3_imgs": "เลือกหรืออัปโหลดได้สูงสุด 3 รูปภาพ"
+  "select_upload_max_3_imgs": "เลือกหรืออัปโหลดได้สูงสุด 3 รูปภาพ",
+  "enter_submit_text": "กรอกข้อความสำหรับส่ง",
+  "text_submission": "การส่งข้อความ",
+  "revision_reason_text": "ข้อความเหตุผลการแก้ไข"
 }

@@ -94,7 +94,9 @@
         <a-row :gutter="16">
             <!-- Dropdown -->
             <a-col :span="12">
-                <a-form-item :label="$t('colors_optional')" name="colors">
+                <a-form-item :label="$t('colors_optional')" name="colors"
+                    :rules="[{ required: true, message: 'Please select at least one colors' }]"
+                    :validate-status="errors.colors ? 'error' : ''" :help="errors.colors">
                     <a-select mode="multiple" v-model:value="formState.colors" :placeholder="t('selectUpTo3Colors')"
                         :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" class="w-full" show-search :filter-option="(input, option) =>
                             option.label.toLowerCase().includes(input.toLowerCase())
@@ -193,13 +195,7 @@
         <a-row>
             <a-col :span="24">
                 <a-form-item :label="$t('files_required_for_task')" name="task_file">
-                    <a-upload list-type="picture-card" multiple :file-list="formState.task_file"
-                        :before-upload="() => false" @change="handleFileUpload">
-                        <div>
-                            <plus-outlined />
-                            <div style="margin-top: 8px">{{ $t('upload') }}</div>
-                        </div>
-                    </a-upload>
+                    <FileUploader v-model="formState.task_file" />
                 </a-form-item>
             </a-col>
         </a-row>
@@ -334,7 +330,7 @@
         <div class="flex items-center justify-end gap-4 pt-4">
             <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
             <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-            }}</a-button>
+                }}</a-button>
         </div>
     </a-form>
 
@@ -404,6 +400,7 @@ import LocalImageView from '../ui/LocalImageView.vue';
 import { useI18n } from 'vue-i18n'
 import PasteImageModal from './PasteImageModal.vue';
 import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
+import FileUploader from '../general/FileUploader.vue';
 
 const { t } = useI18n()
 
@@ -430,7 +427,7 @@ const formState = ref({
     deadline: ''
 });
 const errors = ref({
-    job_title: '', task_type: null, custom_task_type: '', size: null, custom_size: '', file_types: '', themes: '', image_text: '',
+    job_title: '', task_type: null, custom_task_type: '', size: null, custom_size: '', file_types: '', colors: '', themes: '', image_text: '',
     task_description: '',
     task_file: '',
     sample_image: '',
@@ -925,6 +922,11 @@ const validateForm = () => {
     if (!formState.value.file_types.length) {
         errors.value.file_types = t('validation.fileTypesRequired')
         hasError = true
+    }
+
+    // colors
+    if (!formState.value.colors.length) {
+        errors.value.colors = t('validation.ColorsRequired')
     }
 
     // Image Text

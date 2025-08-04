@@ -92,6 +92,7 @@
   "validation.sizeRequired": "Please select Size!",
   "validation.customSizeRequired": "Please input custom Size!",
   "validation.fileTypesRequired": "Please select at least one File Type!",
+  "validation.ColorsRequired": "Please select at least one Colors!",
   "validation.themesRequired": "Please select at least one Theme or enter a custom one!",
   "validation.imageTextRequired": "Please input Text in the Image!",
   "validation.taskDescriptionRequired": "Please input Task Description!",
@@ -174,5 +175,8 @@
   "drag_and_drop": "Drag and drop or click to upload",
   "max_15_images": "Maximum 15 images allowed!",
   "upload_image": "Upload Image",
-  "select_upload_max_3_imgs": "Select or upload a maximum of 3 images"
+  "select_upload_max_3_imgs": "Select or upload a maximum of 3 images",
+  "enter_submit_text": "Enter text to submit",
+  "text_submission": "Text Submission",
+  "revision_reason_text": "Revision Reason Text"
 }

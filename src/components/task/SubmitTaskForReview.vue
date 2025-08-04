@@ -10,13 +10,17 @@
                     <a-form-item label="อัพโหลดไฟล์ที่เสร็จสิ้น / Upload finished file" name="file"
                         :rules="[{ required: true, message: 'Please upload at least one file' }]"
                         :validate-status="errors.file ? 'error' : ''" :help="errors.file">
-                        <a-upload list-type="picture-card" multiple :file-list="formState.file"
-                            :before-upload="() => false" @change="handleFileUpload">
-                            <div>
-                                <plus-outlined />
-                                <div style="margin-top: 8px">{{ $t('upload') }}</div>
-                            </div>
-                        </a-upload>
+                        <FileUploader v-model="formState.file" />
+                    </a-form-item>
+                </a-col>
+            </a-row>
+
+            <!-- text for submitted -->
+            <a-row>
+                <a-col :span="24">
+                    <a-form-item :label="$t('text_submission')" name="submitted_text">
+                        <a-textarea v-model:value="formState.submitted_text" :placeholder="$t('enter_submit_text')"
+                            :rows="4" />
                     </a-form-item>
                 </a-col>
             </a-row>
@@ -25,7 +29,7 @@
             <div class="flex items-center justify-end gap-4">
                 <a-button @click="cancel">{{ $t('cancel') }}</a-button>
                 <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('submit')
-                    }}</a-button>
+                }}</a-button>
             </div>
         </a-form>
     </a-modal>
@@ -33,8 +37,8 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { PlusOutlined } from '@ant-design/icons-vue'
 import api from '@/lib/axios'
+import FileUploader from '../general/FileUploader.vue'
 
 const props = defineProps({
     visible: {
@@ -52,7 +56,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['close', 'submitTask'])
 
-const formState = ref({ task_id: props.taskId, file: [] })
+const formState = ref({ task_id: props.taskId, file: [], submitted_text: '' })
 const errors = ref({ file: '' })
 const isLoading = ref(false)
 
@@ -71,36 +75,37 @@ watch(() => props.visible, (val) => {
         } else {
             formState.value.file = []
         }
+        formState.value.submitted_text = props.task?.submitted_text ?? ''
 
         errors.value.assignee = ''
     }
 })
 
-const handleFileUpload = (info) => {
-    // Only keep images and limit total number if needed
-    const fileList = info.fileList.filter(file => {
-        if (file.type) {
-            if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
-            if (file.type === 'application/zip') return true;
-        }
-        // Allow zip/rar by extension (type might be blank)
-        const ext = file.name?.split('.').pop()?.toLowerCase();
-        if (ext === 'zip' || ext === 'rar') return true;
-        // Also allow objects without 'type' (already uploaded files)
-        return true;
-    });
-    // const fileList = info.fileList.filter(file => {
-    //     return file.type.startsWith('image/') || file.type.startsWith('video/');
-    // });
+// const handleFileUpload = (info) => {
+//     // Only keep images and limit total number if needed
+//     const fileList = info.fileList.filter(file => {
+//         if (file.type) {
+//             if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
+//             if (file.type === 'application/zip') return true;
+//         }
+//         // Allow zip/rar by extension (type might be blank)
+//         const ext = file.name?.split('.').pop()?.toLowerCase();
+//         if (ext === 'zip' || ext === 'rar') return true;
+//         // Also allow objects without 'type' (already uploaded files)
+//         return true;
+//     });
+//     // const fileList = info.fileList.filter(file => {
+//     //     return file.type.startsWith('image/') || file.type.startsWith('video/');
+//     // });
 
-    formState.value.file = fileList;
+//     formState.value.file = fileList;
 
-    if (fileList.length === 0) {
-        errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
-    } else {
-        errors.value.file = '';
-    }
-};
+//     if (fileList.length === 0) {
+//         errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
+//     } else {
+//         errors.value.file = '';
+//     }
+// };
 
 // Submission logic
 const onSubmit = async () => {
@@ -109,7 +114,7 @@ const onSubmit = async () => {
         return;
     }
 
-    // isLoading.value = true
+    isLoading.value = true
     errors.value.file = ''
     console.log(formState.value);
 
@@ -123,6 +128,7 @@ const onSubmit = async () => {
             formData.append('files[]', fileObj.uid);
         }
     });
+    formData.append('submitted_text', formState.value.submitted_text);
     // formState.value.file.forEach((fileObj) => {
     //     const actualFile = fileObj.originFileObj;
     //     formData.append('files[]', actualFile);
