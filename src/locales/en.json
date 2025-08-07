@@ -178,5 +178,6 @@
   "select_upload_max_3_imgs": "Select or upload a maximum of 3 images",
   "enter_submit_text": "Enter text to submit",
   "text_submission": "Text Submission",
-  "revision_reason_text": "Revision Reason Text"
+  "revision_reason_text": "Revision Reason Text",
+  "revision_reason_image": "Revision Reason Image"
 }

@@ -1,58 +1,57 @@
 <template>
-    <a-modal :open="visible" :title="$t('submit_for_review')" :footer="null" :closable="false" centered>
-        <a-divider></a-divider>
+  <a-modal :open="visible" :title="$t('submit_for_review')" :footer="null" :closable="false" centered>
+    <a-divider></a-divider>
 
-        <a-form :model="formState" name="submit_task_for_review" layout="vertical" autocomplete="off" @finish="onSubmit"
-            class="w-full" @finishFailed="onFinishFailed">
-            <!-- upload file -->
-            <a-row>
-                <a-col :span="24">
-                    <a-form-item label="อัพโหลดไฟล์ที่เสร็จสิ้น / Upload finished file" name="file"
-                        :rules="[{ required: true, message: 'Please upload at least one file' }]"
-                        :validate-status="errors.file ? 'error' : ''" :help="errors.file">
-                        <FileUploader v-model="formState.file" />
-                    </a-form-item>
-                </a-col>
-            </a-row>
+    <a-form :model="formState" name="submit_task_for_review" layout="vertical" autocomplete="off" @finish="onSubmit"
+      class="w-full" @finishFailed="onFinishFailed">
+      <!-- upload file -->
+      <a-row>
+        <a-col :span="24">
+          <a-form-item label="อัพโหลดไฟล์ที่เสร็จสิ้น / Upload finished file" name="file"
+            :rules="[{ required: true, message: 'Please upload at least one file' }]"
+            :validate-status="errors.file ? 'error' : ''" :help="errors.file">
+            <FileUploader v-model="formState.file" />
+          </a-form-item>
+        </a-col>
+      </a-row>
 
-            <!-- text for submitted -->
-            <a-row>
-                <a-col :span="24">
-                    <a-form-item :label="$t('text_submission')" name="submitted_text">
-                        <a-textarea v-model:value="formState.submitted_text" :placeholder="$t('enter_submit_text')"
-                            :rows="4" />
-                    </a-form-item>
-                </a-col>
-            </a-row>
+      <!-- text for submitted -->
+      <a-row>
+        <a-col :span="24">
+          <a-form-item :label="$t('text_submission')" name="submitted_text">
+            <a-textarea v-model:value="formState.submitted_text" :placeholder="$t('enter_submit_text')" :rows="4" />
+          </a-form-item>
+        </a-col>
+      </a-row>
 
-            <!-- Footer Buttons -->
-            <div class="flex items-center justify-end gap-4">
-                <a-button @click="cancel">{{ $t('cancel') }}</a-button>
-                <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('submit')
-                }}</a-button>
-            </div>
-        </a-form>
-    </a-modal>
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end gap-4">
+        <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+        <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('submit')
+        }}</a-button>
+      </div>
+    </a-form>
+  </a-modal>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { onBeforeMount, onMounted, ref, watch } from 'vue'
 import api from '@/lib/axios'
 import FileUploader from '../general/FileUploader.vue'
 
 const props = defineProps({
-    visible: {
-        type: Boolean,
-        required: true
-    },
-    taskId: {
-        type: Number,
-        required: true
-    },
-    task: {
-        type: Object,
-        default: null
-    }
+  visible: {
+    type: Boolean,
+    required: true
+  },
+  taskId: {
+    type: Number,
+    required: true
+  },
+  task: {
+    type: Object,
+    default: null
+  }
 })
 const emit = defineEmits(['close', 'submitTask'])
 
@@ -62,23 +61,23 @@ const isLoading = ref(false)
 
 // Reset modal when opened
 watch(() => props.visible, (val) => {
-    if (val) {
-        formState.value.task_id = props.taskId
-        if (props.task && props.task.task_submissions.length > 0) {
-            formState.value.file = props.task.task_submissions.map(f => ({
-                uid: f.id,
-                name: f.file_name,
-                status: 'done',
-                url: f.storage_url,
-                thumbUrl: f.storage_url
-            }))
-        } else {
-            formState.value.file = []
-        }
-        formState.value.submitted_text = props.task?.submitted_text ?? ''
-
-        errors.value.assignee = ''
+  if (val) {
+    formState.value.task_id = props.taskId
+    if (props.task && props.task.task_submissions.length > 0) {
+      formState.value.file = props.task.task_submissions.map(f => ({
+        uid: f.id,
+        name: f.file_name,
+        status: 'done',
+        url: f.storage_url,
+        thumbUrl: f.storage_url
+      }))
+    } else {
+      formState.value.file = []
     }
+    formState.value.submitted_text = props.task?.submitted_text ?? ''
+
+    errors.value.assignee = ''
+  }
 })
 
 // const handleFileUpload = (info) => {
@@ -109,48 +108,73 @@ watch(() => props.visible, (val) => {
 
 // Submission logic
 const onSubmit = async () => {
-    if (!formState.value.file.length) {
-        errors.value.task_file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
-        return;
+  if (!formState.value.file.length) {
+    errors.value.task_file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
+    return;
+  }
+
+  isLoading.value = true
+  errors.value.file = ''
+  console.log(formState.value);
+
+  const formData = new FormData();
+  formData.append('task_id', formState.value.task_id);
+  formState.value.file.forEach((fileObj) => {
+    const actualFile = fileObj.originFileObj;
+    if (actualFile) {
+      formData.append('files[]', actualFile);
+    } else {
+      formData.append('files[]', fileObj.uid);
     }
+  });
+  formData.append('submitted_text', formState.value.submitted_text);
+  // formState.value.file.forEach((fileObj) => {
+  //     const actualFile = fileObj.originFileObj;
+  //     formData.append('files[]', actualFile);
+  // });
 
-    isLoading.value = true
-    errors.value.file = ''
-    console.log(formState.value);
+  await api.post('/api/task/submit-for-review', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }).then(res => {
+    const task = res.data.data;
+    emit('submitTask', task);
+    emit('close')
+  })
 
-    const formData = new FormData();
-    formData.append('task_id', formState.value.task_id);
-    formState.value.file.forEach((fileObj) => {
-        const actualFile = fileObj.originFileObj;
-        if (actualFile) {
-            formData.append('files[]', actualFile);
-        } else {
-            formData.append('files[]', fileObj.uid);
-        }
-    });
-    formData.append('submitted_text', formState.value.submitted_text);
-    // formState.value.file.forEach((fileObj) => {
-    //     const actualFile = fileObj.originFileObj;
-    //     formData.append('files[]', actualFile);
-    // });
-
-    await api.post('/api/task/submit-for-review', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }).then(res => {
-        const task = res.data.data;
-        emit('submitTask', task);
-        emit('close')
-    })
-
-    isLoading.value = false
+  isLoading.value = false
 
 }
 
 const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
+  console.log('Failed:', errorInfo)
 }
 
 const cancel = () => {
-    emit('close')
+  emit('close')
 }
+
+// Handle paste from clipboard (for image)
+function onPaste(e) {
+  const files = Array.from(e.clipboardData?.files || []).filter((f) => f.type.startsWith('image/'))
+  if (files.length) {
+    const file = files[0]
+    formState.value.file = [
+      ...formState.value.file,
+      {
+        uid: Date.now().toString(),
+        name: file.name,
+        status: 'done',
+        originFileObj: file,
+      }
+    ]
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('paste', onPaste)
+})
+
+onBeforeMount(() => {
+  window.removeEventListener('paste', onPaste)
+})
 </script>

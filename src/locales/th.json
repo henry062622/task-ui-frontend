@@ -178,5 +178,6 @@
   "select_upload_max_3_imgs": "เลือกหรืออัปโหลดได้สูงสุด 3 รูปภาพ",
   "enter_submit_text": "กรอกข้อความสำหรับส่ง",
   "text_submission": "การส่งข้อความ",
-  "revision_reason_text": "ข้อความเหตุผลการแก้ไข"
+  "revision_reason_text": "ข้อความเหตุผลการแก้ไข",
+  "revision_reason_image": "ภาพเหตุผลในการแก้ไข"
 }
