@@ -72,7 +72,7 @@
               + {{ $t('add_custom_size') }}
             </a-button>
             <div class="text-xs text-gray-500">
-              {{ t('remainingCount', { count: 5 - totalSizeCount }) }}
+              {{ t('remainingCount') }} {{ 5 - totalSizeCount }}
             </div>
           </div>
         </a-form-item>

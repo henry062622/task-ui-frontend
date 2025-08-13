@@ -182,7 +182,7 @@
   "selectUpTo5Sizes": "เลือกได้สูงสุด 5 ขนาด",
   "add_custom_size": "เพิ่มขนาดแบบกำหนดเอง",
   "noPredefinedSizesAddCustom": "ไม่มีขนาดที่กำหนดไว้ล่วงหน้า โปรดเพิ่มขนาดแบบกำหนดเองด้านล่าง",
-  "remainingCount": "คงเหลือ: {count}",
+  "remainingCount": "คงเหลือ:",
   "validation.maxSizes": "คุณสามารถเลือกได้สูงสุด {max} ขนาด (รวมแบบกำหนดเอง)",
   "validation.customSizeRequired": "โปรดกรอกขนาดแบบกำหนดเองที่คุณได้เพิ่มให้ครบทุกช่อง"
 }

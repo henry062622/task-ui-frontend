@@ -182,7 +182,7 @@
   "selectUpTo5Sizes": "Select up to 5 sizes",
   "add_custom_size": "Add custom size",
   "noPredefinedSizesAddCustom": "No predefined sizes; add custom sizes below",
-  "remainingCount": "Remaining: {count}",
+  "remainingCount": "Remaining:",
   "validation.maxSizes": "You can select up to {max} sizes (including custom)",
   "validation.customSizeRequired": "Please fill in all custom sizes you’ve added."
 }

@@ -77,7 +77,7 @@
               + {{ $t('add_custom_size') }}
             </a-button>
             <div class="text-xs text-gray-500">
-              {{ t('remainingCount', { count: 5 - totalSizeCount }) }}
+              {{ t('remainingCount') }} {{ 5 - totalSizeCount }}
             </div>
           </div>
         </a-form-item>
@@ -341,7 +341,7 @@
         <a-form-item :label="$t('assignee')" name="assignee">
           <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear style="width: 100%">
             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+            }} </a-select-option>
           </a-select>
         </a-form-item>
       </a-col>
@@ -352,7 +352,7 @@
     <div class="flex items-center justify-end gap-4 pt-4">
       <a-button @click="emit('clickCancelBtn')">{{ $t('cancel') }}</a-button>
       <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{ $t('update')
-        }}</a-button>
+      }}</a-button>
     </div>
   </a-form>
 
