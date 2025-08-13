@@ -90,7 +90,6 @@
   "validation.taskTypeRequired": "Please select Task Type!",
   "validation.customTaskTypeRequired": "Please input custom Task Type!",
   "validation.sizeRequired": "Please select Size!",
-  "validation.customSizeRequired": "Please input custom Size!",
   "validation.fileTypesRequired": "Please select at least one File Type!",
   "validation.ColorsRequired": "Please select at least one Colors!",
   "validation.themesRequired": "Please select at least one Theme or enter a custom one!",
@@ -179,5 +178,11 @@
   "enter_submit_text": "Enter text to submit",
   "text_submission": "Text Submission",
   "revision_reason_text": "Revision Reason Text",
-  "revision_reason_image": "Revision Reason Image"
+  "revision_reason_image": "Revision Reason Image",
+  "selectUpTo5Sizes": "Select up to 5 sizes",
+  "add_custom_size": "Add custom size",
+  "noPredefinedSizesAddCustom": "No predefined sizes; add custom sizes below",
+  "remainingCount": "Remaining: {count}",
+  "validation.maxSizes": "You can select up to {max} sizes (including custom)",
+  "validation.customSizeRequired": "Please fill in all custom sizes you’ve added."
 }

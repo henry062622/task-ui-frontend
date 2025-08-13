@@ -85,7 +85,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -98,7 +98,8 @@
             {{ $t('size') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.size.name" class="w-full" readonly></a-input>
+            <a-tag v-for="size in task.sizes" :key="size.id" color="#2db7f5" class="!mt-2"> {{ size.name }}</a-tag>
+            <!-- <a-input :value="task.sizes.name" class="w-full" readonly></a-input> -->
           </a-col>
         </a-row>
       </a-col>
@@ -137,7 +138,7 @@
             {{ $t('themes') }} :
           </a-col>
           <a-col :span="18">
-            <a-tag v-for="theme in task.themes" color="#2db7f5" class="!mt-2"> {{ theme.text }}</a-tag>
+            <a-tag v-for="theme in task.themes" :key="theme.id" color="#2db7f5" class="!mt-2"> {{ theme.text }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
