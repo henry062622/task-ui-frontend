@@ -330,6 +330,7 @@
     <!-- Footer Buttons -->
     <div class="flex items-center justify-end gap-4 pt-4">
       <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
+      <a-button v-if="isDraft" @click="clearDraft">{{ $t('cancel_draft') }}</a-button>
       <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
         }}</a-button>
     </div>
@@ -390,7 +391,7 @@
 </template>
 <script setup>
 import api from '@/lib/axios';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, toRaw, watch } from 'vue';
 import { PlusOutlined, MinusCircleOutlined, CheckCircleOutlined, EyeOutlined } from '@ant-design/icons-vue';
 import SystemImagePicker from './SystemImagePicker.vue';
 import { mergeSelectedImages } from '@/utils/mergeSelectedImage';
@@ -401,6 +402,8 @@ import { useI18n } from 'vue-i18n'
 import PasteImageModal from './PasteImageModal.vue';
 import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
 import FileUploader from '../general/FileUploader.vue';
+import dayjs from 'dayjs';
+import { deleteDraft, loadDraftFromIndexed, saveDraft } from '@/lib/indexedDb';
 
 const { t } = useI18n()
 
@@ -411,6 +414,10 @@ const props = defineProps({
   },
   websiteList: {
     type: Array,
+    required: true
+  },
+  userId: {
+    type: Number,
     required: true
   }
 });
@@ -471,6 +478,9 @@ const pasteTargetOptions = [
   { label: t('actor_images'), value: 'actor_images' },
   { label: t('decorative_image'), value: 'decorative_images' },
 ]
+const isDraft = ref(false)
+const isDraftLoad = ref(false)
+const draftKey = `taskFormDraft_user_${props.userId}`;
 
 //sample image preview
 const previewRef = ref(null)
@@ -712,6 +722,11 @@ const removeDecorativeImage = (index) => {
   formState.value.decorative_images.splice(index, 1);
 };
 
+const clearDraft = async () => {
+  await deleteDraft(draftKey);
+  router.push('/dashboard');
+}
+
 const submitForm = async () => {
   if (!validateForm()) return;
 
@@ -798,7 +813,7 @@ const submitForm = async () => {
     await api.post('/api/task/create', formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
-    router.push('/dashboard');
+    clearDraft();
   } catch (err) {
     console.error(err);
   } finally {
@@ -898,10 +913,53 @@ const fetchDecorativeTypes = async () => {
   decorativeTypeList.value = res.data.data;
 };
 
-watch(() => formState.value.task_type, (newVal) => {
-  formState.value.sizes = [];         // reset selected predefined sizes
-  formState.value.custom_sizes = [];  // reset custom sizes too
+const loadDraft = async () => {
+  const draft = await loadDraftFromIndexed(draftKey);
+  if (draft) {
+    try {
+      draft.deadline = draft.deadline ? dayjs(draft.deadline) : null
+      isDraft.value = true;
+      isDraftLoad.value = true;
+      Object.assign(formState.value, draft);
 
+    } catch (e) {
+      console.error('Failed to load draft:', e);
+    }
+  }
+};
+
+watch(
+  () => formState.value, // Watch the .value of the ref
+  async (newValue) => {
+    try {
+      console.log('save to db')
+      // Use toRaw or a simple spread operator to create a non-reactive copy
+      const raw = toRaw(newValue);
+
+      // Ensure dayjs objects are serialized to standard formats
+      const serializableData = {
+        ...raw,
+        deadline: raw.deadline ? dayjs(raw.deadline).format('YYYY-MM-DD') : null,
+      };
+      console.log(serializableData)
+
+      await saveDraft(draftKey, serializableData);
+    } catch (e) {
+      console.error('Failed to save draft:', e);
+    }
+  },
+  { deep: true }
+);
+
+
+watch(() => formState.value.task_type, (newVal) => {
+  //to not reset one time if it is draft
+  if (!isDraftLoad.value) {
+    formState.value.sizes = [];         // reset selected predefined sizes
+    formState.value.custom_sizes = [];  // reset custom sizes too
+  }
+  //set false after one time
+  isDraftLoad.value = false
   if (newVal && newVal !== 'custom') {
     getSizesByTaskType(newVal);
   } else {
@@ -929,6 +987,7 @@ onMounted(() => {
   getColorList()
   getThemeNameList()
   fetchDecorativeTypes()
+  loadDraft();
 })
 
 const validateForm = () => {

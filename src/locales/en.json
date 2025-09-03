@@ -184,5 +184,6 @@
   "noPredefinedSizesAddCustom": "No predefined sizes; add custom sizes below",
   "remainingCount": "Remaining:",
   "validation.maxSizes": "You can select up to {max} sizes (including custom)",
-  "validation.customSizeRequired": "Please fill in all custom sizes you’ve added."
+  "validation.customSizeRequired": "Please fill in all custom sizes you’ve added.",
+  "cancel_draft": "Cancel Draft"
 }
