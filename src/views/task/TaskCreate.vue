@@ -22,7 +22,7 @@ import SiteCardContainer from '@/components/ui/SiteCardContainer.vue';
 import SiteCard from '@/components/ui/SiteCard.vue';
 import TaskCreateComponent from '@/components/task/TaskCreateComponent.vue';
 import { useAuthStore } from '@/stores/auth';
-import { loadDraftFromIndexed } from '@/lib/indexedDb';
+import { loadDraftFromIndexed } from '@/lib/indexdb';
 
 const websiteList = ref([]);
 const selectedSite = ref(null);

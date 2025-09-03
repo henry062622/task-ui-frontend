@@ -22,4 +22,3 @@ export async function deleteDraft(id) {
   const db = await dbPromise;
   await db.delete('drafts', id);
 }
-

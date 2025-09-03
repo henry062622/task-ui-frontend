@@ -332,7 +332,7 @@
       <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
       <a-button v-if="isDraft" @click="clearDraft">{{ $t('cancel_draft') }}</a-button>
       <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-        }}</a-button>
+      }}</a-button>
     </div>
   </a-form>
 
@@ -403,7 +403,7 @@ import PasteImageModal from './PasteImageModal.vue';
 import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
 import FileUploader from '../general/FileUploader.vue';
 import dayjs from 'dayjs';
-import { deleteDraft, loadDraftFromIndexed, saveDraft } from '@/lib/indexedDb';
+import { deleteDraft, loadDraftFromIndexed, saveDraft } from '@/lib/indexdb';
 
 const { t } = useI18n()
 
