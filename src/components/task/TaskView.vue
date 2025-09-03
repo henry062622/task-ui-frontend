@@ -85,7 +85,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-              }}</a-tag>
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -297,7 +297,7 @@
           </a-col>
         </a-row>
       </a-col>
-      <a-col :span="12">
+      <a-col :span="12" v-if="task.submitted_text">
         <a-row>
           <a-col :span="24" class="!font-semibold !text-base !mb-2">
             {{ $t('text_submission') }} :
