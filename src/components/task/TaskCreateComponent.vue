@@ -329,11 +329,19 @@
 
     <!-- Footer Buttons -->
     <div class="flex items-center justify-end gap-4 pt-4">
-      <a-button type="primary" danger @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
-      <a-button v-if="isDraft" class="!bg-yellow-400 !text-white" @click="clearDraft">{{ $t('cancel_draft')
-        }}</a-button>
-      <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-        }}</a-button>
+      <a-button type="primary" class="!flex items-center" @click="clickCancelBtn" danger>
+        <RollbackOutlined /> {{ $t('cancel') }}
+      </a-button>
+      <a-button v-if="isDraft" class="!bg-yellow-400 !text-white !flex items-center" @click="clearDraft">
+        <Icon icon="grommet-icons:clear" width="20" height="20" class="!mr-2" /> {{
+          $t('cancel_draft')
+        }}
+      </a-button>
+      <a-button type="primary" class="!flex items-center" :loading="isLoading" :disabled="isLoading"
+        @click="submitForm">
+        <Icon icon="cil:send" width="20" height="20" class="!mr-2" /> {{ $t('create')
+        }}
+      </a-button>
     </div>
   </a-form>
 
@@ -393,7 +401,7 @@
 <script setup>
 import api from '@/lib/axios';
 import { computed, onMounted, ref, toRaw, watch } from 'vue';
-import { PlusOutlined, MinusCircleOutlined, CheckCircleOutlined, EyeOutlined } from '@ant-design/icons-vue';
+import { RollbackOutlined, MinusCircleOutlined, CheckCircleOutlined, EyeOutlined, SendOutlined } from '@ant-design/icons-vue';
 import SystemImagePicker from './SystemImagePicker.vue';
 import { mergeSelectedImages } from '@/utils/mergeSelectedImage';
 import router from '@/router';
@@ -405,6 +413,7 @@ import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
 import FileUploader from '../general/FileUploader.vue';
 import dayjs from 'dayjs';
 import { deleteDraft, loadDraftFromIndexed, saveDraft } from '@/lib/indexdb';
+import { Icon } from '@iconify/vue';
 
 const { t } = useI18n()
 
