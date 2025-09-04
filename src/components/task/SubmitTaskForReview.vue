@@ -23,16 +23,22 @@
           </a-form-item>
         </a-col>
       </a-row>
-      <div class="flex items-center justify-between">
-        <a-progress :percent="overallPercent" status="active" :stroke-width="6" />
+      <a-row :gutter="16">
+        <a-col :span="16">
+          <a-progress v-if="isUploading" :percent="overallPercent" status="active" :stroke-width="6" class="!w-[90%]" />
+        </a-col>
+        <a-col :span="8">
+          <div class="flex items-center justify-end gap-4">
+            <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+            <a-button html-type="submit" type="primary" :loading="isUploading" :disabled="isUploading">{{ $t('submit')
+              }}</a-button>
+          </div>
+        </a-col>
+
 
         <!-- Footer Buttons -->
-        <div class="flex items-center justify-end gap-4">
-          <a-button @click="cancel">{{ $t('cancel') }}</a-button>
-          <a-button html-type="submit" type="primary" :loading="isUploading" :disabled="isUploading">{{ $t('submit')
-          }}</a-button>
-        </div>
-      </div>
+
+      </a-row>
 
     </a-form>
   </a-modal>
