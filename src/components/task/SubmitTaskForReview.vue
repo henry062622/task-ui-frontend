@@ -23,13 +23,17 @@
           </a-form-item>
         </a-col>
       </a-row>
+      <div class="flex items-center justify-between">
+        <a-progress :percent="overallPercent" status="active" :stroke-width="6" />
 
-      <!-- Footer Buttons -->
-      <div class="flex items-center justify-end gap-4">
-        <a-button @click="cancel">{{ $t('cancel') }}</a-button>
-        <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{ $t('submit')
-        }}</a-button>
+        <!-- Footer Buttons -->
+        <div class="flex items-center justify-end gap-4">
+          <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+          <a-button html-type="submit" type="primary" :loading="isUploading" :disabled="isUploading">{{ $t('submit')
+          }}</a-button>
+        </div>
       </div>
+
     </a-form>
   </a-modal>
 </template>
@@ -38,6 +42,7 @@
 import { onBeforeMount, onMounted, ref, watch } from 'vue'
 import api from '@/lib/axios'
 import FileUploader from '../general/FileUploader.vue'
+import { message } from 'ant-design-vue'
 
 const props = defineProps({
   visible: {
@@ -58,6 +63,34 @@ const emit = defineEmits(['close', 'submitTask'])
 const formState = ref({ task_id: props.taskId, file: [], submitted_text: '' })
 const errors = ref({ file: '' })
 const isLoading = ref(false)
+const isUploading = ref(false)
+const overallPercent = ref(0)
+const abortCtrl = ref(null) // for cancel()
+
+// helper: mark new files as uploading so <a-upload> shows per-file bars
+function markUploading() {
+  formState.value.file.forEach(f => {
+    if (f.originFileObj) {        // only freshly selected files
+      f.status = 'uploading'
+      f.percent = 0
+    }
+  })
+}
+function markDone() {
+  formState.value.file.forEach(f => {
+    if (f.originFileObj) {
+      f.status = 'done'
+      f.percent = 100
+    }
+  })
+}
+function markError() {
+  formState.value.file.forEach(f => {
+    if (f.originFileObj) {
+      f.status = 'error'
+    }
+  })
+}
 
 // Reset modal when opened
 watch(() => props.visible, (val) => {
@@ -80,32 +113,6 @@ watch(() => props.visible, (val) => {
   }
 })
 
-// const handleFileUpload = (info) => {
-//     // Only keep images and limit total number if needed
-//     const fileList = info.fileList.filter(file => {
-//         if (file.type) {
-//             if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
-//             if (file.type === 'application/zip') return true;
-//         }
-//         // Allow zip/rar by extension (type might be blank)
-//         const ext = file.name?.split('.').pop()?.toLowerCase();
-//         if (ext === 'zip' || ext === 'rar') return true;
-//         // Also allow objects without 'type' (already uploaded files)
-//         return true;
-//     });
-//     // const fileList = info.fileList.filter(file => {
-//     //     return file.type.startsWith('image/') || file.type.startsWith('video/');
-//     // });
-
-//     formState.value.file = fileList;
-
-//     if (fileList.length === 0) {
-//         errors.value.file = 'กรุณาอัพโหลดไฟล์อย่างน้อยหนึ่งไฟล์ (ภาพ, วิดีโอ, ZIP, RAR) / Please upload at least one file (image, video, ZIP, RAR)';
-//     } else {
-//         errors.value.file = '';
-//     }
-// };
-
 // Submission logic
 const onSubmit = async () => {
   if (!formState.value.file.length) {
@@ -113,9 +120,18 @@ const onSubmit = async () => {
     return;
   }
 
-  isLoading.value = true
+  isUploading.value = true
+  overallPercent.value = 0
+  abortCtrl.value = new AbortController()
   errors.value.file = ''
-  console.log(formState.value);
+
+  // per-file sizes for a nicer approximation
+  const newFiles = formState.value.file.filter(f => !!f.originFileObj)
+  const sizes = newFiles.map(f => f.originFileObj.size || 0)
+  const totalSize = sizes.reduce((a, b) => a + b, 0)
+
+  // reflect progress bars in the Upload list
+  markUploading()
 
   const formData = new FormData();
   formData.append('task_id', formState.value.task_id);
@@ -128,20 +144,58 @@ const onSubmit = async () => {
     }
   });
   formData.append('submitted_text', formState.value.submitted_text);
-  // formState.value.file.forEach((fileObj) => {
-  //     const actualFile = fileObj.originFileObj;
-  //     formData.append('files[]', actualFile);
-  // });
 
-  await api.post('/api/task/submit-for-review', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
-  }).then(res => {
-    const task = res.data.data;
-    emit('submitTask', task);
+  // Update per-file percents by distributing loaded bytes across file sizes
+  const updatePerFilePercents = (loadedBytesFromFiles) => {
+    let remaining = loadedBytesFromFiles
+    newFiles.forEach((f, i) => {
+      const s = sizes[i] || 1
+      const doneForFile = Math.max(0, Math.min(s, remaining))
+      const pct = Math.round((doneForFile / s) * 100)
+      f.percent = pct
+      remaining -= doneForFile
+    })
+  }
+
+  try {
+    const res = await api.post('/api/task/submit-for-review', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      signal: abortCtrl.value.signal,
+      onUploadProgress: (e) => {
+        if (!e.total) return
+        // Overall progress straight from Axios
+        overallPercent.value = Math.round((e.loaded / e.total) * 100)
+        // e.total includes multipart overhead; approximate bytes applied to files only
+        if (totalSize > 0) {
+          const ratio = e.loaded / e.total
+          updatePerFilePercents(totalSize * ratio)
+        }
+      }
+    })
+    markDone()
+    // robustly extract the Task (works with both ApiResponse wrapper and raw Task)
+    const task = res.data.data || null
+    // If you already have the task from the first call, remove this second call.
+    emit('submitTask', task)
     emit('close')
-  })
+    message.success('Uploaded and submitted')
+  } catch (err) {
+    markError()
+    message.error(err?.response?.data?.message || 'Upload failed')
+  } finally {
+    isUploading.value = false
+    abortCtrl.value = null
+  }
 
-  isLoading.value = false
+  // await api.post('/api/task/submit-for-review', formData, {
+  //   headers: { 'Content-Type': 'multipart/form-data' }
+  // }).then(res => {
+  //   const task = res.data.data;
+  //   emit('submitTask', task);
+  //   emit('close')
+  // })
+
+  // isLoading.value = false
 
 }
 
