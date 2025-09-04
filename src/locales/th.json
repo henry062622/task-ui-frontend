@@ -19,7 +19,7 @@
   "pending": "รอดำเนินการ",
   "in_progress": "กำลังดำเนินการ",
   "complete": "เสร็จสิ้น",
-  "cancel": "ยกเลิก",
+  "cancel": "ลบแบบร่าง",
   "all_tasks": "งานทั้งหมด",
   "my_tasks": "งานของฉัน",
   "task_distribution": "การกระจายงาน",

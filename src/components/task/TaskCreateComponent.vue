@@ -329,10 +329,11 @@
 
     <!-- Footer Buttons -->
     <div class="flex items-center justify-end gap-4 pt-4">
-      <a-button @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
-      <a-button v-if="isDraft" @click="clearDraft">{{ $t('cancel_draft') }}</a-button>
+      <a-button type="primary" danger @click="clickCancelBtn">{{ $t('cancel') }}</a-button>
+      <a-button v-if="isDraft" class="!bg-yellow-400 !text-white" @click="clearDraft">{{ $t('cancel_draft')
+        }}</a-button>
       <a-button type="primary" :loading="isLoading" :disabled="isLoading" @click="submitForm">{{ $t('create')
-      }}</a-button>
+        }}</a-button>
     </div>
   </a-form>
 
