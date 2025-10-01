@@ -161,6 +161,7 @@ const user = auth.user;
 const selectedKeys = ref([]);
 
 const Logout = async () => {
+  noti.teardownRealtime()
   auth.logout();
 }
 
@@ -201,10 +202,16 @@ const filteredMenuItems = computed(() => {
   });
 });
 
+async function bootNoti() {
+  if (!auth.user?.id) return
+  await noti.getLatestNotificationList()
+  if (!noti.channel) noti.initRealtime(auth.user.id) // guard so we don't double-subscribe
+}
+
 // On component mount, set the active menu based on current route
 onMounted(() => {
   selectedKeys.value = [route.path];
-  noti.getLatestNotificationList();
+  bootNoti();
 });
 
 // update the active menu item

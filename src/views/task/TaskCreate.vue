@@ -9,7 +9,8 @@
     </div>
     <div v-else class="flex h-auto bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4 ">
       <!-- create form  -->
-      <TaskCreateComponent class="h-full" :website-list="websiteList" :website-id="selectedSite.id" :user-id="user.id">
+      <TaskCreateComponent class="h-full" :website-list="websiteList" :website-id="selectedSite.id" :user-id="user.id"
+        :user-name="user.name">
       </TaskCreateComponent>
     </div>
   </DefaultLayout>

@@ -429,6 +429,10 @@ const props = defineProps({
   userId: {
     type: Number,
     required: true
+  },
+  userName: {
+    type: String,
+    required: true
   }
 });
 
@@ -440,7 +444,7 @@ const formState = ref({
   sample_images: [],
   actor_images: [],
   decorative_images: [],
-  requester_name: '',
+  requester_name: props.userName,
   deadline: ''
 });
 const errors = ref({

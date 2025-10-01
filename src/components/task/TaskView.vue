@@ -527,7 +527,6 @@ const showCancelModel = ref(false);
 const clickCompleteBtn = () => {
   showCompleteModel.value = true;
 }
-
 const downloadImage = async (img) => {
   try {
     const response = await fetch(img.storage_url, { mode: 'cors' }); // CORS must be allowed by Bunny
