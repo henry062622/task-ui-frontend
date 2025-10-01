@@ -1,27 +1,27 @@
 <template>
-    <a-modal :open="visible" title="Assign the task" :footer="null" :closable="false" centered>
-        <a-divider></a-divider>
+  <a-modal :open="visible" :title="$t('cancel_task')" :footer="null" :closable="false" centered>
+    <a-divider></a-divider>
 
-        <a-form :model="formState" name="assign_task" layout="vertical" autocomplete="off" class="w-full">
-            <!-- assignee -->
-            <a-row>
-                <a-col :span="24">
-                    <a-form-item label="Reason" name="cancel_reason"
-                        :rules="[{ required: true, message: 'Please input cancel reason' }]"
-                        :validate-status="errors.cancel_reason ? 'error' : ''" :help="errors.cancel_reason">
-                        <a-textarea v-model:value="formState.cancel_reason" placeholder="Enter cancel reason"
-                            :rows="4" />
-                    </a-form-item>
-                </a-col>
-            </a-row>
+    <a-form :model="formState" name="cancel_task" layout="vertical" autocomplete="off" class="w-full">
+      <!-- assignee -->
+      <a-row>
+        <a-col :span="24">
+          <a-form-item :label="$t('reason')" name="cancel_reason"
+            :rules="[{ required: true, message: 'Please input cancel reason' }]"
+            :validate-status="errors.cancel_reason ? 'error' : ''" :help="errors.cancel_reason">
+            <a-textarea v-model:value="formState.cancel_reason" :placeholder="$t('enter_cancel_reason')" :rows="4" />
+          </a-form-item>
+        </a-col>
+      </a-row>
 
-            <!-- Footer Buttons -->
-            <div class="flex items-center justify-end gap-4">
-                <a-button @click="cancel">Cancel</a-button>
-                <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="onSubmit">Submit</a-button>
-            </div>
-        </a-form>
-    </a-modal>
+      <!-- Footer Buttons -->
+      <div class="flex items-center justify-end gap-4">
+        <a-button @click="cancel">{{ $t('cancel') }}</a-button>
+        <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="onSubmit">{{ $t('complete')
+          }}</a-button>
+      </div>
+    </a-form>
+  </a-modal>
 </template>
 
 <script setup>
@@ -29,14 +29,14 @@ import { ref, watch } from 'vue'
 import api from '@/lib/axios'
 
 const props = defineProps({
-    visible: {
-        type: Boolean,
-        required: true
-    },
-    taskId: {
-        type: Number,
-        required: true
-    }
+  visible: {
+    type: Boolean,
+    required: true
+  },
+  taskId: {
+    type: Number,
+    required: true
+  }
 })
 const emit = defineEmits(['close', 'cancelled'])
 
@@ -46,37 +46,37 @@ const isLoading = ref(false)
 
 // Reset modal when opened
 watch(() => props.visible, (val) => {
-    if (val) {
-        formState.value.task_id = props.taskId
-        formState.value.cancel_reason = ''
-        errors.value.cancel_reason = ''
-    }
+  if (val) {
+    formState.value.task_id = props.taskId
+    formState.value.cancel_reason = ''
+    errors.value.cancel_reason = ''
+  }
 })
 
 // Submission logic
 const onSubmit = async () => {
-    if (!formState.value.cancel_reason) {
-        errors.value.cancel_reason = 'Please state cancel reason!';
-        return;
-    }
+  if (!formState.value.cancel_reason) {
+    errors.value.cancel_reason = 'Please state cancel reason!';
+    return;
+  }
 
-    isLoading.value = true
-    errors.value.cancel_reason = ''
+  isLoading.value = true
+  errors.value.cancel_reason = ''
 
-    await api.post('/api/task/change-status', formState.value).then(res => {
-        const task = res.data.data;
-        emit('cancelled', task);
-        emit('close')
-    })
+  await api.post('/api/task/change-status', formState.value).then(res => {
+    const task = res.data.data;
+    emit('cancelled', task);
+    emit('close')
+  })
 
-    isLoading.value = false
+  isLoading.value = false
 }
 
 const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo)
+  console.log('Failed:', errorInfo)
 }
 
 const cancel = () => {
-    emit('close')
+  emit('close')
 }
 </script>

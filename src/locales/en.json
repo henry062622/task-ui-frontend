@@ -185,5 +185,8 @@
   "remainingCount": "Remaining:",
   "validation.maxSizes": "You can select up to {max} sizes (including custom)",
   "validation.customSizeRequired": "Please fill in all custom sizes you’ve added.",
-  "cancel_draft": "Cancel Draft"
+  "cancel_draft": "Cancel Draft",
+  "cancel_task": "Cancel the Task",
+  "reason": "Reason",
+  "enter_cancel_reason": "Please enter a cancel reason"
 }

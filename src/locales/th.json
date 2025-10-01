@@ -19,7 +19,7 @@
   "pending": "รอดำเนินการ",
   "in_progress": "กำลังดำเนินการ",
   "complete": "เสร็จสิ้น",
-  "cancel": "กลับ",
+  "cancel": "ยกเลิก",
   "all_tasks": "งานทั้งหมด",
   "my_tasks": "งานของฉัน",
   "task_distribution": "การกระจายงาน",
@@ -185,5 +185,8 @@
   "remainingCount": "คงเหลือ:",
   "validation.maxSizes": "คุณสามารถเลือกได้สูงสุด {max} ขนาด (รวมแบบกำหนดเอง)",
   "validation.customSizeRequired": "โปรดกรอกขนาดแบบกำหนดเองที่คุณได้เพิ่มให้ครบทุกช่อง",
-  "cancel_draft": "ลบแบบร่าง"
+  "cancel_draft": "ลบแบบร่าง",
+  "cancel_task": "ยกเลิกงาน",
+  "reason": "เหตุผล",
+  "enter_cancel_reason": "กรุณากรอกเหตุผลในการยกเลิก"
 }
