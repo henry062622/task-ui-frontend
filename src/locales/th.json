@@ -190,5 +190,6 @@
   "reason": "เหตุผล",
   "enter_cancel_reason": "กรุณากรอกเหตุผลในการยกเลิก",
   "reassign_the_task": "มอบหมายงานใหม่",
-  "reassign": "มอบหมายใหม่"
+  "reassign": "มอบหมายใหม่",
+  "download": "ดาวน์โหลด"
 }

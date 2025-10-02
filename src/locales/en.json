@@ -190,5 +190,6 @@
   "reason": "Reason",
   "enter_cancel_reason": "Please enter a cancel reason",
   "reassign_the_task": "Reassign the Task",
-  "reassign": "Reassign"
+  "reassign": "Reassign",
+  "download": "download"
 }

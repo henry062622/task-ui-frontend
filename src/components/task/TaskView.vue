@@ -247,10 +247,14 @@
                 <!-- Image: keep original style -->
                 <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
                   <!-- Download Icon -->
-                  <DownloadOutlined @click="downloadImage(file)"
-                    class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+                  <!-- <DownloadOutlined @click="downloadImage(file)"
+                    class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
                   <!-- Image -->
                   <ImageView :image="file" />
+                  <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(file)">
+                    <DownloadOutlined />
+                    {{ $t('download') }}
+                  </a-button>
                 </div>
 
                 <!-- Video: enforce 16:9 aspect ratio -->
@@ -265,11 +269,11 @@
                 <!-- ZIP/RAR: show icon, filename, and download -->
                 <div v-else-if="isArchive(file.storage_url)"
                   class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
-                  <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
+                  <!-- <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
                     <DownloadOutlined
                       class=" text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10"
                       :title="$t('download')" />
-                  </a>
+                  </a> -->
                   <div>
                     <file-zip-outlined class="text-4xl mb-2" />
                   </div>
@@ -279,11 +283,11 @@
                 </div>
                 <div v-else
                   class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-4 px-2">
-                  <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
+                  <!-- <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
                     class="absolute top-1 right-1 hover:!bg-gray-100">
                     <DownloadOutlined class="text-lg !text-blue-600 rounded-full shadow cursor-pointer z-10"
                       :title="$t('download')" />
-                  </a>
+                  </a> -->
                   <div>
                     <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
                   </div>
@@ -291,6 +295,11 @@
                     {{ file.file_name || 'Document' }}
                   </div>
                 </div>
+                <a-button v-if="!isImage(file.storage_url) && !isVideo(file.storage_url)"
+                  class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadImage(img)">
+                  <DownloadOutlined />
+                  {{ $t('download') }}
+                </a-button>
               </div>
             </div>
           </a-col>
@@ -327,11 +336,15 @@
           <a-col :span="24">
             <div class="relative w-[120px]">
               <!-- Download Icon -->
-              <DownloadOutlined @click="downloadImage(task.task_revision)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+              <!-- <DownloadOutlined @click="downloadImage(task.task_revision)"
+                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
               <!-- Image -->
               <a-image :src="task.task_revision.storage_url" alt="Preview"
                 class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
+              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(task.task_revision)">
+                <DownloadOutlined />
+                {{ $t('download') }}
+              </a-button>
             </div>
           </a-col>
         </a-row>
@@ -362,10 +375,14 @@
             <!-- Image: keep original style -->
             <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
               <!-- Download Icon -->
-              <DownloadOutlined @click="downloadImage(file)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+              <!-- <DownloadOutlined @click="downloadImage(file)"
+                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
               <!-- Image -->
               <ImageView :image="file" />
+              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(img)">
+                <DownloadOutlined />
+                {{ $t('download') }}
+              </a-button>
             </div>
 
             <!-- Video: enforce 16:9 aspect ratio -->
@@ -380,10 +397,10 @@
             <!-- ZIP/RAR: show icon, filename, and download -->
             <div v-else-if="isArchive(file.storage_url)"
               class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
-              <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
+              <!-- <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
                 <DownloadOutlined class=" text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10"
                   :title="$t('download')" />
-              </a>
+              </a> -->
               <div>
                 <file-zip-outlined class="text-4xl mb-2" />
               </div>
@@ -394,11 +411,11 @@
             <!-- Document files (Word, Excel, PowerPoint, PDF, others) -->
             <div v-else
               class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-4 px-2">
-              <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
+              <!-- <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
                 class="absolute top-1 right-1 hover:!bg-gray-100">
                 <DownloadOutlined class="text-lg !text-blue-600 rounded-full shadow cursor-pointer z-10"
                   :title="$t('download')" />
-              </a>
+              </a> -->
               <div>
                 <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
               </div>
@@ -406,6 +423,11 @@
                 {{ file.file_name || 'Document' }}
               </div>
             </div>
+            <a-button v-if="!isImage(file.storage_url) && !isVideo(file.storage_url)"
+              class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadImage(img)">
+              <DownloadOutlined />
+              {{ $t('download') }}
+            </a-button>
           </div>
         </div>
       </a-col>
@@ -421,10 +443,14 @@
           <template v-for="(img, i) in task.sample_images" :key="i">
             <div class="relative">
               <!-- Download Icon -->
-              <DownloadOutlined @click="downloadImage(img)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+              <!-- <DownloadOutlined @click="downloadImage(img)"
+                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded p-2 bg-gray-400 opacity-70 shadow cursor-pointer z-10" /> -->
               <!-- Image -->
               <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(img)">
+                <DownloadOutlined />
+                {{ $t('download') }}
+              </a-button>
             </div>
           </template>
         </div>
@@ -440,10 +466,14 @@
           <template v-for="(img, i) in task.actor_images" :key="i">
             <div class="relative">
               <!-- Download Icon -->
-              <DownloadOutlined @click="downloadImage(img)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+              <!-- <DownloadOutlined @click="downloadImage(img)"
+                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
               <!-- Image -->
               <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(img)">
+                <DownloadOutlined />
+                {{ $t('download') }}
+              </a-button>
             </div>
           </template>
         </div>
@@ -459,10 +489,14 @@
           <template v-for="(img, i) in task.decorative_images" :key="i">
             <div class="relative">
               <!-- Download Icon -->
-              <DownloadOutlined @click="downloadImage(img)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" />
+              <!-- <DownloadOutlined @click="downloadImage(img)"
+                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
               <!-- Image -->
               <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
+              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(img)">
+                <DownloadOutlined />
+                {{ $t('download') }}
+              </a-button>
             </div>
           </template>
         </div>
