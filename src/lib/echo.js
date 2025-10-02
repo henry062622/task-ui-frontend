@@ -10,7 +10,7 @@ export default function makeEcho(token) {
   const port = import.meta.env.VITE_PUSHER_PORT ? Number(import.meta.env.VITE_PUSHER_PORT) : undefined
 
   // 👇 set your backend base URL here
-  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
   return new Echo({
     broadcaster: 'pusher',

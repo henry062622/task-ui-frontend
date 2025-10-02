@@ -132,8 +132,7 @@
     </a-row>
 
     <!-- Theme Selection -->
-    <a-row :gutter="16">
-      <!-- Dropdown -->
+    <!-- <a-row :gutter="16">
       <a-col :span="12">
         <a-form-item :label="$t('themes')" name="themes">
           <a-select mode="multiple" v-model:value="formState.themes" :placeholder="t('selectUpTo3Themes')"
@@ -145,11 +144,9 @@
         </a-form-item>
       </a-col>
 
-      <!-- Preview / Placeholder -->
       <a-col :span="12">
         <span>{{ $t('preview_of_previous_pj') }}</span>
         <div class="flex flex-wrap gap-2 pt-2 h-full">
-          <!-- Placeholder spacing for future preview -->
           <div v-for="(file, index) in previewPreviousFiles" :key="index" class="w-28">
             <a-image :src="file.storage_url" alt="Preview"
               class="!size-25 object-fill !border !border-gray-200 rounded-lg" />
@@ -157,10 +154,10 @@
           </div>
         </div>
       </a-col>
-    </a-row>
+    </a-row> -->
 
     <!-- Custom Theme Inputs (below dropdown) -->
-    <a-row class="mt-2" v-if="formState.custom_themes.length < 3">
+    <!-- <a-row class="mt-2" v-if="formState.custom_themes.length < 3">
       <a-col :span="24">
         <div class="flex flex-col gap-2">
           <div v-for="(val, index) in formState.custom_themes" :key="index" class="flex gap-2 items-center">
@@ -173,7 +170,7 @@
           </a-button>
         </div>
       </a-col>
-    </a-row>
+    </a-row> -->
 
     <!-- Image Text -->
     <a-row class="!mt-10">
@@ -341,7 +338,7 @@
         <a-form-item :label="$t('assignee')" name="assignee">
           <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear style="width: 100%">
             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-            }} </a-select-option>
+              }} </a-select-option>
           </a-select>
         </a-form-item>
       </a-col>
@@ -352,7 +349,7 @@
     <div class="flex items-center justify-end gap-4 pt-4">
       <a-button @click="emit('clickCancelBtn')">{{ $t('cancel') }}</a-button>
       <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{ $t('update')
-      }}</a-button>
+        }}</a-button>
     </div>
   </a-form>
 
@@ -1000,7 +997,7 @@ onMounted(() => {
   getSizesByTaskType(props.task.task_type_id);
   getFileTypeList()
   getColorList()
-  getThemeNameList()
+  // getThemeNameList()
   fetchDecorativeTypes()
 })
 

@@ -29,13 +29,21 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                }} </a-select-option>
+              }} </a-select-option>
+            </a-select>
+
+            <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
+              style="width: 220px" allow-clear show-search :filterOption="false" @search="onSearchCreator"
+              :notFoundContent="creatorSearchLoading ? 'Loading...' : undefined">
+              <a-select-option v-for="u in filteredCreatorList" :key="u.id" :value="u.id">
+                {{ u.name }}
+              </a-select-option>
             </a-select>
 
             <a-range-picker v-model:value="filters.dateRange" :placeholder="[t('fromDate'), t('toDate')]"
@@ -86,7 +94,7 @@
                                     </a-button> -->
 
                   <a-button
-                    v-if="currentTab?.buttons.includes('cancel') && (record.status == 'pending' || record.status == 'in-progress') && hasCancelPermission"
+                    v-if="currentTab?.buttons.includes('cancel') && (record.status == 'pending' || record.status == 'in-progress') && (auth.user.id == record.created_by.id)"
                     danger @click="clickCancelBtn(record.id)">
                     {{ $t('cancel') }}
                   </a-button>
@@ -94,6 +102,12 @@
                   <a-button v-if="currentTab?.buttons.includes('assign') && hasAssignPermission"
                     @click="assignTask(record.id)">
                     {{ $t('assign') }}
+                  </a-button>
+
+                  <a-button
+                    v-if="currentTab?.buttons.includes('reassign') && record.status == 'in-progress' && hasAssignPermission"
+                    @click="reassignTask(record)">
+                    {{ $t('reassign') }}
                   </a-button>
 
                   <a-popconfirm
@@ -109,7 +123,8 @@
         </a-tab-pane>
       </a-tabs>
     </div>
-    <AssignPopup :visible="showModal" :task-id="selectedTaskId" :user-list="userList" @close="showModal = false"
+    <AssignPopup :visible="showModal" :task-id="selectedTaskId" :user-list="userList"
+      :current-assignee-id="selectedTaskAssigneeId" :is-reassign="isReassignMode" @close="showModal = false"
       @assigned="removeAssignedTaskFromList"></AssignPopup>
     <CompletePopup :visible="showCompleteModel" :task-id="selectedTaskId" @completed="actionAfterStatusUpdate"
       @close="showCompleteModel = false"></CompletePopup>
@@ -157,13 +172,20 @@ const hasCancelPermission = ref(false);
 const tasks = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
-const filters = reactive({ status: null, type: null, assignee: null, dateRange: [] });
+const filters = reactive({ status: null, type: null, assignee: null, creator: null, dateRange: [] });
 const taskTypeList = ref([]);
 const userList = ref([]);
 const selectedTaskId = ref(null);
 const userRoleId = auth.user.role_id;
 const uiRoleId = import.meta.env.VITE_UI_ROLE_ID;
 const { t } = useI18n();
+
+const creatorList = ref([])
+const creatorSearchLoading = ref(false) // stays if you show spinner on first load
+const creatorQuery = ref('')
+
+const selectedTaskAssigneeId = ref(null)
+const isReassignMode = ref(false)
 
 const pagination = reactive({
   current: 1,
@@ -194,6 +216,7 @@ const fetchTasks = async (page = 1) => {
         status: filters.status,
         type: filters.type,
         assignee: filters.assignee,
+        creator: filters.creator,
         start_date: filters.dateRange ? filters.dateRange[0]?.format('YYYY-MM-DD') : '',
         end_date: filters.dateRange ? filters.dateRange[1]?.format('YYYY-MM-DD') : '',
       }
@@ -233,7 +256,8 @@ function disabledDate(current) {
 }
 
 const removeAssignedTaskFromList = (task) => {
-  removeTaskFromList(task.id);
+  if (!isReassignMode.value) removeTaskFromList(task.id);
+  else fetchTasks();
 }
 
 const handleSearch = () => {
@@ -328,8 +352,17 @@ const updateTaskStatus = (status, id) => {
 
 const assignTask = async (id) => {
   selectedTaskId.value = id;
+  selectedTaskAssigneeId.value = null
+  isReassignMode.value = false
   showModal.value = true;
 };
+
+const reassignTask = (record) => {
+  selectedTaskId.value = record.id
+  selectedTaskAssigneeId.value = record.assignee?.id || null
+  isReassignMode.value = true
+  showModal.value = true
+}
 
 const removeTaskFromList = (taskId) => {
   tasks.value = tasks.value.filter(data => data.id !== taskId);
@@ -361,13 +394,32 @@ const getUserNameList = () => {
   });
 }
 
+function getCreatorNameList(q = '') {
+  creatorSearchLoading.value = true
+  api.get('/api/get-task-creator-list', { params: { q } })
+    .then(res => { creatorList.value = res.data.data || [] })
+    .finally(() => { creatorSearchLoading.value = false })
+}
+
+const filteredCreatorList = computed(() => {
+  const q = creatorQuery.value.trim().toLowerCase()
+  if (!q) return creatorList.value
+  return creatorList.value.filter(u => (u.name || '').toLowerCase().includes(q))
+})
+
+// change your search handler to ONLY update the query (no API call)
+function onSearchCreator(value) {
+  creatorQuery.value = value || ''
+}
+
 const getAvailableTabs = () => {
   const isUi = userRoleId == uiRoleId;
 
   const allTabs = [
     { value: 'my_tasks', label: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'submit', 'cancel'] },
     { value: 'all_tasks', label: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
-    { value: 'in_progress', label: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'submit', 'cancel'] },
+    { value: 'task_distribution', label: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete', 'cancel'] },
+    { value: 'in_progress', label: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'submit', 'cancel', 'reassign'] },
 
     // ⬇️ new “waiting for review” tab
     {
@@ -391,7 +443,7 @@ const getAvailableTabs = () => {
 
     { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more'] },
     { value: 'cancel', label: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more'] },
-    { value: 'task_distribution', label: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete', 'cancel'] },
+
   ];
 
   // hide “My Tasks” for UI role, hide “Task Distribution” for others
@@ -407,6 +459,7 @@ onMounted(() => {
   fetchTasks();
   getTaskTypeList();
   getUserNameList();
+  getCreatorNameList();
   hasCreatePermission.value = auth.hasPermission('task_create');
   hasViewPermission.value = auth.hasPermission('task_read');
   hasAssignPermission.value = auth.hasPermission('task_assign');

@@ -188,5 +188,7 @@
   "cancel_draft": "ลบแบบร่าง",
   "cancel_task": "ยกเลิกงาน",
   "reason": "เหตุผล",
-  "enter_cancel_reason": "กรุณากรอกเหตุผลในการยกเลิก"
+  "enter_cancel_reason": "กรุณากรอกเหตุผลในการยกเลิก",
+  "reassign_the_task": "มอบหมายงานใหม่",
+  "reassign": "มอบหมายใหม่"
 }
