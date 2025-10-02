@@ -7,8 +7,7 @@
       </a-col>
       <a-col :span="18">
         <div class="flex gap-2 justify-end">
-          <a-button v-if="hasEditPermission && task.status != 'complete'" @click="emit('clickEdit')"
-            class="!flex items-center justify-center gap-1">
+          <a-button v-if="canEdit()" @click="emit('clickEdit')" class="!flex items-center justify-center gap-1">
             <EditOutlined />
             {{ $t('edit') }}
           </a-button>
@@ -33,7 +32,7 @@
             {{ $t('cancel') }}
           </a-button>
 
-          <a-button v-if="task.assignee == null && uiRoleId != userRoleId" @click="assignTask(task.id)"
+          <a-button v-if="task.assignee == null && hasAssignPermission" @click="assignTask(task.id)"
             class="!flex items-center justify-center gap-1">
             <Icon icon="teenyicons:send-outline" />
             {{ $t('assign') }}
@@ -85,7 +84,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -519,6 +518,7 @@ const hasEditPermission = ref(false);
 const showSubmitTaskModel = ref(false);
 const showMarkReviewTaskModel = ref(false);
 const hasReviewPermission = ref(false);
+const hasAssignPermission = ref(false);
 
 const showModal = ref(false);
 const showCompleteModel = ref(false);
@@ -552,6 +552,28 @@ const downloadImage = async (img) => {
     console.error('Failed to download image:', err);
   }
 };
+
+function canEdit() {
+  const task = props.task;
+  const isCreator = task.created_by.id === user.id
+  const status = task.status
+
+  // Tab-based: Complete & Task Distribution → only creator can edit
+  console.log(task.assignee)
+  if (status === 'complete' || !task.assignee) {
+    return (isCreator || auth.userRole() == 'super_admin')
+  }
+
+  // Status-based: in-progress, waiting-for-review, needs-revision, cancel
+  // → users with task_edit permission can edit, EXCEPT the creator
+  const editableStatuses = ['in-progress', 'waiting-for-review', 'needs-revision', 'cancel']
+  if (editableStatuses.includes(status)) {
+    return auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead'
+  }
+
+  // otherwise, not editable
+  return false
+}
 
 const refetchDetail = (updatedTask) => {
   emit('fetchDetail');
@@ -610,6 +632,7 @@ const linkifiedText = (text) => {
 onMounted(() => {
   hasEditPermission.value = auth.hasPermission('task_edit');
   hasReviewPermission.value = auth.hasPermission('task_review');
+  hasAssignPermission.value = auth.hasPermission('task_assign');
 })
 
 </script>

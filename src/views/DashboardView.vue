@@ -68,6 +68,12 @@
                     v-if="currentTab?.buttons.includes('see_more') && (hasViewPermission || record.assignee?.id == auth.user.id)"
                     @click="viewTask(record.id)" />
 
+                  <a-button v-if="currentTab?.buttons.includes('edit') && canEdit(record)" @click="editTask(record.id)"
+                    class="!flex items-center justify-center gap-1">
+                    <EditOutlined />
+                    {{ $t('edit') }}
+                  </a-button>
+
                   <a-button v-if="currentTab?.buttons.includes('in-progress') && record.status == 'pending'"
                     @click="updateTaskStatus('in-progress', record.id)">
                     {{ $t('in_progress') }}
@@ -140,7 +146,7 @@ import api from '@/lib/axios';
 import router from '@/router';
 import { useAuthStore } from '@/stores/auth';
 import { computed, h, onMounted, reactive, ref } from 'vue';
-import { EyeOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import AssignPopup from '@/components/task/AssignPopup.vue';
 import CompletePopup from '@/components/task/CompletePopup.vue';
 import { formatDate } from '@/utils/format';
@@ -169,6 +175,7 @@ const hasAssignPermission = ref(false);
 const hasDeletePermission = ref(false);
 const hasReviewPermission = ref(false);
 const hasCancelPermission = ref(false);
+const hasEditPermission = ref(false);
 const tasks = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
@@ -316,6 +323,12 @@ const clickCancelBtn = (id) => {
   showCancelModel.value = true
 };
 
+const editTask = (id) => {
+  // adjust to your actual edit route if different
+  const url = `/tasks/${id}/edit`
+  window.open(url, "_blank")
+}
+
 const deleteTask = (id) => {
   console.log('deleted task', id);
   api.delete(`/api/task/${id}`).then(res => {
@@ -412,14 +425,34 @@ function onSearchCreator(value) {
   creatorQuery.value = value || ''
 }
 
+function canEdit(record) {
+  const isCreator = record?.created_by?.id === auth.user.id
+  const status = record?.status
+
+  // Tab-based: Complete & Task Distribution → only creator can edit
+  if (currentTab.value?.value === 'complete' || currentTab.value?.value === 'task_distribution') {
+    return (isCreator || auth.userRole() == 'super_admin')
+  }
+
+  // Status-based: in-progress, waiting-for-review, needs-revision, cancel
+  // → users with task_edit permission can edit, EXCEPT the creator
+  const editableStatuses = ['in-progress', 'waiting-for-review', 'needs-revision', 'cancel']
+  if (editableStatuses.includes(status)) {
+    return auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead'
+  }
+
+  // otherwise, not editable
+  return false
+}
+
 const getAvailableTabs = () => {
   const isUi = userRoleId == uiRoleId;
 
   const allTabs = [
     { value: 'my_tasks', label: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'submit'] },
     { value: 'all_tasks', label: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
-    { value: 'task_distribution', label: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete', 'cancel'] },
-    { value: 'in_progress', label: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'submit', 'reassign'] },
+    { value: 'task_distribution', label: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete', 'cancel', 'edit'] },
+    { value: 'in_progress', label: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'submit', 'reassign', 'edit'] },
 
     // ⬇️ new “waiting for review” tab
     {
@@ -428,7 +461,7 @@ const getAvailableTabs = () => {
         : 'waiting_for_review', // others see “Waiting for Review”
       showSearch: false,
       filters: ['type'],
-      buttons: ['see_more', 'review']
+      buttons: ['see_more', 'review', 'edit']
     },
 
     // ⬇️ new “needs revision” tab
@@ -438,11 +471,11 @@ const getAvailableTabs = () => {
         : 'needs_revision',    // others see “Needs Revision”
       showSearch: false,
       filters: ['type'],
-      buttons: ['see_more', 'submit']
+      buttons: ['see_more', 'submit', 'edit']
     },
 
-    { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more'] },
-    { value: 'cancel', label: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more'] },
+    { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit'] },
+    { value: 'cancel', label: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit'] },
 
   ];
 
@@ -466,5 +499,6 @@ onMounted(() => {
   hasDeletePermission.value = auth.hasPermission('task_delete');
   hasReviewPermission.value = auth.hasPermission('task_review');
   hasCancelPermission.value = auth.hasPermission('task_cancel');
+  hasEditPermission.value = auth.hasPermission('task_edit');
 })
 </script>
