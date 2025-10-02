@@ -145,7 +145,7 @@ import DefaultLayout from '@/components/layout/DefaultLayout.vue';
 import api from '@/lib/axios';
 import router from '@/router';
 import { useAuthStore } from '@/stores/auth';
-import { computed, h, onMounted, reactive, ref } from 'vue';
+import { computed, h, onMounted, reactive, ref, onBeforeUnmount, watch } from 'vue';
 import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import AssignPopup from '@/components/task/AssignPopup.vue';
 import CompletePopup from '@/components/task/CompletePopup.vue';
@@ -156,6 +156,7 @@ import { useI18n } from 'vue-i18n';
 import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
 import { getStatusLabel } from '@/utils/status';
 import moment from 'moment'
+import makeEcho from '@/lib/echo'
 
 const auth = useAuthStore();
 const breadcrumbList = ref(['manager', 'dashboard']);
@@ -193,6 +194,24 @@ const creatorQuery = ref('')
 
 const selectedTaskAssigneeId = ref(null)
 const isReassignMode = ref(false)
+
+const echoRoleRef = ref(null)
+const roleChannel = ref(null)
+
+const isUiLead = computed(() => auth.userRole && auth.userRole() === 'ui_lead')
+const shouldListenHere = computed(() => {
+  const tab = currentTab.value?.value
+  return isUiLead.value && (tab === 'all_tasks' || tab === 'task_distribution')
+})
+
+const echoUserRef = ref(null)
+const userChannel = ref(null)
+
+const isUi = computed(() => auth.userRole && auth.userRole() === 'ui')
+const shouldListenHereUi = computed(() => {
+  const tab = currentTab.value?.value
+  return isUi.value && tab === 'my_tasks'
+})
 
 const pagination = reactive({
   current: 1,
@@ -483,6 +502,169 @@ const getAvailableTabs = () => {
     ? allTabs.filter(t => t.value !== 'task_distribution')
     : allTabs.filter(t => t.value !== 'my_tasks');
 }
+
+// socket start
+function matchesCurrentTab(task) {
+  const tab = currentTab.value?.value
+  if (tab === 'task_distribution') return !task?.assignee
+  if (tab === 'my_tasks') return task?.assignee?.id === auth.user.id
+  return true
+}
+
+// filter checks to avoid refetch
+function matchesFilters(task) {
+  // status
+  if (filters.status && task.status !== filters.status) return false
+  // type
+  if (filters.type && task?.type?.id !== filters.type) return false
+  // assignee
+  if (filters.assignee && task?.assignee?.id !== filters.assignee) return false
+  // creator
+  if (filters.creator && task?.created_by?.id !== filters.creator) return false
+  // search by project name
+  if (searchQuery.value) {
+    const q = searchQuery.value.trim().toLowerCase()
+    const title = (task?.job_title || '').toLowerCase()
+    if (!title.includes(q)) return false
+  }
+  // date range
+  if (Array.isArray(filters.dateRange) && filters.dateRange[0] && filters.dateRange[1]) {
+    const start = filters.dateRange[0].startOf('day')
+    const end = filters.dateRange[1].endOf('day')
+    const created = moment(task?.created_at)
+    if (!created.isBetween(start, end, undefined, '[]')) return false
+  }
+  return true
+}
+
+function upsertOrRemoveFromList(task) {
+  const idx = tasks.value.findIndex(t => t.id === task.id)
+  const keep = matchesCurrentTab(task) && matchesFilters(task)
+
+  if (!keep) {
+    if (idx !== -1) tasks.value.splice(idx, 1)
+    return
+  }
+
+  if (idx === -1) {
+    // add new to top
+    tasks.value.unshift(task)
+  } else {
+    // shallow update existing
+    tasks.value[idx] = { ...tasks.value[idx], ...task }
+  }
+}
+
+function subscribeRoleChannel() {
+  // only if page is the right place
+  if (!shouldListenHere.value) return
+
+  // avoid duplicate subs
+  if (roleChannel.value) return
+
+  const token = localStorage.getItem('auth_token') || ''
+  console.log('token from dsh')
+  echoRoleRef.value = makeEcho(token)
+  console.log('echo from dsh', echoRoleRef.value)
+
+  // subscribe to private-roles.{uiLeadRoleId}
+  roleChannel.value = echoRoleRef.value.private(`roles.${auth.user.role_id}`)
+  console.log('from dsh', roleChannel.value)
+
+  // handlers: backend broadcastAs('task.created'|'task.updated'|'task.deleted'), payload { task: {...} }
+  roleChannel.value
+    .listen('.task.created', (payload) => {
+      const task = payload?.task
+      console.log(payload)
+      if (!task) return
+      upsertOrRemoveFromList(task)
+    })
+}
+
+function subscribeUserChannel() {
+  if (!shouldListenHereUi.value) return
+  if (userChannel.value) return
+
+  const token = localStorage.getItem('auth_token') || ''
+  echoUserRef.value = makeEcho(token)
+
+  // per-user private channel
+  userChannel.value = echoUserRef.value.private(`users.${auth.user.id}`)
+  console.log('listen user channel.')
+
+  // receive task payloads sent to the assignee
+  userChannel.value
+    .listen('.task.assign', (payload) => {
+      const task = payload?.task
+      console.log(payload)
+      if (task) upsertOrRemoveFromList(task)
+    })
+}
+
+function teardownRoleChannel() {
+  try {
+    if (echoRoleRef.value && roleChannel.value) {
+      echoRoleRef.value.leave(`roles.${auth.user.role_id}`)
+    }
+    echoRoleRef.value?.disconnect?.()
+  } catch (e) {
+    console.warn('role channel teardown:', e)
+  } finally {
+    roleChannel.value = null
+    echoRoleRef.value = null
+  }
+}
+
+function teardownUserChannel() {
+  try {
+    if (echoUserRef.value && userChannel.value) {
+      echoUserRef.value.leave(`users.${auth.user.id}`)
+    }
+    echoUserRef.value?.disconnect?.()
+  } catch (e) {
+    console.warn('user channel teardown:', e)
+  } finally {
+    userChannel.value = null
+    echoUserRef.value = null
+  }
+}
+
+// subscribe (or not) on mount based on current tab + role
+onMounted(() => {
+  // ...your existing init...
+  if (shouldListenHere.value) subscribeRoleChannel()
+  if (shouldListenHereUi.value) subscribeUserChannel()
+})
+
+// re-evaluate when tab changes
+watch(() => currentTab.value?.value, () => {
+  if (shouldListenHere.value) {
+    subscribeRoleChannel()
+  } else {
+    teardownRoleChannel()
+  }
+
+  if (shouldListenHereUi.value) subscribeUserChannel()
+  else teardownUserChannel()
+})
+
+// if role could change dynamically, also watch isUiLead
+watch(isUiLead, (v) => {
+  if (v && shouldListenHere.value) subscribeRoleChannel()
+  else teardownRoleChannel()
+})
+
+watch(isUi, (v) => {
+  if (v && shouldListenHereUi.value) subscribeUserChannel()
+  else teardownUserChannel()
+})
+
+// cleanup on leave
+onBeforeUnmount(() => {
+  teardownRoleChannel()
+  teardownUserChannel()
+})
+// socket end
 
 // Init
 onMounted(() => {
