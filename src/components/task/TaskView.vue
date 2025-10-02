@@ -84,7 +84,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -235,6 +235,9 @@
         </a-row>
       </a-col>
     </a-row>
+
+    <TaskSubmissions v-if="userId == 1" :submissions="task.task_submissions" :submitted-text="task.submitted_text">
+    </TaskSubmissions>
 
     <!-- task submission -->
     <a-row :gutter="16" v-if="task.task_submissions.length > 0">
@@ -530,6 +533,7 @@ import { Icon } from '@iconify/vue';
 import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
 import { getStatusLabel } from '@/utils/status';
 import { getIconComponent } from '@/utils/getFileTypeIcon';
+import TaskSubmissions from './TaskSubmissions.vue';
 
 const props = defineProps({
   task: {
