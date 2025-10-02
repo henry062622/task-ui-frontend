@@ -84,7 +84,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-              }}</a-tag>
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -296,7 +296,7 @@
                   </div>
                 </div>
                 <a-button v-if="!isImage(file.storage_url) && !isVideo(file.storage_url)"
-                  class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadImage(img)">
+                  class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadImage(file)">
                   <DownloadOutlined />
                   {{ $t('download') }}
                 </a-button>
@@ -379,7 +379,7 @@
                 class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
               <!-- Image -->
               <ImageView :image="file" />
-              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(img)">
+              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(file)">
                 <DownloadOutlined />
                 {{ $t('download') }}
               </a-button>
@@ -424,7 +424,7 @@
               </div>
             </div>
             <a-button v-if="!isImage(file.storage_url) && !isVideo(file.storage_url)"
-              class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadImage(img)">
+              class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadImage(file)">
               <DownloadOutlined />
               {{ $t('download') }}
             </a-button>
