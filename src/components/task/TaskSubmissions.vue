@@ -37,9 +37,6 @@
                     <source :src="file.storage_url" type="video/mp4" />
                     Your browser does not support the video tag.
                   </video>
-                  <a-button class="!flex items-center justify-center gap-1 !mt-1.5" @click.stop="downloadSingle(file)">
-                    <DownloadOutlined /> {{ t('download') }}
-                  </a-button>
                   <div v-if="isSelected(file)"
                     class="absolute top-1 right-1 bg-blue-600 text-white text-xs px-2 py-0.5 rounded">
                     Selected
