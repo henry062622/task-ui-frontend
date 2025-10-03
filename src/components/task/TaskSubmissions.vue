@@ -31,11 +31,11 @@
               <div class="flex h-auto gap-4 !mt-2 flex-wrap w-full">
                 <div v-for="file in submissions" :key="keyOf(file)" class="relative">
                   <!-- IMAGES -->
-                  <div class="w-[120px]">
+                  <div class="w-full">
                     <template v-if="isImage(file.storage_url)">
                       <!-- Use image component in 'borderless' mode *inside* a uniform card -->
                       <div
-                        class="relative w-full aspect-[4/5] rounded-lg overflow-hidden border border-gray-200 bg-white"
+                        class="relative w-[120px] aspect-[4/5] rounded-lg overflow-hidden border border-gray-200 bg-white"
                         :class="isSelected(file) ? 'ring-2 ring-blue-500' : ''">
                         <SelectableImage :image="file" :selected="isSelected(file)" :borderless="true" :width="120"
                           @toggle="toggleSelected" />
@@ -44,7 +44,7 @@
                           Selected
                         </div>
                       </div>
-                      <a-button class="!flex items-center justify-center gap-1 !mt-1.5"
+                      <a-button class="!flex w-[120px] items-center justify-center gap-1 !mt-1.5"
                         @click.stop="downloadSingle(file)">
                         <DownloadOutlined /> {{ t('download') }}
                       </a-button>
@@ -68,7 +68,7 @@
                     <!-- ARCHIVES (zip/rar/7z) -->
                     <template v-else-if="isArchive(file.storage_url)">
                       <div
-                        class="relative w-full aspect-[4/5] rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
+                        class="relative w-[120px] aspect-[4/5] rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
                         :class="isSelected(file) ? 'ring-2 ring-blue-500' : ''" @click="onAssetClick($event, file)">
                         <div class="w-full h-full flex flex-col items-center justify-center">
                           <FileZipOutlined class="text-4xl mb-2" />
@@ -81,7 +81,7 @@
                           Selected
                         </div>
                       </div>
-                      <a-button class="!flex items-center justify-center gap-1 !mt-1.5"
+                      <a-button class="!flex w-[120px] items-center justify-center gap-1 !mt-1.5"
                         @click.stop="downloadSingle(file)">
                         <DownloadOutlined /> {{ t('download') }}
                       </a-button>
@@ -90,7 +90,7 @@
                     <!-- OTHER DOCS -->
                     <template v-else>
                       <div
-                        class="relative w-full aspect-[4/5] rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
+                        class="relative w-[120px] aspect-[4/5] rounded-lg overflow-hidden border border-gray-200 bg-gray-50"
                         :class="isSelected(file) ? 'ring-2 ring-blue-500' : ''" @click="onAssetClick($event, file)">
                         <div class="w-full h-full flex flex-col items-center justify-center">
                           <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
@@ -104,7 +104,7 @@
                           Selected
                         </div>
                       </div>
-                      <a-button class="!flex items-center justify-center gap-1 !mt-1.5"
+                      <a-button class="!flex w-[120px] items-center justify-center gap-1 !mt-1.5"
                         @click.stop="downloadSingle(file)">
                         <DownloadOutlined /> {{ t('download') }}
                       </a-button>

@@ -7,6 +7,9 @@
       </a-col>
       <a-col :span="18">
         <div class="flex gap-2 justify-end">
+          <a-button v-if="canViewLogs()" type="primary" danger @click="showAuditLogs = true">
+            {{ $t('audit_logs') }}
+          </a-button>
           <a-button v-if="canEdit()" @click="emit('clickEdit')" class="!flex items-center justify-center gap-1">
             <EditOutlined />
             {{ $t('edit') }}
@@ -84,7 +87,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-              }}</a-tag>
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -483,6 +486,8 @@
   <CancelPopup :visible="showCancelModel" :task-id="task.id" @close="showCancelModel = false"
     @cancelled="refetchDetail">
   </CancelPopup>
+
+  <AuditLogsDrawer :visible="showAuditLogs" :task-id="task.id" @close="showAuditLogs = false" />
 </template>
 <script setup>
 import { formatDate } from '@/utils/format';
@@ -501,6 +506,7 @@ import { getStatusLabel } from '@/utils/status';
 import { getIconComponent } from '@/utils/getFileTypeIcon';
 import TaskSubmissions from './TaskSubmissions.vue';
 import TaskFiles from './TaskFiles.vue';
+import AuditLogsDrawer from './AuditLogsDrawer.vue';
 
 const props = defineProps({
   task: {
@@ -528,6 +534,7 @@ const hasAssignPermission = ref(false);
 const showModal = ref(false);
 const showCompleteModel = ref(false);
 const showCancelModel = ref(false);
+const showAuditLogs = ref(false)
 
 const clickCompleteBtn = () => {
   showCompleteModel.value = true;
@@ -578,6 +585,10 @@ function canEdit() {
 
   // otherwise, not editable
   return false
+}
+
+const canViewLogs = () => {
+  return auth.userRole() == 'super_admin' || auth.userRole() == 'admin' || auth.userRole() == 'ui_lead' || auth.userRole() == 'ui'
 }
 
 const refetchDetail = (updatedTask) => {

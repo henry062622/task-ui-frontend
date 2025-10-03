@@ -195,5 +195,22 @@
   "download_selected": "Download selected",
   "select_all": "Select all",
   "clear": "Clear",
-  "submission_hint": "Normal click opens preview. Hold Ctrl (or ⌘ on Mac) + click to select/deselect."
+  "submission_hint": "Normal click opens preview. Hold Ctrl (or ⌘ on Mac) + click to select/deselect.",
+  "audit_logs": "Audit Logs",
+  "total": "Total",
+  "refresh": "Refresh",
+  "no_data": "No data",
+  "by": "By",
+  "details": "Details",
+  "added": "Added",
+  "removed": "Removed",
+  "old": "Old",
+  "new": "New",
+  "images": "Images",
+  "other_files_submitted": "Other files submitted",
+  "videos_n": "{n} video(s)",
+  "documents_n": "{n} document(s)",
+  "archives_n": "{n} archive(s)",
+  "audios_n": "{n} audio file(s)",
+  "others_n": "{n} other(s)"
 }

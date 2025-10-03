@@ -38,6 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
   function userRole() {
     if (!user.value) return null
     if (user.value.role_id == 1) return 'super_admin'
+    if (user.value.role_id == 2) return 'admin'
     if (user.value.role_id == 3) return 'ui_lead'
     if (user.value.role_id == 4) return 'ui'
     return null
