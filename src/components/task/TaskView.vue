@@ -84,7 +84,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -236,23 +236,17 @@
       </a-col>
     </a-row>
 
-    <!-- <TaskSubmissions v-if="userId == 1" :submissions="task.task_submissions" :submitted-text="task.submitted_text">
-    </TaskSubmissions> -->
+    <TaskSubmissions :submissions="task.task_submissions" :submitted-text="task.submitted_text" />
 
     <!-- task submission -->
-    <a-row :gutter="16" v-if="task.task_submissions.length > 0">
+    <!-- <a-row :gutter="16" v-if="task.task_submissions.length > 0">
       <a-col :span="12">
         <a-row>
           <a-col :span="24" class="!font-semibold !text-base">{{ $t('task_submission') }} :</a-col>
           <a-col :span="24">
             <div class="flex h-auto gap-4 !mt-4 flex-wrap w-full">
               <div v-for="file in task.task_submissions" :key="file.storage_url">
-                <!-- Image: keep original style -->
                 <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
-                  <!-- Download Icon -->
-                  <!-- <DownloadOutlined @click="downloadImage(file)"
-                    class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
-                  <!-- Image -->
                   <ImageView :image="file" />
                   <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(file)">
                     <DownloadOutlined />
@@ -260,7 +254,6 @@
                   </a-button>
                 </div>
 
-                <!-- Video: enforce 16:9 aspect ratio -->
                 <div v-else-if="isVideo(file.storage_url)"
                   class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
                   <video controls class="aspect-[16/9] object-fill">
@@ -269,14 +262,8 @@
                   </video>
                 </div>
 
-                <!-- ZIP/RAR: show icon, filename, and download -->
                 <div v-else-if="isArchive(file.storage_url)"
                   class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
-                  <!-- <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
-                    <DownloadOutlined
-                      class=" text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10"
-                      :title="$t('download')" />
-                  </a> -->
                   <div>
                     <file-zip-outlined class="text-4xl mb-2" />
                   </div>
@@ -286,11 +273,6 @@
                 </div>
                 <div v-else
                   class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-4 px-2">
-                  <!-- <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
-                    class="absolute top-1 right-1 hover:!bg-gray-100">
-                    <DownloadOutlined class="text-lg !text-blue-600 rounded-full shadow cursor-pointer z-10"
-                      :title="$t('download')" />
-                  </a> -->
                   <div>
                     <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
                   </div>
@@ -319,7 +301,7 @@
           </a-col>
         </a-row>
       </a-col>
-    </a-row>
+    </a-row> -->
 
     <!-- task revision -->
     <a-row :gutter="16" v-if="task.task_revision && task.status != 'complete'">
@@ -366,21 +348,17 @@
       <a-divider />
     </a-row>
 
+    <TaskFiles :files="task.files" />
     <!-- task files -->
-    <a-row>
+    <!-- <a-row>
       <a-col :span="24" class="!font-semibold !text-base">{{ $t('files_required_for_task') }}
         :</a-col>
-    </a-row>
-    <a-row>
+    </a-row> -->
+    <!-- <a-row>
       <a-col :span="24">
         <div class="flex h-auto gap-4 !mt-4 flex-wrap">
           <div v-for="file in task.files" :key="file.storage_url">
-            <!-- Image: keep original style -->
             <div v-if="isImage(file.storage_url)" class="relative w-[120px]">
-              <!-- Download Icon -->
-              <!-- <DownloadOutlined @click="downloadImage(file)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
-              <!-- Image -->
               <ImageView :image="file" />
               <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(file)">
                 <DownloadOutlined />
@@ -388,7 +366,6 @@
               </a-button>
             </div>
 
-            <!-- Video: enforce 16:9 aspect ratio -->
             <div v-else-if="isVideo(file.storage_url)"
               class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
               <video controls class="aspect-[16/9] object-fill">
@@ -397,13 +374,8 @@
               </video>
             </div>
 
-            <!-- ZIP/RAR: show icon, filename, and download -->
             <div v-else-if="isArchive(file.storage_url)"
               class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
-              <!-- <a :href="file.storage_url" class="absolute top-1 right-1 hover:!bg-gray-100">
-                <DownloadOutlined class=" text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10"
-                  :title="$t('download')" />
-              </a> -->
               <div>
                 <file-zip-outlined class="text-4xl mb-2" />
               </div>
@@ -411,14 +383,8 @@
                 {{ file.file_name || 'Archive' }}
               </div>
             </div>
-            <!-- Document files (Word, Excel, PowerPoint, PDF, others) -->
             <div v-else
               class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-50 py-4 px-2">
-              <!-- <a :href="file.storage_url" target="_blank" rel="noopener noreferrer"
-                class="absolute top-1 right-1 hover:!bg-gray-100">
-                <DownloadOutlined class="text-lg !text-blue-600 rounded-full shadow cursor-pointer z-10"
-                  :title="$t('download')" />
-              </a> -->
               <div>
                 <component :is="getIconComponent(file.file_name)" class="text-4xl mb-2" />
               </div>
@@ -434,7 +400,7 @@
           </div>
         </div>
       </a-col>
-    </a-row>
+    </a-row> -->
 
     <!-- sample image -->
     <a-row>
@@ -534,6 +500,7 @@ import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
 import { getStatusLabel } from '@/utils/status';
 import { getIconComponent } from '@/utils/getFileTypeIcon';
 import TaskSubmissions from './TaskSubmissions.vue';
+import TaskFiles from './TaskFiles.vue';
 
 const props = defineProps({
   task: {

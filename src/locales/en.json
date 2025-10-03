@@ -191,5 +191,9 @@
   "enter_cancel_reason": "Please enter a cancel reason",
   "reassign_the_task": "Reassign the Task",
   "reassign": "Reassign",
-  "download": "download"
+  "download": "download",
+  "download_selected": "Download selected",
+  "select_all": "Select all",
+  "clear": "Clear",
+  "submission_hint": "Normal click opens preview. Hold Ctrl (or ⌘ on Mac) + click to select/deselect."
 }
