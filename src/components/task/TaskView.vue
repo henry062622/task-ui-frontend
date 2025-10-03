@@ -30,7 +30,12 @@
             {{ $t('reviewed') }}
           </a-button>
 
-          <a-button v-if="(task.status == 'in-progress' || task.status == 'pending') && task.assignee?.id == userId"
+          <!-- <a-button v-if="(task.status == 'in-progress' || task.status == 'pending') && task.assignee?.id == userId"
+            danger @click="clickCancelBtn()">
+            {{ $t('cancel') }}
+          </a-button> -->
+          <a-button
+            v-if="(task.status == 'in-progress' || task.status == 'pending') && (auth.user.id == task.created_by.id || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
             danger @click="clickCancelBtn()">
             {{ $t('cancel') }}
           </a-button>

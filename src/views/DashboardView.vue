@@ -29,13 +29,13 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-              }} </a-select-option>
+                }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+                }} </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -100,7 +100,7 @@
                                     </a-button> -->
 
                   <a-button
-                    v-if="currentTab?.buttons.includes('cancel') && (record.status == 'pending' || record.status == 'in-progress') && (auth.user.id == record.created_by.id)"
+                    v-if="currentTab?.buttons.includes('cancel') && (record.status == 'pending' || record.status == 'in-progress') && (auth.user.id == record.created_by.id || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
                     danger @click="clickCancelBtn(record.id)">
                     {{ $t('cancel') }}
                   </a-button>
