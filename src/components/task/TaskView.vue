@@ -7,9 +7,7 @@
       </a-col>
       <a-col :span="18">
         <div class="flex gap-2 justify-end">
-          <a-button v-if="canViewLogs()" type="primary" danger @click="showAuditLogs = true">
-            {{ $t('audit_logs') }}
-          </a-button>
+
           <a-button v-if="canEdit()" @click="emit('clickEdit')" class="!flex items-center justify-center gap-1">
             <EditOutlined />
             {{ $t('edit') }}
@@ -44,6 +42,10 @@
             class="!flex items-center justify-center gap-1">
             <Icon icon="teenyicons:send-outline" />
             {{ $t('assign') }}
+          </a-button>
+
+          <a-button v-if="canViewLogs()" @click="showAuditLogs = true">
+            {{ $t('audit_logs') }}
           </a-button>
         </div>
 
