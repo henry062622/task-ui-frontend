@@ -556,7 +556,7 @@ const clickCompleteBtn = () => {
 }
 const downloadImage = async (img) => {
   try {
-    const response = await api.get(img.storage_url);
+    const response = await fetch(img.storage_url, { mode: 'cors' })
     const blob = await response.blob();
 
     const link = document.createElement('a');
