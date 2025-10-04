@@ -72,19 +72,28 @@ watch(
 )
 
 const beforeUpload = (file) => {
-  formState.value.fileList = [
-    {
-      uid: Date.now().toString(),
-      name: file.name,
-      status: 'done',
-      originFileObj: file,
-    },
-  ]
+  // formState.value.fileList = [
+  //   {
+  //     uid: Date.now().toString(),
+  //     name: file.name,
+  //     status: 'done',
+  //     originFileObj: file,
+  //   },
+  // ]
+
+  const item = {
+    uid: `${Date.now()}-${Math.random()}`,
+    name: file.name,
+    status: 'done',
+    originFileObj: file,
+  }
+  formState.value.fileList = [...formState.value.fileList, item]
   return false
 }
 
-const onRemove = () => {
-  formState.value.fileList = []
+const onRemove = (file) => {
+  // formState.value.fileList = []
+  formState.value.fileList = formState.value.fileList.filter(f => f.uid !== file.uid)
 }
 
 const onSubmit = async () => {
@@ -98,7 +107,10 @@ const onSubmit = async () => {
   if (formState.value.status == 'needs-revision') {
     formData.append('revision_reason', formState.value.revision_reason)
     if (formState.value.fileList.length > 0) {
-      formData.append('file', formState.value.fileList[0].originFileObj)
+      // formData.append('file', formState.value.fileList[0].originFileObj)
+      for (const f of formState.value.fileList) {
+        formData.append('files[]', f.originFileObj)
+      }
     }
 
   }
@@ -134,15 +146,22 @@ function onPaste(e) {
   if (formState.value.status !== 'needs-revision') return
   const files = Array.from(e.clipboardData?.files || []).filter((f) => f.type.startsWith('image/'))
   if (files.length) {
-    const file = files[0]
-    formState.value.fileList = [
-      {
-        uid: Date.now().toString(),
-        name: file.name,
-        status: 'done',
-        originFileObj: file,
-      },
-    ]
+    // const file = files[0]
+    // formState.value.fileList = [
+    //   {
+    //     uid: Date.now().toString(),
+    //     name: file.name,
+    //     status: 'done',
+    //     originFileObj: file,
+    //   },
+    // ]
+    const items = files.map(file => ({
+      uid: `${Date.now()}-${Math.random()}`,
+      name: file.name || 'pasted-image',
+      status: 'done',
+      originFileObj: file,
+    }))
+    formState.value.fileList = [...formState.value.fileList, ...items]
   }
 }
 

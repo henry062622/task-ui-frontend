@@ -323,24 +323,32 @@
     </a-row>
 
     <a-row :gutter="16" v-if="task.task_revision && task.status != 'complete'">
-      <a-col :span="12" v-if="task.task_revision.storage_url">
+      <a-col :span="12" v-if="task.task_revision.files && task.task_revision.files.length > 0">
         <a-row>
           <a-col :span="24" class="!font-semibold !text-base !mb-2">
             {{ $t('revision_reason_image') }} :
           </a-col>
           <a-col :span="24">
-            <div class="relative w-[120px]">
-              <!-- Download Icon -->
-              <!-- <DownloadOutlined @click="downloadImage(task.task_revision)"
-                class="absolute top-1 right-1 text-lg !text-green-800 !bg-grey-500 rounded-full shadow cursor-pointer z-10" /> -->
-              <!-- Image -->
+            <a-image-preview-group>
+              <div class="flex gap-4 flex-wrap">
+                <div v-for="(url, i) in task.task_revision.files" :key="i" class="relative w-[120px]">
+                  <a-image :src="url" alt="Preview"
+                    class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
+                  <a-button class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadByUrl(url)">
+                    <DownloadOutlined />
+                    {{ $t('download') }}
+                  </a-button>
+                </div>
+              </div>
+            </a-image-preview-group>
+            <!-- <div class="relative w-[120px]">
               <a-image :src="task.task_revision.storage_url" alt="Preview"
                 class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
               <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(task.task_revision)">
                 <DownloadOutlined />
                 {{ $t('download') }}
               </a-button>
-            </div>
+            </div> -->
           </a-col>
         </a-row>
 
@@ -571,6 +579,25 @@ const downloadImage = async (img) => {
     console.error('Failed to download image:', err);
   }
 };
+
+// Simple downloader for a raw URL
+const downloadByUrl = async (url) => {
+  try {
+    const res = await fetch(url, { mode: 'cors' })
+    const blob = await res.blob()
+    const a = document.createElement('a')
+    // try to extract a filename from the URL
+    const nameFromUrl = decodeURIComponent(url.split('/').pop().split('?')[0] || 'download')
+    a.href = URL.createObjectURL(blob)
+    a.download = nameFromUrl
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(a.href)
+  } catch (e) {
+    console.error('Failed to download revision image:', e)
+  }
+}
 
 function canEdit() {
   const task = props.task;
