@@ -94,7 +94,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-              }}</a-tag>
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -556,7 +556,7 @@ const clickCompleteBtn = () => {
 }
 const downloadImage = async (img) => {
   try {
-    const response = await fetch(img.storage_url);
+    const response = await api.get(img.storage_url);
     const blob = await response.blob();
 
     const link = document.createElement('a');
