@@ -225,7 +225,7 @@ function clearSelection() {
 /** ---------- downloads ---------- */
 async function downloadSingle(file) {
   try {
-    const response = await fetch(file.storage_url, { mode: 'cors' })
+    const response = await fetch(file.storage_url)
     const blob = await response.blob()
 
     const a = document.createElement('a')
