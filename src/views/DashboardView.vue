@@ -18,6 +18,13 @@
             <a-input-search v-if="currentTab?.showSearch" v-model:value="searchQuery"
               :placeholder="$t('search_by_pj_name')" @search="handleSearch" allow-clear style="width: 250px" />
 
+            <a-select v-model:value="filters.website" :placeholder="$t('website')" @change="handleFilter"
+              style="width: 180px" allow-clear show-search :filterOption="false" @search="onSearchWebsite">
+              <a-select-option v-for="data in filteredWebsiteList" :key="data.id" :value="data.id">
+                {{ data.name }}
+              </a-select-option>
+            </a-select>
+
             <a-select v-if="currentTab?.filters.includes('status')" v-model:value="filters.status"
               :placeholder="$t('status')" @change="handleFilter" style="width: 110px" allow-clear>
               <a-select-option value="pending">Pending</a-select-option>
@@ -29,13 +36,13 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -180,7 +187,7 @@ const hasEditPermission = ref(false);
 const tasks = ref([]);
 const loading = ref(false);
 const searchQuery = ref('');
-const filters = reactive({ status: null, type: null, assignee: null, creator: null, dateRange: [] });
+const filters = reactive({ status: null, type: null, assignee: null, creator: null, website: null, dateRange: [] });
 const taskTypeList = ref([]);
 const userList = ref([]);
 const selectedTaskId = ref(null);
@@ -191,6 +198,8 @@ const { t } = useI18n();
 const creatorList = ref([])
 const creatorSearchLoading = ref(false) // stays if you show spinner on first load
 const creatorQuery = ref('')
+const websiteList = ref([]);
+const websiteQuery = ref('')
 
 const selectedTaskAssigneeId = ref(null)
 const isReassignMode = ref(false)
@@ -245,6 +254,7 @@ const fetchTasks = async (page = 1) => {
         creator: filters.creator,
         start_date: filters.dateRange ? filters.dateRange[0]?.format('YYYY-MM-DD') : '',
         end_date: filters.dateRange ? filters.dateRange[1]?.format('YYYY-MM-DD') : '',
+        website: filters.website
       }
     });
 
@@ -432,15 +442,29 @@ function getCreatorNameList(q = '') {
     .finally(() => { creatorSearchLoading.value = false })
 }
 
+const fetchWebsitelist = async () => {
+  const res = await api.get('/api/websites');
+  websiteList.value = res.data.data;
+}
+
 const filteredCreatorList = computed(() => {
   const q = creatorQuery.value.trim().toLowerCase()
   if (!q) return creatorList.value
   return creatorList.value.filter(u => (u.name || '').toLowerCase().includes(q))
 })
+const filteredWebsiteList = computed(() => {
+  const q = websiteQuery.value.trim().toLowerCase()
+  if (!q) return websiteList.value
+  return websiteList.value.filter(site => (site.name || '').toLowerCase().includes(q))
+})
 
 // change your search handler to ONLY update the query (no API call)
 function onSearchCreator(value) {
   creatorQuery.value = value || ''
+}
+
+function onSearchWebsite(value) {
+  websiteQuery.value = value || ''
 }
 
 function canEdit(record) {
@@ -673,6 +697,7 @@ onMounted(() => {
   fetchTasks();
   getTaskTypeList();
   getUserNameList();
+  fetchWebsitelist();
   getCreatorNameList();
   hasCreatePermission.value = auth.hasPermission('task_create');
   hasViewPermission.value = auth.hasPermission('task_read');
