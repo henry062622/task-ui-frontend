@@ -147,6 +147,8 @@ import {
   FileExcelOutlined,
   FileTextOutlined,
 } from '@ant-design/icons-vue'
+import axios from 'axios'
+import api from '@/lib/axios'
 
 const { t } = useI18n()
 
@@ -225,22 +227,48 @@ function clearSelection() {
 /** ---------- downloads ---------- */
 async function downloadSingle(file) {
   try {
-    const response = await fetch(file.storage_url, { mode: 'cors' })
-    const blob = await response.blob()
+    // const response = await fetch(file.storage_url, { mode: 'cors' })
+    // const blob = await response.blob()
 
-    const a = document.createElement('a')
-    let filename = file.file_name
-    if (!filename) {
-      const parts = (file.storage_url || '').split('/')
-      filename = parts[parts.length - 1] || 'download'
-    }
-    const href = URL.createObjectURL(blob)
-    a.href = href
-    a.setAttribute('download', filename)
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(href)
+    // const a = document.createElement('a')
+    // let filename = file.file_name
+    // if (!filename) {
+    //   const parts = (file.storage_url || '').split('/')
+    //   filename = parts[parts.length - 1] || 'download'
+    // }
+    // const href = URL.createObjectURL(blob)
+    // a.href = href
+    // a.setAttribute('download', filename)
+    // document.body.appendChild(a)
+    // a.click()
+    // document.body.removeChild(a)
+    // URL.revokeObjectURL(href)
+    const url =
+      `/api/download?url=${encodeURIComponent(file.storage_url)}&filename=${encodeURIComponent(file.file_name || '')}`;
+
+    api.get(url, { responseType: 'arraybuffer' }).then((res) => {
+      console.log(res);
+
+      // filename (prefer header)
+      let filename = file.file_name || 'download';
+      const cd = res.headers['content-disposition'];
+      const m = cd && cd.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+      if (m && m[1]) filename = decodeURIComponent(m[1]);
+
+      // Build a Blob directly from the ArrayBuffer
+      const type = res.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([res.data], { type });
+
+      // Download
+      const urlObj = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = urlObj;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(urlObj);
+    });
   } catch (err) {
     console.error('Failed to download:', err)
   }
@@ -310,9 +338,19 @@ async function downloadSelectedZip() {
     const f = byKey.get(k)
     if (!f) continue
     try {
-      const res = await fetch(f.storage_url, { mode: 'cors' })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const blob = await res.blob()
+      const url =
+        `/api/download?url=${encodeURIComponent(f.storage_url)}&filename=${encodeURIComponent(f.file_name || '')}`;
+
+      const res = await api.get(url, { responseType: 'arraybuffer' })
+      console.log(res);
+
+      // Build a Blob directly from the ArrayBuffer
+      const type = res.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([res.data], { type });
+
+      // const res = await fetch(f.storage_url, { mode: 'cors' })
+      // if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      // const blob = await res.blob()
       const name = uniqueName(inferFilename(f), usedNames)
       folder.file(name, blob)
     } catch (e) {

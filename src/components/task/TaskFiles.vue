@@ -139,6 +139,7 @@ import {
   FileExcelOutlined,
   FileTextOutlined,
 } from '@ant-design/icons-vue'
+import api from '@/lib/axios'
 
 const { t } = useI18n()
 
@@ -261,9 +262,19 @@ async function downloadSelectedZip() {
     const f = byKey.get(k)
     if (!f) continue
     try {
-      const res = await fetch(f.storage_url, { mode: 'cors' })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const blob = await res.blob()
+      const url =
+        `/api/download?url=${encodeURIComponent(f.storage_url)}&filename=${encodeURIComponent(f.file_name || '')}`;
+
+      const res = await api.get(url, { responseType: 'arraybuffer' })
+      console.log(res);
+
+      // Build a Blob directly from the ArrayBuffer
+      const type = res.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([res.data], { type });
+
+      // const res = await fetch(f.storage_url, { mode: 'cors' })
+      // if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      // const blob = await res.blob()
       folder.file(uniqueName(inferFilename(f), used), blob)
     } catch (e) {
       console.error('zip fetch failed:', f?.storage_url, e)

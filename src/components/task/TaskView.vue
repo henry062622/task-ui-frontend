@@ -94,7 +94,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -556,25 +556,52 @@ const clickCompleteBtn = () => {
 }
 const downloadImage = async (img) => {
   try {
-    const response = await fetch(img.storage_url, { mode: 'cors' })
-    const blob = await response.blob();
+    // const response = await fetch(img.storage_url, { mode: 'cors' })
+    // const blob = await response.blob();
 
-    const link = document.createElement('a');
-    let filename = img.file_name;
+    // const link = document.createElement('a');
+    // let filename = img.file_name;
 
-    // If no file_name, try to extract from storage_url
-    if (!filename) {
-      const urlParts = img.storage_url.split('/');
-      filename = urlParts[urlParts.length - 1] || 'download';
-    }
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // // If no file_name, try to extract from storage_url
+    // if (!filename) {
+    //   const urlParts = img.storage_url.split('/');
+    //   filename = urlParts[urlParts.length - 1] || 'download';
+    // }
+    // link.href = URL.createObjectURL(blob);
+    // link.setAttribute('download', filename);
+    // document.body.appendChild(link);
+    // link.click();
+    // document.body.removeChild(link);
 
-    // Clean up memory
-    URL.revokeObjectURL(link.href);
+    // // Clean up memory
+    // URL.revokeObjectURL(link.href);
+
+    const url =
+      `/api/download?url=${encodeURIComponent(img.storage_url)}&filename=${encodeURIComponent(img.file_name || '')}`;
+
+    api.get(url, { responseType: 'arraybuffer' }).then((res) => {
+      console.log(res);
+
+      // filename (prefer header)
+      let filename = img.file_name || 'download';
+      const cd = res.headers['content-disposition'];
+      const m = cd && cd.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+      if (m && m[1]) filename = decodeURIComponent(m[1]);
+
+      // Build a Blob directly from the ArrayBuffer
+      const type = res.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([res.data], { type });
+
+      // Download
+      const urlObj = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = urlObj;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(urlObj);
+    });
   } catch (err) {
     console.error('Failed to download image:', err);
   }
