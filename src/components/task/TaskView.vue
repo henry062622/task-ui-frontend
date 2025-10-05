@@ -17,9 +17,7 @@
             {{ $t('in_progress') }}
           </a-button>
 
-          <a-button
-            v-if="(task.status === 'in-progress' || task.status === 'needs-revision') && task.assignee?.id == userId"
-            @click="clickSubmitReview(task.id)">
+          <a-button v-if="canSubmitForReview()" @click="clickSubmitReview(task.id)">
             {{ $t('submit_for_review') }}
           </a-button>
 
@@ -42,6 +40,11 @@
             class="!flex items-center justify-center gap-1">
             <Icon icon="teenyicons:send-outline" />
             {{ $t('assign') }}
+          </a-button>
+
+          <a-button v-if="canResubmit()" @click="reassignTask(task)" class="!flex items-center justify-center gap-1">
+            <Icon icon="teenyicons:send-outline" />
+            {{ $t('reassign') }}
           </a-button>
 
           <a-button v-if="canViewLogs()" @click="showAuditLogs = true">
@@ -94,7 +97,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-              }}</a-tag>
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -492,7 +495,8 @@
 
   </div>
 
-  <AssignPopup :visible="showModal" :task-id="task.id" :user-list="userList" @close="showModal = false"
+  <AssignPopup :visible="showModal" :task-id="task.id" :user-list="userList"
+    :current-assignee-id="selectedTaskAssigneeId" :is-reassign="isReassignMode" @close="showModal = false"
     @assigned="refetchDetail"></AssignPopup>
   <CompletePopup :visible="showCompleteModel" :task-id="task.id" @completed="refetchDetail"
     @close="showCompleteModel = false"></CompletePopup>
@@ -549,7 +553,10 @@ const hasAssignPermission = ref(false);
 const showModal = ref(false);
 const showCompleteModel = ref(false);
 const showCancelModel = ref(false);
-const showAuditLogs = ref(false)
+const showAuditLogs = ref(false);
+
+const selectedTaskAssigneeId = ref(null)
+const isReassignMode = ref(false)
 
 const clickCompleteBtn = () => {
   showCompleteModel.value = true;
@@ -648,6 +655,23 @@ function canEdit() {
   return false
 }
 
+const canSubmitForReview = () => {
+  const task = props.task
+  const role = auth.userRole()
+  const isLeadOrAdmin = role === 'super_admin' || role === 'ui_lead'
+  const isAssignee = task.assignee?.id == userId
+
+  return (task.status === 'in-progress' && isAssignee)
+    || (task.status === 'needs-revision' && (isAssignee || isLeadOrAdmin))
+}
+
+const canResubmit = () => {
+  const task = props.task;
+  const role = auth.userRole();
+  const isLeadOrAdmin = role === 'super_admin' || role === 'ui_lead';
+  return (task.status == 'in-progress' || task.status == 'pending') && task.assignee && isLeadOrAdmin
+}
+
 const canViewLogs = () => {
   return auth.userRole() == 'super_admin' || auth.userRole() == 'admin' || auth.userRole() == 'ui_lead' || auth.userRole() == 'ui'
 }
@@ -677,9 +701,23 @@ const updateTaskStatus = (status) => {
   })
 }
 
-const assignTask = () => {
+// const assignTask = () => {
+//   showModal.value = true;
+// };
+
+const assignTask = async (id) => {
+  // selectedTaskId.value = id;
+  selectedTaskAssigneeId.value = null
+  isReassignMode.value = false
   showModal.value = true;
 };
+
+const reassignTask = (task) => {
+  // selectedTaskId.value = task.id
+  selectedTaskAssigneeId.value = task.assignee?.id || null
+  isReassignMode.value = true
+  showModal.value = true
+}
 
 const changeToArray = (data) => {
   return JSON.parse(data);
