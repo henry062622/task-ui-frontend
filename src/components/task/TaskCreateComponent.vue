@@ -97,9 +97,7 @@
     <a-row :gutter="16">
       <!-- Dropdown -->
       <a-col :span="12">
-        <a-form-item :label="$t('colors_optional')" name="colors"
-          :rules="[{ required: true, message: 'Please select at least one colors' }]"
-          :validate-status="errors.colors ? 'error' : ''" :help="errors.colors">
+        <a-form-item :label="$t('colors_optional')" name="colors">
           <a-select mode="multiple" v-model:value="formState.colors" :placeholder="t('selectUpTo3Colors')"
             :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" class="w-full" show-search :filter-option="(input, option) =>
               option.label.toLowerCase().includes(input.toLowerCase())
@@ -1062,9 +1060,9 @@ const validateForm = () => {
   }
 
   // colors
-  if (!formState.value.colors.length) {
-    errors.value.colors = t('validation.ColorsRequired')
-  }
+  // if (!formState.value.colors.length) {
+  //   errors.value.colors = t('validation.ColorsRequired')
+  // }
 
   // Image Text
   if (!formState.value.image_text?.trim()) {
