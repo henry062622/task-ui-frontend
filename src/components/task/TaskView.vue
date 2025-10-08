@@ -102,7 +102,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -339,24 +339,48 @@
           <a-col :span="24">
             <a-image-preview-group>
               <div class="flex gap-4 flex-wrap">
-                <div v-for="(url, i) in task.task_revision.files" :key="i" class="relative w-[120px]">
-                  <a-image :src="url" alt="Preview"
+                <div v-for="(url, i) in task.task_revision.files" :key="i" class="">
+                  <!-- <a-image :src="url" alt="Preview"
                     class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
                   <a-button class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadByUrl(url)">
+                    <DownloadOutlined />
+                    {{ $t('download') }}
+                  </a-button> -->
+                  <div v-if="isImage(url)" class="relative w-[120px]">
+                    <a-image :src="url" alt="Preview"
+                      class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
+                    <a-button class="!flex w-[120px] items-center justify-center gap-1" @click="downloadByUrl(url)">
+                      <DownloadOutlined />
+                      {{ $t('download') }}
+                    </a-button>
+                  </div>
+
+                  <div v-else-if="isVideo(url)" class="w-[250px] rounded-lg overflow-hidden border border-gray-200">
+                    <video controls class="aspect-[16/9] object-fill">
+                      <source :src="url" type="video/mp4" />
+                      Your browser does not support the video tag.
+                    </video>
+                  </div>
+
+                  <div v-else-if="isArchive(url)"
+                    class="relative w-[120px] aspect-[4/5] flex flex-col gap-4 items-center justify-center border border-gray-200 rounded-lg bg-gray-100 py-4 px-2">
+                    <div>
+                      <file-zip-outlined class="text-4xl mb-2" />
+                    </div>
+                    <div class="text-xs text-gray-700 text-center truncate w-[90px]">
+                      {{ 'Archive' }}
+                    </div>
+                  </div>
+
+                  <a-button v-if="!isImage(url) && !isVideo(url)"
+                    class="!flex items-center justify-center gap-1 !mt-1.5" @click="downloadByUrl(url)">
                     <DownloadOutlined />
                     {{ $t('download') }}
                   </a-button>
                 </div>
               </div>
             </a-image-preview-group>
-            <!-- <div class="relative w-[120px]">
-              <a-image :src="task.task_revision.storage_url" alt="Preview"
-                class="aspect-[4/5] !object-fill !border !border-gray-200 rounded-lg" />
-              <a-button class="!flex items-center justify-center gap-1" @click="downloadImage(task.task_revision)">
-                <DownloadOutlined />
-                {{ $t('download') }}
-              </a-button>
-            </div> -->
+
           </a-col>
         </a-row>
 
@@ -625,20 +649,52 @@ const downloadImage = async (img) => {
 // Simple downloader for a raw URL
 const downloadByUrl = async (url) => {
   try {
-    const res = await fetch(url, { mode: 'cors' })
-    const blob = await res.blob()
-    const a = document.createElement('a')
-    // try to extract a filename from the URL
-    const nameFromUrl = decodeURIComponent(url.split('/').pop().split('?')[0] || 'download')
-    a.href = URL.createObjectURL(blob)
-    a.download = nameFromUrl
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(a.href)
+    const apiUrl =
+      `/api/download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent('')}`;
+
+    api.get(apiUrl, { responseType: 'arraybuffer' }).then((res) => {
+      console.log(res);
+
+      // filename (prefer header)
+      let filename = `revision-image-${stamp()}`;
+      const cd = res.headers['content-disposition'];
+      const m = cd && cd.match(/filename\*?=(?:UTF-8''|")?([^";]+)/i);
+      if (m && m[1]) filename = decodeURIComponent(m[1]);
+
+      // Build a Blob directly from the ArrayBuffer
+      const type = res.headers['content-type'] || 'application/octet-stream';
+      const blob = new Blob([res.data], { type });
+
+      // Download
+      const urlObj = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = urlObj;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(urlObj);
+    });
+    // const res = await fetch(url, { mode: 'cors' })
+    // const blob = await res.blob()
+    // const a = document.createElement('a')
+    // // try to extract a filename from the URL
+    // const nameFromUrl = decodeURIComponent(url.split('/').pop().split('?')[0] || 'download')
+    // a.href = URL.createObjectURL(blob)
+    // a.download = nameFromUrl
+    // document.body.appendChild(a)
+    // a.click()
+    // document.body.removeChild(a)
+    // URL.revokeObjectURL(a.href)
   } catch (e) {
     console.error('Failed to download revision image:', e)
   }
+}
+
+function stamp() {
+  const d = new Date()
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}_${pad(d.getHours())}-${pad(d.getMinutes())}-${pad(d.getSeconds())}`
 }
 
 function canEdit() {
