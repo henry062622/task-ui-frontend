@@ -36,13 +36,13 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-              }} </a-select-option>
+                }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+                }} </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -123,6 +123,12 @@
                     {{ $t('reassign') }}
                   </a-button>
 
+                  <a-button
+                    v-if="currentTab?.buttons.includes('need-revision') && record.status === 'complete' && (auth.userRole() === 'super_admin' || auth.userRole() === 'ui_lead')"
+                    @click="openNeedRevision(record.id)">
+                    {{ $t('needs_revision') }}
+                  </a-button>
+
                   <a-popconfirm
                     v-if="currentTab?.buttons.includes('delete') && !record.assignee && record.created_by.id == auth.user.id && hasDeletePermission"
                     :title="$t('sureToDelete')" @confirm="deleteTask(record.id)">
@@ -141,6 +147,8 @@
       @assigned="removeAssignedTaskFromList"></AssignPopup>
     <CompletePopup :visible="showCompleteModel" :task-id="selectedTaskId" @completed="actionAfterStatusUpdate"
       @close="showCompleteModel = false"></CompletePopup>
+    <CompletePopup :visible="showNeedRevisionModel" :task-id="selectedTaskId" only-need-revision
+      @completed="actionAfterStatusUpdate" @close="showNeedRevisionModel = false" />
     <SubmitTaskForReview :visible="showSubmitTaskModel" :task-id="selectedTaskId" @submitTask="actionAfterStatusUpdate"
       @close="showSubmitTaskModel = false"></SubmitTaskForReview>
     <CancelPopup :visible="showCancelModel" :task-id="selectedTaskId" @close="showCancelModel = false"
@@ -206,6 +214,8 @@ const isReassignMode = ref(false)
 
 const echoRoleRef = ref(null)
 const roleChannel = ref(null)
+
+const showNeedRevisionModel = ref(false)
 
 const isUiLead = computed(() => auth.userRole && auth.userRole() === 'ui_lead')
 const shouldListenHere = computed(() => {
@@ -317,6 +327,11 @@ const viewTask = (id) => {
   const url = `/tasks/${id}`;
   window.open(url, "_blank");
 };
+
+const openNeedRevision = (id) => {
+  selectedTaskId.value = id
+  showNeedRevisionModel.value = true
+}
 
 const clickSubmitReview = (id) => {
   selectedTaskId.value = id;
@@ -516,7 +531,7 @@ const getAvailableTabs = () => {
       buttons: ['see_more', 'submit', 'edit']
     },
 
-    { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit'] },
+    { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit', 'need-revision'] },
     { value: 'cancel', label: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit'] },
 
   ];

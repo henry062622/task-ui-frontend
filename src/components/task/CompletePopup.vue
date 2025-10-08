@@ -5,7 +5,8 @@
     <a-form :model="formState" name="update_task_status" layout="vertical" autocomplete="off" @finish="onSubmit"
       @finishFailed="onFinishFailed" class="w-full">
       <!-- Status selection -->
-      <a-form-item :label="$t('status')" name="status" :rules="[{ required: true, message: 'Please select a status' }]">
+      <a-form-item v-if="!onlyNeedRevision" :label="$t('status')" name="status"
+        :rules="[{ required: true, message: 'Please select a status' }]">
         <a-radio-group v-model:value="formState.status">
           <a-radio value="complete">Complete</a-radio>
           <a-radio value="needs-revision">Need Revision</a-radio>
@@ -48,6 +49,7 @@ import { UploadOutlined } from '@ant-design/icons-vue'
 const props = defineProps({
   visible: { type: Boolean, required: true },
   taskId: { type: Number, required: true },
+  onlyNeedRevision: { type: Boolean, default: false },
 })
 const emit = defineEmits(['close', 'completed'])
 
@@ -64,7 +66,7 @@ watch(
   (val) => {
     if (val) {
       formState.value.task_id = props.taskId
-      formState.value.status = ''
+      formState.value.status = props.onlyNeedRevision ? 'needs-revision' : ''
       formState.value.revision_reason = ''
       formState.value.fileList = []
     }

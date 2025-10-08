@@ -25,6 +25,11 @@
             @click="clickMarkReview(task.id)">
             {{ $t('reviewed') }}
           </a-button>
+          <a-button
+            v-if="task.status === 'complete' && (auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
+            @click="openNeedRevision(task.id)">
+            {{ $t('needs_revision') }}
+          </a-button>
 
           <!-- <a-button v-if="(task.status == 'in-progress' || task.status == 'pending') && task.assignee?.id == userId"
             danger @click="clickCancelBtn()">
@@ -500,6 +505,8 @@
     @assigned="refetchDetail"></AssignPopup>
   <CompletePopup :visible="showCompleteModel" :task-id="task.id" @completed="refetchDetail"
     @close="showCompleteModel = false"></CompletePopup>
+  <CompletePopup :visible="showNeedRevisionModel" :task-id="task.id" @completed="refetchDetail" only-need-revision
+    @close="showNeedRevisionModel = false"></CompletePopup>
   <SubmitTaskForReview :visible="showSubmitTaskModel" :task-id="task.id" :task="task" @submitTask="refetchDetail"
     @close="showSubmitTaskModel = false"></SubmitTaskForReview>
   <CancelPopup :visible="showCancelModel" :task-id="task.id" @close="showCancelModel = false"
@@ -547,6 +554,7 @@ const uiRoleId = import.meta.env.VITE_UI_ROLE_ID;
 const hasEditPermission = ref(false);
 const showSubmitTaskModel = ref(false);
 const showMarkReviewTaskModel = ref(false);
+const showNeedRevisionModel = ref(false);
 const hasReviewPermission = ref(false);
 const hasAssignPermission = ref(false);
 
@@ -693,6 +701,10 @@ const clickSubmitReview = () => {
 
 const clickMarkReview = () => {
   showCompleteModel.value = true;
+}
+
+const openNeedRevision = () => {
+  showNeedRevisionModel.value = true
 }
 
 const updateTaskStatus = (status) => {
