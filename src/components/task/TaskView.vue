@@ -12,7 +12,8 @@
             <EditOutlined />
             {{ $t('edit') }}
           </a-button>
-          <a-button v-if="task.status == 'pending' && task.assignee?.id == userId"
+          <a-button
+            v-if="task.status == 'pending' && (task.assignee?.id == userId || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
             @click="updateTaskStatus('in-progress')">
             {{ $t('in_progress') }}
           </a-button>
@@ -21,7 +22,8 @@
             {{ $t('submit_for_review') }}
           </a-button>
 
-          <a-button v-if="task.status === 'waiting-for-review' && hasReviewPermission"
+          <a-button
+            v-if="task.status === 'waiting-for-review' && (hasReviewPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
             @click="clickMarkReview(task.id)">
             {{ $t('reviewed') }}
           </a-button>
@@ -41,8 +43,9 @@
             {{ $t('cancel') }}
           </a-button>
 
-          <a-button v-if="task.assignee == null && hasAssignPermission" @click="assignTask(task.id)"
-            class="!flex items-center justify-center gap-1">
+          <a-button
+            v-if="task.assignee == null && (hasAssignPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
+            @click="assignTask(task.id)" class="!flex items-center justify-center gap-1">
             <Icon icon="teenyicons:send-outline" />
             {{ $t('assign') }}
           </a-button>
@@ -68,7 +71,7 @@
             {{ $t('job_title') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.job_title" class="w-full" readonly></a-input>
+            <a-input :value="task.job_title" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -78,7 +81,7 @@
             {{ $t('task_type') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.type.name" class="w-full" readonly></a-input>
+            <a-input :value="task.type.name" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -91,7 +94,7 @@
             {{ $t('website') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.website.name" class="w-full" readonly></a-input>
+            <a-input :value="task.website.name" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -101,8 +104,9 @@
             {{ $t('status') }} :
           </a-col>
           <a-col :span="18">
-            <a-tag :color="getColor(task.status)"> {{ getStatusLabel(task.status, userRoleId, uiRoleId)
-              }}</a-tag>
+            <a-tag :color="getColor(task.status)" class="!text-base"> {{ getStatusLabel(task.status, userRoleId,
+              uiRoleId)
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -115,7 +119,8 @@
             {{ $t('size') }} :
           </a-col>
           <a-col :span="18">
-            <a-tag v-for="size in task.sizes" :key="size.id" color="#2db7f5" class="!mt-2"> {{ size.name }}</a-tag>
+            <a-tag v-for="size in task.sizes" :key="size.id" color="#2db7f5" class="!mt-2 !text-base"> {{ size.name
+            }}</a-tag>
             <!-- <a-input :value="task.sizes.name" class="w-full" readonly></a-input> -->
           </a-col>
         </a-row>
@@ -126,7 +131,7 @@
             {{ $t('file_types') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="changeToArray(task.file_types)" class="w-full" readonly></a-input>
+            <a-input :value="changeToArray(task.file_types)" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -143,7 +148,7 @@
               <div v-for="code in changeToArray(task.colors)" :key="code" class="flex flex-col items-center">
                 <div @click="copyColor(code)" :style="{ backgroundColor: code }"
                   class="size-16 rounded-lg shadow border border-gray-300 cursor-pointer" :title="code"></div>
-                <span class="mt-1 text-xs text-gray-600 select-text">{{ code }}</span>
+                <span class="mt-1 text-sm text-gray-600 select-text">{{ code }}</span>
               </div>
             </div>
           </a-col>
@@ -155,7 +160,8 @@
             {{ $t('themes') }} :
           </a-col>
           <a-col :span="18">
-            <a-tag v-for="theme in task.themes" :key="theme.id" color="#2db7f5" class="!mt-2"> {{ theme.text }}</a-tag>
+            <a-tag v-for="theme in task.themes" :key="theme.id" color="#2db7f5" class="!mt-2 !text-base"> {{ theme.text
+            }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -168,7 +174,8 @@
             {{ $t('image_text') }} :
           </a-col>
           <a-col :span="18">
-            <a-textarea :value="task.image_text" class="w-full" readonly></a-textarea>
+            <a-textarea :value="task.image_text" :auto-size="{ minRows: 3, maxRows: 12 }"
+              class="w-full !text-base overflow-hidden resize-none" readonly></a-textarea>
           </a-col>
         </a-row>
       </a-col>
@@ -178,7 +185,8 @@
             {{ $t('task_description') }} :
           </a-col>
           <a-col :span="18">
-            <a-textarea :value="task.task_description" class="w-full" readonly></a-textarea>
+            <a-textarea :value="task.task_description" :auto-size="{ minRows: 3, maxRows: 12 }"
+              class="w-full !text-base overflow-hidden resize-none" readonly></a-textarea>
           </a-col>
         </a-row>
       </a-col>
@@ -191,7 +199,7 @@
             {{ $t('created_by') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.created_by.name" class="w-full" readonly></a-input>
+            <a-input :value="task.created_by.name" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -201,7 +209,7 @@
             {{ $t('duedate') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="formatDate(task.deadline)" class="w-full" readonly></a-input>
+            <a-input :value="formatDate(task.deadline)" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -211,7 +219,7 @@
             {{ $t('created_at') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="formatDate(task.created_at)" class="w-full" readonly></a-input>
+            <a-input :value="formatDate(task.created_at)" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -226,7 +234,7 @@
             {{ $t('assigned_by') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.assigned_by?.name ?? ''" class="w-full" readonly></a-input>
+            <a-input :value="task.assigned_by?.name ?? ''" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -236,7 +244,7 @@
             {{ $t('assignee') }} :
           </a-col>
           <a-col :span="18">
-            <a-input :value="task.assignee?.name ?? ''" class="w-full" readonly></a-input>
+            <a-input :value="task.assignee?.name ?? ''" class="w-full !text-base" readonly></a-input>
           </a-col>
         </a-row>
       </a-col>
@@ -248,7 +256,8 @@
             {{ $t('cancel_reason') }}:
           </a-col>
           <a-col :span="18">
-            <a-textarea :value="task.cancel_reason" class="w-full" readonly></a-textarea>
+            <a-textarea :value="task.cancel_reason" :auto-size="{ minRows: 3, maxRows: 12 }"
+              class="w-full !text-base overflow-hidden resize-none" readonly></a-textarea>
           </a-col>
         </a-row>
       </a-col>
@@ -391,7 +400,8 @@
             {{ $t('revision_reason_text') }} :
           </a-col>
           <a-col :span="24">
-            <a-textarea :value="task.task_revision.reason" class="w-full" readonly></a-textarea>
+            <a-textarea :value="task.task_revision.reason" :auto-size="{ minRows: 3, maxRows: 12 }"
+              class="w-full !text-base overflow-hidden resize-none" readonly></a-textarea>
           </a-col>
         </a-row>
       </a-col>
@@ -705,7 +715,7 @@ function canEdit() {
   // Tab-based: Complete & Task Distribution → only creator can edit
   console.log(task.assignee)
   if (status === 'complete' || !task.assignee) {
-    return (isCreator || auth.userRole() == 'super_admin')
+    return (isCreator || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')
   }
 
   // Status-based: in-progress, waiting-for-review, needs-revision, cancel

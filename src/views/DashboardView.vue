@@ -36,13 +36,13 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -88,14 +88,14 @@
 
                   <!-- 1) Submit for Review (UI role only) -->
                   <a-button
-                    v-if="currentTab?.buttons.includes('submit') && (record.status == 'in-progress') && record.assignee?.id == auth.user.id"
+                    v-if="currentTab?.buttons.includes('submit') && (record.status == 'in-progress') && (record.assignee?.id == auth.user.id || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
                     @click="clickSubmitReview(record.id)">
                     {{ $t('submit_for_review') }}
                   </a-button>
 
                   <!-- 2) Mark as Reviewed (lead/other role only) -->
                   <a-button
-                    v-if="currentTab?.buttons.includes('review') && record.status === 'waiting-for-review' && hasReviewPermission"
+                    v-if="currentTab?.buttons.includes('review') && record.status === 'waiting-for-review' && (hasReviewPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
                     @click="clickMarkReview(record.id)">
                     {{ $t('reviewed') }}
                   </a-button>
@@ -112,13 +112,14 @@
                     {{ $t('cancel') }}
                   </a-button>
 
-                  <a-button v-if="currentTab?.buttons.includes('assign') && hasAssignPermission"
+                  <a-button
+                    v-if="currentTab?.buttons.includes('assign') && (hasAssignPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
                     @click="assignTask(record.id)">
                     {{ $t('assign') }}
                   </a-button>
 
                   <a-button
-                    v-if="currentTab?.buttons.includes('reassign') && record.status == 'in-progress' && hasAssignPermission"
+                    v-if="currentTab?.buttons.includes('reassign') && record.status == 'in-progress' && (hasAssignPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
                     @click="reassignTask(record)">
                     {{ $t('reassign') }}
                   </a-button>
@@ -488,7 +489,7 @@ function canEdit(record) {
 
   // Tab-based: Complete & Task Distribution → only creator can edit
   if (currentTab.value?.value === 'complete' || currentTab.value?.value === 'task_distribution') {
-    return (isCreator || auth.userRole() == 'super_admin')
+    return (isCreator || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')
   }
 
   // Status-based: in-progress, waiting-for-review, needs-revision, cancel

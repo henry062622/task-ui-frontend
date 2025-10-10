@@ -125,7 +125,7 @@
             {{ t('text_submission') }} :
           </a-col>
           <a-col :span="24">
-            <div class="rounded-xl shadow-sm p-4" v-html="linkifiedText(submittedText)"></div>
+            <div class="rounded-xl shadow-sm p-4 !text-base" v-html="linkifiedText(submittedText)"></div>
           </a-col>
         </a-row>
       </a-col>
