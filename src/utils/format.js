@@ -1,3 +1,5 @@
+import moment from "moment"
+
 export function formatPermissionName(permission) {
   if (!permission) return ''
 
@@ -13,6 +15,11 @@ export const formatDate = (date) => {
     month: 'short',
     day: '2-digit',
   }).format(new Date(date))
+}
+
+export const formatDateTimeWithMoment = (date) => {
+  if (!date) return '-'
+  return moment(date).format('MMM DD, YYYY HH:mm')
 }
 
 export function formatDateTime(input, withTime = true, tz) {

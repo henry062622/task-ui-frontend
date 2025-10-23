@@ -212,5 +212,6 @@
   "documents_n": "{n} document(s)",
   "archives_n": "{n} archive(s)",
   "audios_n": "{n} audio file(s)",
-  "others_n": "{n} other(s)"
+  "others_n": "{n} other(s)",
+  "updated_at": "Updated at"
 }

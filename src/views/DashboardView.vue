@@ -36,13 +36,13 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-              }} </a-select-option>
+                }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+                }} </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -64,6 +64,9 @@
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'created_at'">
                 <span>{{ formatDate(record.created_at) }}</span>
+              </template>
+              <template v-if="column.key === 'updated_at'">
+                <span>{{ formatDateTimeWithMoment(record.updated_at) }}</span>
               </template>
               <template v-if="column.key === 'status'">
                 <a-tag :color="getColor(record.status)"> {{ getStatusLabel(record.status, userRoleId,
@@ -165,7 +168,7 @@ import { computed, h, onMounted, reactive, ref, onBeforeUnmount, watch } from 'v
 import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import AssignPopup from '@/components/task/AssignPopup.vue';
 import CompletePopup from '@/components/task/CompletePopup.vue';
-import { formatDate } from '@/utils/format';
+import { formatDate, formatDateTimeWithMoment } from '@/utils/format';
 import CancelPopup from '@/components/task/CancelPopup.vue';
 import { getColor } from '@/utils/initials';
 import { useI18n } from 'vue-i18n';
@@ -432,6 +435,7 @@ const columns = computed(() => [
   { title: t('type'), dataIndex: ['type', 'name'], key: 'type' },
   { title: t('website'), dataIndex: ['website', 'name'], key: 'website' },
   { title: t('created_at'), dataIndex: 'created_at', key: 'created_at' },
+  { title: t('updated_at'), dataIndex: 'updated_at', key: 'updated_at' },
   { title: t('action'), key: 'action' }
 ]);
 
