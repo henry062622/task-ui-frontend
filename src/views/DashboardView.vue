@@ -36,13 +36,13 @@
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
               <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
               <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-                }} </a-select-option>
+              }} </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -64,6 +64,9 @@
             <template #bodyCell="{ column, record }">
               <template v-if="column.key === 'created_at'">
                 <span>{{ formatDate(record.created_at) }}</span>
+              </template>
+              <template v-if="column.key === 'deadline'">
+                <span>{{ formatDate(record.deadline) }}</span>
               </template>
               <template v-if="column.key === 'updated_at'">
                 <span>{{ formatDateTimeWithMoment(record.updated_at) }}</span>
@@ -432,9 +435,10 @@ const columns = computed(() => [
   { title: t('task_creator'), dataIndex: ['created_by', 'name'], key: 'creator' },
   { title: t('assignee'), dataIndex: ['assignee', 'name'], key: 'assignee' },
   { title: t('status'), dataIndex: 'status', key: 'status' },
-  { title: t('type'), dataIndex: ['type', 'name'], key: 'type' },
+  // { title: t('type'), dataIndex: ['type', 'name'], key: 'type' },
   { title: t('website'), dataIndex: ['website', 'name'], key: 'website' },
   { title: t('created_at'), dataIndex: 'created_at', key: 'created_at' },
+  { title: t('deadline'), dataIndex: 'deadline', key: 'deadline' },
   { title: t('updated_at'), dataIndex: 'updated_at', key: 'updated_at' },
   { title: t('action'), key: 'action' }
 ]);
