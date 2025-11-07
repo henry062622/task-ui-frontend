@@ -115,7 +115,23 @@ async function r2Complete(key, uploadId, parts) {
 
 // Upload a single File via multipart
 async function uploadFileToR2(file, { taskId, onProgress }) {
-  const key = `uploads/complete_tasks/${taskId}/${crypto.randomUUID()}_${file.name}`
+  // 1. Get a safe, sortable timestamp
+  const now = new Date();
+  // Format: YYYYMMDD-HHMMSS (e.g., 20251107-200234)
+  const timestamp = now.toISOString()
+    .replace(/T/, '-')   // Replace 'T' with '-'
+    .replace(/\..+/, '') // Remove milliseconds
+    .replace(/:/g, '')   // Remove colons (:)
+    .slice(0, 15);       // Keep YYYYMMDD-HHMMSS
+
+  // 2. Extract the file extension
+  const fileExtensionMatch = file.name.match(/\.[0-9a-z]+$/i);
+  const fileExtension = fileExtensionMatch ? fileExtensionMatch[0] : '';
+
+  // 3. Construct the new key
+  // Example Key: uploads/complete_tasks/20251107-200234-b87d55c7-98e3-4b6a-93a8-a8d8e5e8e8e8.png
+  const key = `uploads/complete_tasks/${timestamp}-${crypto.randomUUID()}${fileExtension}`;
+  // const key = `uploads/complete_tasks/${taskId}/${crypto.randomUUID()}_${file.name}`
   const contentType = file.type || 'application/octet-stream'
   const size = file.size
 
