@@ -68,8 +68,7 @@
           :help="errors.custom_size">
           <div class="flex flex-col gap-3">
             <div v-for="(val, index) in formState.custom_sizes" :key="index" class="flex gap-2 items-center">
-              <a-input v-model:value="formState.custom_sizes[index]" :placeholder="t('enterCustomSize')"
-                class="w-full" />
+              <a-input v-model:value="formState.custom_sizes[index]" placeholder="เช่น: 1080x1080" class="w-full" />
               <MinusCircleOutlined class="!text-red-500 text-xl rounded-full shadow cursor-pointer"
                 @click="removeCustomSize(index)" />
             </div>
@@ -336,7 +335,7 @@
         <a-form-item :label="$t('assignee')" name="assignee">
           <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear style="width: 100%">
             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+            }} </a-select-option>
           </a-select>
         </a-form-item>
       </a-col>
@@ -347,7 +346,7 @@
     <div class="flex items-center justify-end gap-4 pt-4">
       <a-button @click="emit('clickCancelBtn')">{{ $t('cancel') }}</a-button>
       <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{ $t('update')
-        }}</a-button>
+      }}</a-button>
     </div>
   </a-form>
 

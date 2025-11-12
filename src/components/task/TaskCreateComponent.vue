@@ -61,8 +61,7 @@
           :help="errors.custom_size">
           <div class="flex flex-col gap-3">
             <div v-for="(val, index) in formState.custom_sizes" :key="index" class="flex gap-2 items-center">
-              <a-input v-model:value="formState.custom_sizes[index]" :placeholder="t('enterCustomSize')"
-                class="w-full" />
+              <a-input v-model:value="formState.custom_sizes[index]" placeholder="เช่น: 1080x1080" class="w-full" />
               <MinusCircleOutlined class="!text-red-500 text-xl rounded-full shadow cursor-pointer"
                 @click="removeCustomSize(index)" />
             </div>
