@@ -335,7 +335,7 @@
         <a-form-item :label="$t('assignee')" name="assignee">
           <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear style="width: 100%">
             <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-            }} </a-select-option>
+              }} </a-select-option>
           </a-select>
         </a-form-item>
       </a-col>
@@ -346,7 +346,7 @@
     <div class="flex items-center justify-end gap-4 pt-4">
       <a-button @click="emit('clickCancelBtn')">{{ $t('cancel') }}</a-button>
       <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{ $t('update')
-      }}</a-button>
+        }}</a-button>
     </div>
   </a-form>
 
@@ -752,7 +752,7 @@ const submitForm = async () => {
   formData.append('image_text', formState.value.image_text);
   formData.append('task_description', formState.value.task_description);
   formData.append('requester_name', formState.value.requester_name);
-  formData.append('deadline', formState.value.deadline);
+  formData.append('deadline', formState.value.deadline.format('YYYY-MM-DD'));
 
   formState.value.sample_images.forEach((img, i) => {
     if (img.id) {
