@@ -1,7 +1,6 @@
 <template>
   <h2 class="!font-bold text-3xl">{{ $t('main_topic') }}</h2>
   <a-form :model="formState" name="create_task" layout="vertical" autocomplete="off" class="bg-white w-full">
-
     <!-- Job Title Section -->
     <a-row :gutter="16">
       <a-col :span="12">
@@ -52,13 +51,13 @@
           :validate-status="errors.size ? 'error' : ''" :help="errors.size || t('selectUpTo5Sizes')">
           <a-select mode="multiple" v-model:value="formState.sizes"
             :disabled="!formState.task_type || formState.task_type === 'custom'" :placeholder="!formState.task_type
-              ? t('pleaseSelectTaskTypeFirst')
-              : (formState.task_type === 'custom'
-                ? t('noPredefinedSizesAddCustom')
-                : t('selectUpTo5Sizes'))" :maxTagCount="5" :maxTagPlaceholder="() => '+ more'" class="w-full"
-            @change="handleSizeChange" show-search
-            :filter-option="(input, option) => option?.label?.toLowerCase?.().includes(input.toLowerCase())"
-            :options="sizeList.map(s => ({ label: s.name, value: s.id }))" />
+                ? t('pleaseSelectTaskTypeFirst')
+                : formState.task_type === 'custom'
+                  ? t('noPredefinedSizesAddCustom')
+                  : t('selectUpTo5Sizes')
+              " :maxTagCount="5" :maxTagPlaceholder="() => '+ more'" class="w-full" @change="handleSizeChange"
+            show-search :filter-option="(input, option) => option?.label?.toLowerCase?.().includes(input.toLowerCase())
+              " :options="sizeList.map((s) => ({ label: s.name, value: s.id }))" />
         </a-form-item>
       </a-col>
 
@@ -91,7 +90,7 @@
           :validate-status="errors.file_types ? 'error' : ''" :help="errors.file_types">
           <a-select mode="multiple" v-model:value="formState.file_types" :placeholder="t('selectUpTo3FileTypes')"
             :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" :disabled="fileTypeList.length === 0"
-            :options="fileTypeList.map(type => ({ label: type, value: type }))" class="w-full"
+            :options="fileTypeList.map((type) => ({ label: type, value: type }))" class="w-full"
             @change="handleFileTypeChange" />
         </a-form-item>
       </a-col>
@@ -103,8 +102,8 @@
       <a-col :span="12">
         <a-form-item :label="$t('colors_optional')" name="colors">
           <a-select mode="multiple" v-model:value="formState.colors" :placeholder="t('selectUpTo3Colors')"
-            :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" class="w-full" show-search :filter-option="(input, option) =>
-              option.label.toLowerCase().includes(input.toLowerCase())" @change="handleColorChange">
+            :maxTagCount="3" :maxTagPlaceholder="() => '+ more'" class="w-full" show-search :filter-option="(input, option) => option.label.toLowerCase().includes(input.toLowerCase())
+              " @change="handleColorChange">
             <a-select-option v-for="color in colorList" :key="color.color_code" :value="color.color_code"
               :label="`${color.th} / ${color.en}`">
               <div class="flex items-center gap-2">
@@ -115,7 +114,6 @@
             </a-select-option>
           </a-select>
         </a-form-item>
-
       </a-col>
 
       <!-- Preview -->
@@ -123,7 +121,7 @@
         <span>{{ $t('color_samples') }}</span>
         <div class="flex h-14 gap-6 items-center pt-2">
           <div v-for="code in formState.colors" :key="code" :style="{ backgroundColor: code }"
-            class=" size-14 rounded-lg shadow border border-gray-300" :title="code"></div>
+            class="size-14 rounded-lg shadow border border-gray-300" :title="code"></div>
         </div>
       </a-col>
     </a-row>
@@ -234,7 +232,7 @@
             <div class="relative">
               <!-- Delete Icon -->
               <MinusCircleOutlined
-                class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
+                class="absolute -top-2 -right-2 !text-red-500 !bg-white rounded-full shadow cursor-pointer z-10"
                 @click="removeSampleImage(i)" />
               <!-- Image -->
               <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
@@ -266,7 +264,7 @@
             <div class="relative">
               <!-- Delete Icon -->
               <MinusCircleOutlined
-                class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
+                class="absolute -top-2 -right-2 !text-red-500 !bg-white rounded-full shadow cursor-pointer z-10"
                 @click="removeActorImage(i)" />
               <!-- Image -->
               <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
@@ -300,7 +298,7 @@
             <div class="relative">
               <!-- Delete Icon -->
               <MinusCircleOutlined
-                class="absolute -top-2 -right-2 !text-red-500 !bg-white  rounded-full shadow cursor-pointer z-10"
+                class="absolute -top-2 -right-2 !text-red-500 !bg-white rounded-full shadow cursor-pointer z-10"
                 @click="removeDecorativeImage(i)" />
               <!-- Image -->
               <ImageView v-if="img.storage_url" :image="img" class="!w-[120px]" />
@@ -334,18 +332,19 @@
       <a-col :span="12">
         <a-form-item :label="$t('assignee')" name="assignee">
           <a-select v-model:value="formState.assignee" :placeholder="$t('assignee')" allow-clear style="width: 100%">
-            <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+            <a-select-option v-for="user in userList" :key="user.id" :value="user.id">
+              {{ user.name }}
+            </a-select-option>
           </a-select>
         </a-form-item>
       </a-col>
     </a-row>
 
-
     <!-- Footer Buttons -->
     <div class="flex items-center justify-end gap-4 pt-4">
       <a-button @click="emit('clickCancelBtn')">{{ $t('cancel') }}</a-button>
-      <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{ $t('update')
+      <a-button type="primary" :disabled="isLoading" :loading="isLoading" @click="submitForm">{{
+        $t('update')
         }}</a-button>
     </div>
   </a-form>
@@ -357,14 +356,14 @@
       <div class="flex h-auto gap-4 !mt-4 flex-wrap">
         <div v-for="item in sampleImageList" :key="item.id" :class="[
           'cursor-pointer border border-gray-200 rounded-lg overflow-hidden transition',
-          selectedSystemImages.some(img => img.id === item.id)
+          selectedSystemImages.some((img) => img.id === item.id)
             ? 'bg-blue-200'
             : selectedSystemImages.length >= 3
               ? 'opacity-50 pointer-events-none'
-              : 'hover:bg-blue-100'
+              : 'hover:bg-blue-100',
         ]" @click="toggleSystemImage(item)">
           <div class="relative !w-30 group">
-            <CheckCircleOutlined v-if="selectedSystemImages.some(img => img.id === item.id)"
+            <CheckCircleOutlined v-if="selectedSystemImages.some((img) => img.id === item.id)"
               class="absolute top-1 right-1 !text-green-500 bg-white rounded-full shadow-md z-10 text-xl" />
             <img :src="item.thumbnail_url" alt="sample" class="!w-30 aspect-[4/5] object-fill" />
             <!-- View icon overlay -->
@@ -400,44 +399,57 @@
 
   <!-- show preview for sample -->
   <CustomPreviewImage ref="previewRef" />
-
 </template>
 <script setup>
-import api from '@/lib/axios';
-import { computed, onMounted, ref, watch } from 'vue';
-import { PlusOutlined, MinusCircleOutlined, CheckCircleOutlined, EyeOutlined } from '@ant-design/icons-vue';
-import SystemImagePicker from './SystemImagePicker.vue';
-import { mergeSelectedImages } from '@/utils/mergeSelectedImage';
-import dayjs from 'dayjs';
-import ImageView from '../ui/ImageView.vue';
-import LocalImageView from '../ui/LocalImageView.vue';
+import api from '@/lib/axios'
+import { computed, onMounted, ref, watch } from 'vue'
+import {
+  PlusOutlined,
+  MinusCircleOutlined,
+  CheckCircleOutlined,
+  EyeOutlined,
+} from '@ant-design/icons-vue'
+import SystemImagePicker from './SystemImagePicker.vue'
+import { mergeSelectedImages } from '@/utils/mergeSelectedImage'
+import dayjs from 'dayjs'
+import ImageView from '../ui/ImageView.vue'
+import LocalImageView from '../ui/LocalImageView.vue'
 import { useI18n } from 'vue-i18n'
-import PasteImageModal from './PasteImageModal.vue';
-import CustomPreviewImage from '../ui/CustomPreviewImage.vue';
-import FileUploader from '../general/FileUploader.vue';
+import PasteImageModal from './PasteImageModal.vue'
+import CustomPreviewImage from '../ui/CustomPreviewImage.vue'
+import FileUploader from '../general/FileUploader.vue'
 
 const { t } = useI18n()
 
 const props = defineProps({
   task: {
     type: Object,
-    required: true
+    required: true,
   },
   userList: {
     type: Array,
-    required: true
+    required: true,
   },
   websiteId: {
     type: Number,
-    required: true
-  }
-});
+    required: true,
+  },
+})
 
-const emit = defineEmits(['clickCancelBtn', 'successUpdate']);
+const emit = defineEmits(['clickCancelBtn', 'successUpdate'])
 
 const formState = ref({
   website_id: props.websiteId,
-  job_title: '', task_type: props.task.task_type_id, custom_task_type: '', sizes: [], custom_sizes: [], file_types: [], colors: [], themes: [], custom_themes: [], image_text: '',
+  job_title: '',
+  task_type: props.task.task_type_id,
+  custom_task_type: '',
+  sizes: [],
+  custom_sizes: [],
+  file_types: [],
+  colors: [],
+  themes: [],
+  custom_themes: [],
+  image_text: '',
   task_description: '',
   task_file: [],
   sample_images: [],
@@ -445,46 +457,54 @@ const formState = ref({
   decorative_images: [],
   requester_name: '',
   deadline: '',
-  assignee: ''
-});
+  assignee: '',
+})
 const errors = ref({
-  job_title: '', task_type: null, custom_task_type: '', size: null, custom_size: '', file_types: '', colors: '', themes: '', image_text: '',
+  job_title: '',
+  task_type: null,
+  custom_task_type: '',
+  size: null,
+  custom_size: '',
+  file_types: '',
+  colors: '',
+  themes: '',
+  image_text: '',
   task_description: '',
   task_file: '',
   sample_image: '',
   requester_name: '',
-  deadline: ''
-});
+  deadline: '',
+})
 
-const isLoading = ref(false);
-const taskTypeList = ref([]);
-const sizeList = ref([]);
-const fileTypeList = ref([]);
-const colorList = ref([]);
-const themeList = ref([]);
-const sampleImageList = ref([]);
-const decorativeImageList = ref([]);
-const samplePage = ref(1);
-const sampleTotal = ref(0);
-const sampleModalVisible = ref(false);
-const selectedSystemImages = ref([]);
-const decorativeTypeList = ref([]);
+const isLoading = ref(false)
+const taskTypeList = ref([])
+const sizeList = ref([])
+const fileTypeList = ref([])
+const colorList = ref([])
+const themeList = ref([])
+const sampleImageList = ref([])
+const decorativeImageList = ref([])
+const samplePage = ref(1)
+const sampleTotal = ref(0)
+const sampleModalVisible = ref(false)
+const selectedSystemImages = ref([])
+const decorativeTypeList = ref([])
 
 // Actor image logic
-const actorModalVisible = ref(false);
-const actorImageList = ref([]);
-const actorPage = ref(1);
-const actorTotal = ref(0);
-const selectedActorIds = ref([]);
+const actorModalVisible = ref(false)
+const actorImageList = ref([])
+const actorPage = ref(1)
+const actorTotal = ref(0)
+const selectedActorIds = ref([])
 
 // Decorative image logic
-const decorativeModalVisible = ref(false);
-const decorativePage = ref(1);
-const decorativeTotal = ref(0);
-const selectedDecorativeIds = ref([]);
+const decorativeModalVisible = ref(false)
+const decorativePage = ref(1)
+const decorativeTotal = ref(0)
+const selectedDecorativeIds = ref([])
 
-const previewPreviousFiles = ref([]);
-const websiteList = ref([]);
+const previewPreviousFiles = ref([])
+const websiteList = ref([])
 
 // Paste preview popup
 const pasteModalVisible = ref(false)
@@ -528,456 +548,455 @@ function onPasteConfirm({ file, target }) {
 const handleFileTypeChange = (selected) => {
   if (selected.length > 3) {
     // limit to first 3 selections
-    formState.value.file_types = selected.slice(0, 3);
-    errors.value.file_types = 'You can select up to 3 file types only';
+    formState.value.file_types = selected.slice(0, 3)
+    errors.value.file_types = 'You can select up to 3 file types only'
   } else {
-    errors.value.file_types = '';
+    errors.value.file_types = ''
   }
-};
+}
 
-const totalSizeCount = computed(() =>
-  (formState.value.sizes?.length || 0) + (formState.value.custom_sizes?.length || 0)
-);
+const totalSizeCount = computed(
+  () => (formState.value.sizes?.length || 0) + (formState.value.custom_sizes?.length || 0),
+)
 
 const handleSizeChange = (selected) => {
-  const allowed = 5 - formState.value.custom_sizes.length;
+  const allowed = 5 - formState.value.custom_sizes.length
   if (selected.length > allowed) {
-    formState.value.sizes = selected.slice(0, allowed);
-    errors.value.size = t('validation.maxSizes', { max: 5 });
+    formState.value.sizes = selected.slice(0, allowed)
+    errors.value.size = t('validation.maxSizes', { max: 5 })
   } else {
-    errors.value.size = '';
+    errors.value.size = ''
   }
-};
+}
 
 const addCustomSize = () => {
   if (totalSizeCount.value < 5) {
-    formState.value.custom_sizes.push('');
-    errors.value.size = '';
+    formState.value.custom_sizes.push('')
+    errors.value.size = ''
   }
-};
+}
 
 const removeCustomSize = (index) => {
-  formState.value.custom_sizes.splice(index, 1);
-  errors.value.size = '';
-};
+  formState.value.custom_sizes.splice(index, 1)
+  errors.value.size = ''
+}
 
 const handleColorChange = (selected) => {
   if (selected.length > 3) {
-    formState.value.colors = selected.slice(0, 3);
+    formState.value.colors = selected.slice(0, 3)
   }
-};
+}
 
 const totalThemeCount = computed(() => {
-  return formState.value.themes.length + formState.value.custom_themes.length;
-});
+  return formState.value.themes.length + formState.value.custom_themes.length
+})
 
 const handleThemeChange = async (selected) => {
   if (selected.length + formState.value.custom_themes.length > 3) {
-    formState.value.themes = selected.slice(0, 3 - formState.value.custom_themes.length);
-    errors.value.themes = 'You can select up to 3 themes (including custom)';
+    formState.value.themes = selected.slice(0, 3 - formState.value.custom_themes.length)
+    errors.value.themes = 'You can select up to 3 themes (including custom)'
   } else {
-    errors.value.themes = '';
+    errors.value.themes = ''
   }
 
   if (selected.length === 0) {
-    previewPreviousFiles.value = [];
-    return;
+    previewPreviousFiles.value = []
+    return
   }
 
   try {
     const response = await api.post('/api/themes/previous-files', {
-      theme_ids: selected
-    });
-    previewPreviousFiles.value = response.data.data;
+      theme_ids: selected,
+    })
+    previewPreviousFiles.value = response.data.data
   } catch (error) {
-    console.error('Failed to fetch preview files:', error);
-    previewPreviousFiles.value = [];
+    console.error('Failed to fetch preview files:', error)
+    previewPreviousFiles.value = []
   }
-};
+}
 
 const addCustomTheme = () => {
   if (totalThemeCount.value < 3) {
-    formState.value.custom_themes.push('');
-    errors.value.themes = '';
+    formState.value.custom_themes.push('')
+    errors.value.themes = ''
   }
-};
+}
 
 const removeCustomTheme = (index) => {
-  formState.value.custom_themes.splice(index, 1);
-};
+  formState.value.custom_themes.splice(index, 1)
+}
 
 const handleFileUpload = (info) => {
   // Only keep images and limit total number if needed
-  const fileList = info.fileList.filter(file => {
+  const fileList = info.fileList.filter((file) => {
     if (file.type) {
-      if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true;
-      if (file.type === 'application/zip') return true;
+      if (file.type.startsWith('image/') || file.type.startsWith('video/')) return true
+      if (file.type === 'application/zip') return true
     }
     // Allow zip/rar by extension (type might be blank)
-    const ext = file.name?.split('.').pop()?.toLowerCase();
-    if (ext === 'zip' || ext === 'rar') return true;
-    return true;
-  });
+    const ext = file.name?.split('.').pop()?.toLowerCase()
+    if (ext === 'zip' || ext === 'rar') return true
+    return true
+  })
 
-  formState.value.task_file = fileList;
+  formState.value.task_file = fileList
 
   if (fileList.length === 0) {
-    errors.value.task_file = 'Please upload at least one image file';
+    errors.value.task_file = 'Please upload at least one image file'
   } else {
-    errors.value.task_file = '';
+    errors.value.task_file = ''
   }
-};
+}
 
 const handleSampleUpload = (file) => {
   if (formState.value.sample_images.length >= 3) {
-    errors.value.sample_image = 'Maximum 3 sample images allowed';
-    return false;
+    errors.value.sample_image = 'Maximum 3 sample images allowed'
+    return false
   }
-  formState.value.sample_images.push(file);
-  errors.value.sample_image = '';
-  return false; // prevent auto upload
-};
+  formState.value.sample_images.push(file)
+  errors.value.sample_image = ''
+  return false // prevent auto upload
+}
 
 const removeSampleImage = (index) => {
-  formState.value.sample_images.splice(index, 1);
-};
+  formState.value.sample_images.splice(index, 1)
+}
 
 const openSampleModal = () => {
-  getSampleImageList();
-  samplePage.value = 1;
+  getSampleImageList()
+  samplePage.value = 1
   // Pre-select currently chosen
-  selectedSystemImages.value = formState.value.sample_images
-    .filter(img => img.id); // Only system images
-  sampleModalVisible.value = true;
-};
+  selectedSystemImages.value = formState.value.sample_images.filter((img) => img.id) // Only system images
+  sampleModalVisible.value = true
+}
 
 const handleSamplePageChange = (page) => {
-  samplePage.value = page;
-  getSampleImageList(page);
-};
+  samplePage.value = page
+  getSampleImageList(page)
+}
 
 const toggleSystemImage = (item) => {
-  const idx = selectedSystemImages.value.findIndex(img => img.id === item.id);
+  const idx = selectedSystemImages.value.findIndex((img) => img.id === item.id)
   if (idx === -1) {
-    if (selectedSystemImages.value.length < 3)
-      selectedSystemImages.value.push(item);
+    if (selectedSystemImages.value.length < 3) selectedSystemImages.value.push(item)
   } else {
-    selectedSystemImages.value.splice(idx, 1);
+    selectedSystemImages.value.splice(idx, 1)
   }
-};
+}
 
 const createObjectURL = (file) => {
-  return URL.createObjectURL(file);
+  return URL.createObjectURL(file)
 }
 
 const confirmSystemImageSelection = () => {
   // Merge system-selected and uploaded (not exceeding 3)
-  const uploaded = formState.value.sample_images.filter(img => !img.id);
-  let merged = [...selectedSystemImages.value, ...uploaded].slice(0, 3);
-  formState.value.sample_images = merged;
-  errors.value.sample_image = '';
-  sampleModalVisible.value = false;
-};
+  const uploaded = formState.value.sample_images.filter((img) => !img.id)
+  let merged = [...selectedSystemImages.value, ...uploaded].slice(0, 3)
+  formState.value.sample_images = merged
+  errors.value.sample_image = ''
+  sampleModalVisible.value = false
+}
 
 const cancelSystemImageSelection = () => {
-  selectedSystemImages.value = [];
-  sampleModalVisible.value = false;
-};
+  selectedSystemImages.value = []
+  sampleModalVisible.value = false
+}
 
 //actor image logic
 const openActorModal = () => {
-  loadActorPage(actorPage.value, '');
-  actorModalVisible.value = true;
-};
+  loadActorPage(actorPage.value, '')
+  actorModalVisible.value = true
+}
 
 const confirmActorSelection = async () => {
   await mergeSelectedImages(
     selectedActorIds.value,
     actorImageList.value,
     formState.value.actor_images,
-    fetchActorImagesByIds
-  );
-  actorModalVisible.value = false;
-};
+    fetchActorImagesByIds,
+  )
+  actorModalVisible.value = false
+}
 
 const handleActorUpload = (file) => {
-  formState.value.actor_images.push(file);
-  return false;
-};
+  formState.value.actor_images.push(file)
+  return false
+}
 
 const removeActorImage = (index) => {
-  formState.value.actor_images.splice(index, 1);
-};
+  formState.value.actor_images.splice(index, 1)
+}
 
 // Decorative image logic
 const openDecorativeModal = () => {
-  loadDecorativePage(decorativePage.value, '');
-  decorativeModalVisible.value = true;
-};
+  loadDecorativePage(decorativePage.value, '')
+  decorativeModalVisible.value = true
+}
 
 const confirmDecorativeSelection = async () => {
   await mergeSelectedImages(
     selectedDecorativeIds.value,
     decorativeImageList.value,
     formState.value.decorative_images,
-    fetchDecorativeImagesByIds
-  );
-  decorativeModalVisible.value = false;
-  decorativeModalVisible.value = false;
-};
+    fetchDecorativeImagesByIds,
+  )
+  decorativeModalVisible.value = false
+  decorativeModalVisible.value = false
+}
 
 const handleDecorativeUpload = (file) => {
-  formState.value.decorative_images.push(file);
-  return false;
-};
+  formState.value.decorative_images.push(file)
+  return false
+}
 
 const removeDecorativeImage = (index) => {
-  formState.value.decorative_images.splice(index, 1);
-};
+  formState.value.decorative_images.splice(index, 1)
+}
 
 const submitForm = async () => {
-  if (!validateForm()) return;
+  if (!validateForm()) return
 
   // 👉 Form is valid — proceed with API call or form submission
-  console.log('Ready to submit:', formState.value);
-  const formData = new FormData();
+  console.log('Ready to submit:', formState.value)
+  const formData = new FormData()
 
   // Scalars
-  formData.append('website_id', String(formState.value.website_id));
-  formData.append('job_title', formState.value.job_title);
-  formData.append('task_type', String(formState.value.task_type));
-  formData.append('custom_task_type', formState.value.custom_task_type || '');
+  formData.append('website_id', String(formState.value.website_id))
+  formData.append('job_title', formState.value.job_title)
+  formData.append('task_type', String(formState.value.task_type))
+  formData.append('custom_task_type', formState.value.custom_task_type || '')
   // formData.append('size', String(formState.value.size));
   // formData.append('custom_size', formState.value.custom_size || '');
-  formData.append('image_text', formState.value.image_text);
-  formData.append('task_description', formState.value.task_description);
-  formData.append('requester_name', formState.value.requester_name);
-  formData.append('deadline', formState.value.deadline.format('YYYY-MM-DD'));
+  formData.append('image_text', formState.value.image_text)
+  formData.append('task_description', formState.value.task_description)
+  formData.append('requester_name', formState.value.requester_name)
+  formData.append('deadline', formState.value.deadline.format('YYYY-MM-DD'))
 
   formState.value.sample_images.forEach((img, i) => {
     if (img.id) {
-      formData.append(`sample_images[${i}]`, String(img.id));
+      formData.append(`sample_images[${i}]`, String(img.id))
     } else {
-      const actualFile = img.originFileObj || img;
-      formData.append(`sample_images[${i}]`, actualFile);
+      const actualFile = img.originFileObj || img
+      formData.append(`sample_images[${i}]`, actualFile)
     }
-  });
+  })
 
   formState.value.sizes.forEach((id) => {
-    formData.append('sizes[]', String(id));
-  });
+    formData.append('sizes[]', String(id))
+  })
   formState.value.custom_sizes.forEach((txt) => {
-    if (txt?.trim()) formData.append('custom_sizes[]', txt.trim());
-  });
+    if (txt?.trim()) formData.append('custom_sizes[]', txt.trim())
+  })
 
   // 🧾 File types (array of strings)
   formState.value.file_types.forEach((type) => {
-    formData.append('file_types[]', type);
-  });
+    formData.append('file_types[]', type)
+  })
 
   // 🎨 Colors (array of hex values)
   formState.value.colors.forEach((color) => {
-    formData.append('colors[]', color);
-  });
+    formData.append('colors[]', color)
+  })
 
   // 🎭 Themes (existing)
   formState.value.themes.forEach((themeId) => {
-    formData.append('themes[]', String(themeId));
-  });
+    formData.append('themes[]', String(themeId))
+  })
 
   // 🧠 Custom themes
   formState.value.custom_themes.forEach((text) => {
-    formData.append('custom_themes[]', text);
-  });
+    formData.append('custom_themes[]', text)
+  })
 
   // 📂 Task files (Upload file list -> extract File object)
   formState.value.task_file.forEach((fileObj) => {
-    const actualFile = fileObj.originFileObj;
+    const actualFile = fileObj.originFileObj
     if (actualFile) {
-      formData.append('task_file[]', actualFile);
+      formData.append('task_file[]', actualFile)
     } else {
-      formData.append('task_file[]', fileObj.uid);
+      formData.append('task_file[]', fileObj.uid)
     }
-  });
+  })
 
   // 👤 Actor images (mixed id or file)
   formState.value.actor_images.forEach((img, i) => {
     if (img.id) {
-      formData.append(`actor_images[${i}]`, String(img.id));
+      formData.append(`actor_images[${i}]`, String(img.id))
     } else {
-      const actualFile = img.originFileObj || img;
-      formData.append(`actor_images[${i}]`, actualFile);
+      const actualFile = img.originFileObj || img
+      formData.append(`actor_images[${i}]`, actualFile)
     }
-  });
+  })
 
   // 🖼 Decorative images (mixed id or file)
   formState.value.decorative_images.forEach((img, i) => {
     if (img.id) {
-      formData.append(`decorative_images[${i}]`, String(img.id));
+      formData.append(`decorative_images[${i}]`, String(img.id))
     } else {
-      const actualFile = img.originFileObj || img;
-      formData.append(`decorative_images[${i}]`, actualFile);
+      const actualFile = img.originFileObj || img
+      formData.append(`decorative_images[${i}]`, actualFile)
     }
-  });
+  })
 
   // TODO: Call API here
-  isLoading.value = true;
+  isLoading.value = true
   try {
     const res = await api.post(`/api/task/${props.task.id}/update`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
-    });
-    emit('successUpdate');
-    console.log(res);
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
+    emit('successUpdate')
+    console.log(res)
   } catch (err) {
-    console.log(err);
+    console.log(err)
   } finally {
     isLoading.value = false
   }
-};
+}
 
 const loadActorPageWithWebsite = (siteId) => {
-  loadActorPage(1, siteId);
+  loadActorPage(1, siteId)
 }
 
 const loadActorPageWithPagination = ({ page, site, type }) => {
-  loadActorPage(page, site);
+  loadActorPage(page, site)
 }
 
 const loadDecorativePageWithType = (type) => {
-  loadDecorativePage(1, type);
+  loadDecorativePage(1, type)
 }
 
 const loadDecorativePageWithPagination = ({ page, site, type }) => {
-  loadDecorativePage(page, type);
+  loadDecorativePage(page, type)
 }
 
 const fetchWebsitelist = async () => {
-  const res = await api.get('/api/websites');
-  websiteList.value = res.data.data;
+  const res = await api.get('/api/websites')
+  websiteList.value = res.data.data
 }
 
 const getTaskTypeList = () => {
-  api.get('/api/get-task-type-name-list').then(res => {
-    console.log(res);
-    taskTypeList.value = res.data.data;
-  });
+  api
+    .get(
+      `/api/get-task-type-name-list?website_id=${props.websiteId}&include=${props.task.task_type_id}`,
+    )
+    .then((res) => {
+      console.log(res)
+      taskTypeList.value = res.data.data
+    })
 }
 
 const getSizesByTaskType = (taskTypeId) => {
-  api.get(`/api/get-sizes-by-task-type/${taskTypeId}`).then(res => {
-    sizeList.value = res.data.data;
+  api.get(`/api/get-sizes-by-task-type/${taskTypeId}`).then((res) => {
+    sizeList.value = res.data.data
     console.log('sizes:', sizeList.value)
     console.log(formState.value.size)
-  });
+  })
 }
 
 const getFileTypeList = () => {
-  api.get('/api/get-file-type-list').then(res => {
-    fileTypeList.value = res.data.data;
-  });
+  api.get('/api/get-file-type-list').then((res) => {
+    fileTypeList.value = res.data.data
+  })
 }
 
 const getColorList = () => {
-  api.get('/api/get-color-list').then(res => {
-    colorList.value = res.data.data;
-  });
-}
-
-const getThemeNameList = () => {
-  api.get('/api/get-theme-name-list').then(res => {
-    themeList.value = res.data.data;
-  });
+  api.get('/api/get-color-list').then((res) => {
+    colorList.value = res.data.data
+  })
 }
 
 const getSampleImageList = (page = 1) => {
-  api.get(`/api/get-sample-image-list?page=${page}`).then(res => {
-    sampleImageList.value = res.data.data.data;
-    sampleTotal.value = res.data.data.total;
-  });
-};
+  api.get(`/api/get-sample-image-list?page=${page}`).then((res) => {
+    sampleImageList.value = res.data.data.data
+    sampleTotal.value = res.data.data.total
+  })
+}
 
 const loadActorPage = (page, site) => {
-  actorPage.value = page;
-  api.get(`/api/get-actor-image-list?page=${page}&website=${site}`).then(res => {
-    actorImageList.value = res.data.data.data;
-    actorTotal.value = res.data.data.total;
-  });
-};
+  actorPage.value = page
+  api.get(`/api/get-actor-image-list?page=${page}&website=${site}`).then((res) => {
+    actorImageList.value = res.data.data.data
+    actorTotal.value = res.data.data.total
+  })
+}
 
 const loadDecorativePage = (page, type) => {
-  decorativePage.value = page;
-  api.get(`/api/get-decorative-image-list?page=${page}&type=${type}`).then(res => {
-    decorativeImageList.value = res.data.data.data;
-    decorativeTotal.value = res.data.data.total;
-  });
-};
+  decorativePage.value = page
+  api.get(`/api/get-decorative-image-list?page=${page}&type=${type}`).then((res) => {
+    decorativeImageList.value = res.data.data.data
+    decorativeTotal.value = res.data.data.total
+  })
+}
 
 const fetchActorImagesByIds = async (ids) => {
   const res = await api.get('/api/get-actor-image-by-ids', {
-    params: { ids }
-  });
-  return res.data.data;
-};
+    params: { ids },
+  })
+  return res.data.data
+}
 
 const fetchDecorativeImagesByIds = async (ids) => {
   const res = await api.get('/api/get-decorative-image-by-ids', {
-    params: { ids }
-  });
-  return res.data.data;
-};
+    params: { ids },
+  })
+  return res.data.data
+}
 
 const fetchDecorativeTypes = async () => {
-  const res = await api.get('/api/get-decorative-types');
-  decorativeTypeList.value = res.data.data;
-};
+  const res = await api.get('/api/get-decorative-types')
+  decorativeTypeList.value = res.data.data
+}
 
-watch(() => formState.value.task_type, (newVal) => {
-  formState.value.sizes = [];         // reset selected predefined sizes
-  formState.value.custom_sizes = [];  // reset custom sizes too
+watch(
+  () => formState.value.task_type,
+  (newVal) => {
+    formState.value.sizes = [] // reset selected predefined sizes
+    formState.value.custom_sizes = [] // reset custom sizes too
 
-  if (newVal && newVal !== 'custom') {
-    getSizesByTaskType(newVal);
-  } else {
-    sizeList.value = [];
-  }
-});
+    if (newVal && newVal !== 'custom') {
+      getSizesByTaskType(newVal)
+    } else {
+      sizeList.value = []
+    }
+  },
+)
 
 watch(
   () => formState.value.custom_sizes,
   (arr) => {
     if (!arr || !arr.length) {
-      errors.value.custom_size = '';
-      return;
+      errors.value.custom_size = ''
+      return
     }
-    const hasBlank = arr.some(s => !s || !String(s).trim());
-    errors.value.custom_size = hasBlank ? t('validation.customSizeRequired') : '';
+    const hasBlank = arr.some((s) => !s || !String(s).trim())
+    errors.value.custom_size = hasBlank ? t('validation.customSizeRequired') : ''
   },
-  { deep: true }
-);
+  { deep: true },
+)
 
 onMounted(() => {
   if (props.task) {
-    const t = props.task;
-    console.log(t);
+    const t = props.task
+    console.log(t)
     formState.value = {
       website_id: props.websiteId,
       job_title: t.job_title,
       task_type: t.task_type_id ?? 'custom',
       // custom_task_type: t.type ? t.type.name : '',
-      sizes: t.sizes.map(size => size.id),
+      sizes: t.sizes.map((size) => size.id),
       custom_sizes: [],
       file_types: JSON.parse(t.file_types || '[]'),
       colors: JSON.parse(t.colors || '[]'),
-      themes: t.themes.map(theme => theme.id),
+      themes: t.themes.map((theme) => theme.id),
       custom_themes: [], // up to you to detect which ones are custom
       image_text: t.image_text,
       task_description: t.task_description,
-      task_file: t.files.map(f => ({
+      task_file: t.files.map((f) => ({
         uid: f.id,
         name: f.file_name,
         status: 'done',
         url: f.storage_url,
-        thumbUrl: f.storage_url
+        thumbUrl: f.storage_url,
       })),
       sample_images: t.sample_images || [],
       // sample_image_type: 'system',
@@ -986,12 +1005,11 @@ onMounted(() => {
       requester_name: t.requester_name,
       deadline: t.deadline ? dayjs(t.deadline) : null,
       assignee: t.assignee?.id || null,
-    };
-
+    }
   }
   fetchWebsitelist()
   getTaskTypeList()
-  getSizesByTaskType(props.task.task_type_id);
+  getSizesByTaskType(props.task.task_type_id)
   getFileTypeList()
   getColorList()
   // getThemeNameList()
@@ -1002,7 +1020,7 @@ const validateForm = () => {
   let hasError = false
 
   // reset errors
-  Object.keys(errors.value).forEach(k => (errors.value[k] = ''))
+  Object.keys(errors.value).forEach((k) => (errors.value[k] = ''))
 
   // Job Title
   if (!formState.value.job_title?.trim()) {
@@ -1014,10 +1032,7 @@ const validateForm = () => {
   if (!formState.value.task_type) {
     errors.value.task_type = t('validation.taskTypeRequired')
     hasError = true
-  } else if (
-    formState.value.task_type === 'custom' &&
-    !formState.value.custom_task_type?.trim()
-  ) {
+  } else if (formState.value.task_type === 'custom' && !formState.value.custom_task_type?.trim()) {
     errors.value.custom_task_type = t('validation.customTaskTypeRequired')
     hasError = true
   }
@@ -1036,21 +1051,21 @@ const validateForm = () => {
 
   // Size (required; total <= 5)
   if (totalSizeCount.value === 0) {
-    errors.value.size = t('validation.sizeRequired');
-    hasError = true;
+    errors.value.size = t('validation.sizeRequired')
+    hasError = true
   } else if (totalSizeCount.value > 5) {
-    errors.value.size = t('validation.maxSizes', { max: 5 });
-    hasError = true;
+    errors.value.size = t('validation.maxSizes', { max: 5 })
+    hasError = true
   }
 
   // ✅ Custom sizes must not be blank if any are added
   if (formState.value.custom_sizes.length > 0) {
-    const hasBlank = formState.value.custom_sizes.some(s => !s || !String(s).trim());
+    const hasBlank = formState.value.custom_sizes.some((s) => !s || !String(s).trim())
     if (hasBlank) {
-      errors.value.custom_size = t('validation.customSizeRequired'); // make sure this i18n key exists
-      hasError = true;
+      errors.value.custom_size = t('validation.customSizeRequired') // make sure this i18n key exists
+      hasError = true
     } else {
-      errors.value.custom_size = '';
+      errors.value.custom_size = ''
     }
   }
 
@@ -1100,5 +1115,4 @@ const validateForm = () => {
 
   return !hasError
 }
-
 </script>

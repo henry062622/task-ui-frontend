@@ -2,9 +2,13 @@
   <DefaultLayout>
     <div class="flex justify-between items-center p-4 pt-3">
       <a-breadcrumb>
-        <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{ $t(breadcrumb) }}</a-breadcrumb-item>
+        <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{
+          $t(breadcrumb)
+          }}</a-breadcrumb-item>
       </a-breadcrumb>
-      <a-button v-if="hasCreatePermission" type="primary" @click="goToCreatePage">{{ $t('create') }}</a-button>
+      <a-button v-if="hasCreatePermission" type="primary" @click="goToCreatePage">{{
+        $t('create')
+        }}</a-button>
     </div>
 
     <div class="flex h-full w-full flex-1 flex-col px-4">
@@ -12,7 +16,6 @@
       <a-tabs v-if="tabs.length > 0" v-model:activeKey="activeTab" @change="onTabChange">
         <a-tab-pane v-for="tab in tabs" :key="tab.value" :tab="$t(tab.label)"
           class="gap-4 rounded-xl shadow-2xl p-4 pt-4">
-
           <!-- Search and Filters -->
           <div class="flex gap-4 !mb-4">
             <a-input-search v-if="currentTab?.showSearch" v-model:value="searchQuery"
@@ -35,14 +38,16 @@
 
             <a-select v-if="currentTab?.filters.includes('type')" v-model:value="filters.type" :placeholder="$t('type')"
               @change="handleFilter" allow-clear style="width: 220px">
-              <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id"> {{ type.name
-              }} </a-select-option>
+              <a-select-option v-for="type in taskTypeList" :key="type.id" :value="type.id">
+                {{ type.name }}
+              </a-select-option>
             </a-select>
 
             <a-select v-if="currentTab?.filters.includes('assignee')" v-model:value="filters.assignee"
               :placeholder="$t('assignee')" @change="handleFilter" allow-clear style="width: 180px">
-              <a-select-option v-for="user in userList" :key="user.id" :value="user.id"> {{ user.name
-              }} </a-select-option>
+              <a-select-option v-for="user in userList" :key="user.id" :value="user.id">
+                {{ user.name }}
+              </a-select-option>
             </a-select>
 
             <a-select v-model:value="filters.creator" :placeholder="$t('task_creator')" @change="handleFilter"
@@ -72,14 +77,16 @@
                 <span>{{ formatDateTimeWithMoment(record.updated_at) }}</span>
               </template>
               <template v-if="column.key === 'status'">
-                <a-tag :color="getColor(record.status)"> {{ getStatusLabel(record.status, userRoleId,
-                  uiRoleId) }}</a-tag>
+                <a-tag :color="getColor(record.status)">
+                  {{ getStatusLabel(record.status, userRoleId, uiRoleId) }}</a-tag>
               </template>
               <template v-if="column.key === 'action'">
                 <div class="flex justify-center items-center gap-2">
-                  <EyeOutlined
-                    v-if="currentTab?.buttons.includes('see_more') && (hasViewPermission || record.assignee?.id == auth.user.id)"
-                    @click="viewTask(record.id)" />
+                  <CopyOutlined v-if="hasCreatePermission" @click="copyTask(record.id)" />
+                  <EyeOutlined v-if="
+                    currentTab?.buttons.includes('see_more') &&
+                    (hasViewPermission || record.assignee?.id == auth.user.id)
+                  " @click="viewTask(record.id)" />
 
                   <a-button v-if="currentTab?.buttons.includes('edit') && canEdit(record)" @click="editTask(record.id)"
                     class="!flex items-center justify-center gap-1">
@@ -93,16 +100,24 @@
                   </a-button>
 
                   <!-- 1) Submit for Review (UI role only) -->
-                  <a-button
-                    v-if="currentTab?.buttons.includes('submit') && (record.status == 'in-progress') && (record.assignee?.id == auth.user.id || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
-                    @click="clickSubmitReview(record.id)">
+                  <a-button v-if="
+                    currentTab?.buttons.includes('submit') &&
+                    record.status == 'in-progress' &&
+                    (record.assignee?.id == auth.user.id ||
+                      auth.userRole() == 'super_admin' ||
+                      auth.userRole() == 'ui_lead')
+                  " @click="clickSubmitReview(record.id)">
                     {{ $t('submit_for_review') }}
                   </a-button>
 
                   <!-- 2) Mark as Reviewed (lead/other role only) -->
-                  <a-button
-                    v-if="currentTab?.buttons.includes('review') && record.status === 'waiting-for-review' && (hasReviewPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
-                    @click="clickMarkReview(record.id)">
+                  <a-button v-if="
+                    currentTab?.buttons.includes('review') &&
+                    record.status === 'waiting-for-review' &&
+                    (hasReviewPermission ||
+                      auth.userRole() == 'super_admin' ||
+                      auth.userRole() == 'ui_lead')
+                  " @click="clickMarkReview(record.id)">
                     {{ $t('reviewed') }}
                   </a-button>
 
@@ -112,40 +127,55 @@
                                         {{ $t('complete') }}
                                     </a-button> -->
 
-                  <a-button
-                    v-if="currentTab?.buttons.includes('cancel') && (record.status == 'pending' || record.status == 'in-progress') && (auth.user.id == record.created_by.id || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
-                    danger @click="clickCancelBtn(record.id)">
+                  <a-button v-if="
+                    currentTab?.buttons.includes('cancel') &&
+                    (record.status == 'pending' || record.status == 'in-progress') &&
+                    (auth.user.id == record.created_by.id ||
+                      auth.userRole() == 'super_admin' ||
+                      auth.userRole() == 'ui_lead')
+                  " danger @click="clickCancelBtn(record.id)">
                     {{ $t('cancel') }}
                   </a-button>
 
-                  <a-button
-                    v-if="currentTab?.buttons.includes('assign') && (hasAssignPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
-                    @click="assignTask(record.id)">
+                  <a-button v-if="
+                    currentTab?.buttons.includes('assign') &&
+                    (hasAssignPermission ||
+                      auth.userRole() == 'super_admin' ||
+                      auth.userRole() == 'ui_lead')
+                  " @click="assignTask(record.id)">
                     {{ $t('assign') }}
                   </a-button>
 
-                  <a-button
-                    v-if="currentTab?.buttons.includes('reassign') && record.status == 'in-progress' && (hasAssignPermission || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')"
-                    @click="reassignTask(record)">
+                  <a-button v-if="
+                    currentTab?.buttons.includes('reassign') &&
+                    record.status == 'in-progress' &&
+                    (hasAssignPermission ||
+                      auth.userRole() == 'super_admin' ||
+                      auth.userRole() == 'ui_lead')
+                  " @click="reassignTask(record)">
                     {{ $t('reassign') }}
                   </a-button>
 
-                  <a-button
-                    v-if="currentTab?.buttons.includes('need-revision') && record.status === 'complete' && (auth.userRole() === 'super_admin' || auth.userRole() === 'ui_lead')"
-                    @click="openNeedRevision(record.id)">
+                  <a-button v-if="
+                    currentTab?.buttons.includes('need-revision') &&
+                    record.status === 'complete' &&
+                    (auth.userRole() === 'super_admin' || auth.userRole() === 'ui_lead')
+                  " @click="openNeedRevision(record.id)">
                     {{ $t('needs_revision') }}
                   </a-button>
 
-                  <a-popconfirm
-                    v-if="currentTab?.buttons.includes('delete') && !record.assignee && record.created_by.id == auth.user.id && hasDeletePermission"
-                    :title="$t('sureToDelete')" @confirm="deleteTask(record.id)">
-                    <DeleteOutlined style="color: red;" />
+                  <a-popconfirm v-if="
+                    currentTab?.buttons.includes('delete') &&
+                    !record.assignee &&
+                    record.created_by.id == auth.user.id &&
+                    hasDeletePermission
+                  " :title="$t('sureToDelete')" @confirm="deleteTask(record.id)">
+                    <DeleteOutlined style="color: red" />
                   </a-popconfirm>
                 </div>
               </template>
             </template>
           </a-table>
-
         </a-tab-pane>
       </a-tabs>
     </div>
@@ -163,57 +193,66 @@
   </DefaultLayout>
 </template>
 <script setup>
-import DefaultLayout from '@/components/layout/DefaultLayout.vue';
-import api from '@/lib/axios';
-import router from '@/router';
-import { useAuthStore } from '@/stores/auth';
-import { computed, h, onMounted, reactive, ref, onBeforeUnmount, watch } from 'vue';
-import { EditOutlined, EyeOutlined, DeleteOutlined } from '@ant-design/icons-vue'
-import AssignPopup from '@/components/task/AssignPopup.vue';
-import CompletePopup from '@/components/task/CompletePopup.vue';
-import { formatDate, formatDateTimeWithMoment } from '@/utils/format';
-import CancelPopup from '@/components/task/CancelPopup.vue';
-import { getColor } from '@/utils/initials';
-import { useI18n } from 'vue-i18n';
-import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue';
-import { getStatusLabel } from '@/utils/status';
+import DefaultLayout from '@/components/layout/DefaultLayout.vue'
+import api from '@/lib/axios'
+import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
+import { computed, h, onMounted, reactive, ref, onBeforeUnmount, watch } from 'vue'
+import { EditOutlined, EyeOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons-vue'
+import AssignPopup from '@/components/task/AssignPopup.vue'
+import CompletePopup from '@/components/task/CompletePopup.vue'
+import { formatDate, formatDateTimeWithMoment } from '@/utils/format'
+import CancelPopup from '@/components/task/CancelPopup.vue'
+import { getColor } from '@/utils/initials'
+import { useI18n } from 'vue-i18n'
+import SubmitTaskForReview from '@/components/task/SubmitTaskForReview.vue'
+import { getStatusLabel } from '@/utils/status'
 import moment from 'moment'
 import makeEcho from '@/lib/echo'
+import { saveDraft } from '@/lib/indexdb'
+import { taskDetailToDraft } from '@/utils/copy'
 
-const auth = useAuthStore();
-const breadcrumbList = ref(['manager', 'dashboard']);
-const activeTab = ref('');
-const showModal = ref(false);
-const showCompleteModel = ref(false);
-const showCancelModel = ref(false);
-const showSubmitTaskModel = ref(false);
-const showMarkReviewTaskModel = ref(false);
+const auth = useAuthStore()
+const breadcrumbList = ref(['manager', 'dashboard'])
+const activeTab = ref('')
+const showModal = ref(false)
+const showCompleteModel = ref(false)
+const showCancelModel = ref(false)
+const showSubmitTaskModel = ref(false)
+const showMarkReviewTaskModel = ref(false)
 
-const tabs = ref([]);
+const tabs = ref([])
 
-const currentTab = computed(() => tabs.value.find((t) => t.value === activeTab.value));
-const hasCreatePermission = ref(false);
-const hasViewPermission = ref(false);
-const hasAssignPermission = ref(false);
-const hasDeletePermission = ref(false);
-const hasReviewPermission = ref(false);
-const hasCancelPermission = ref(false);
-const hasEditPermission = ref(false);
-const tasks = ref([]);
-const loading = ref(false);
-const searchQuery = ref('');
-const filters = reactive({ status: null, type: null, assignee: null, creator: null, website: null, dateRange: [] });
-const taskTypeList = ref([]);
-const userList = ref([]);
-const selectedTaskId = ref(null);
-const userRoleId = auth.user.role_id;
-const uiRoleId = import.meta.env.VITE_UI_ROLE_ID;
-const { t } = useI18n();
+const currentTab = computed(() => tabs.value.find((t) => t.value === activeTab.value))
+const hasCreatePermission = ref(false)
+const hasViewPermission = ref(false)
+const hasAssignPermission = ref(false)
+const hasDeletePermission = ref(false)
+const hasReviewPermission = ref(false)
+const hasCancelPermission = ref(false)
+const hasEditPermission = ref(false)
+const tasks = ref([])
+const loading = ref(false)
+const searchQuery = ref('')
+const filters = reactive({
+  status: null,
+  type: null,
+  assignee: null,
+  creator: null,
+  website: null,
+  dateRange: [],
+})
+const taskTypeList = ref([])
+const userList = ref([])
+const selectedTaskId = ref(null)
+const userRoleId = auth.user.role_id
+const uiRoleId = import.meta.env.VITE_UI_ROLE_ID
+const { t } = useI18n()
 
 const creatorList = ref([])
 const creatorSearchLoading = ref(false) // stays if you show spinner on first load
 const creatorQuery = ref('')
-const websiteList = ref([]);
+const websiteList = ref([])
 const websiteQuery = ref('')
 
 const selectedTaskAssigneeId = ref(null)
@@ -223,6 +262,7 @@ const echoRoleRef = ref(null)
 const roleChannel = ref(null)
 
 const showNeedRevisionModel = ref(false)
+const draftKey = `taskFormDraft_user_${auth.user.id}`
 
 const isUiLead = computed(() => auth.userRole && auth.userRole() === 'ui_lead')
 const shouldListenHere = computed(() => {
@@ -243,8 +283,8 @@ const pagination = reactive({
   current: 1,
   pageSize: 10,
   total: 0,
-  showSizeChanger: false
-});
+  showSizeChanger: false,
+})
 
 const endpointMap = {
   my_tasks: '/api/tasks/my',
@@ -254,12 +294,12 @@ const endpointMap = {
   needs_revision: '/api/tasks/needs-revision',
   complete: '/api/tasks/completed',
   cancel: '/api/tasks/cancelled',
-  task_distribution: '/api/tasks/unassigned'
-};
+  task_distribution: '/api/tasks/unassigned',
+}
 
 // task api
 const fetchTasks = async (page = 1) => {
-  loading.value = true;
+  loading.value = true
   try {
     const res = await api.get(endpointMap[activeTab.value], {
       params: {
@@ -271,21 +311,21 @@ const fetchTasks = async (page = 1) => {
         creator: filters.creator,
         start_date: filters.dateRange ? filters.dateRange[0]?.format('YYYY-MM-DD') : '',
         end_date: filters.dateRange ? filters.dateRange[1]?.format('YYYY-MM-DD') : '',
-        website: filters.website
-      }
-    });
+        website: filters.website,
+      },
+    })
 
-    tasks.value = res.data.data.data;
-    pagination.total = res.data.data.total;
-    pagination.current = res.data.data.current_page;
+    tasks.value = res.data.data.data
+    pagination.total = res.data.data.total
+    pagination.current = res.data.data.current_page
   } catch (err) {
-    console.error('Fetch error', err);
+    console.error('Fetch error', err)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-const provisionalRange = ref([null, null])  // updated on each calendar click
+const provisionalRange = ref([null, null]) // updated on each calendar click
 
 function onCalendarChange(dates) {
   // dates will be null when the user clears the picker
@@ -295,45 +335,41 @@ function onCalendarChange(dates) {
 function disabledDate(current) {
   // safely pull a Moment out of provisionalRange or filters.dateRange
   const start =
-    provisionalRange.value?.[0] ??
-    (Array.isArray(filters.dateRange) ? filters.dateRange[0] : null)
+    provisionalRange.value?.[0] ?? (Array.isArray(filters.dateRange) ? filters.dateRange[0] : null)
 
   // nothing chosen yet
   if (!start) return false
 
   // disable before start or after  2 months
-  return (
-    current.isBefore(start, 'day') ||
-    current.isAfter(start.clone().add(2, 'months'), 'day')
-  )
+  return current.isBefore(start, 'day') || current.isAfter(start.clone().add(2, 'months'), 'day')
 }
 
 const removeAssignedTaskFromList = (task) => {
-  if (!isReassignMode.value) removeTaskFromList(task.id);
-  else fetchTasks();
+  if (!isReassignMode.value) removeTaskFromList(task.id)
+  else fetchTasks()
 }
 
 const handleSearch = () => {
-  fetchTasks(1);
+  fetchTasks(1)
 }
 
 const handleFilter = () => {
-  fetchTasks(1);
+  fetchTasks(1)
 }
 
 const onTabChange = () => {
-  pagination.current = 1;
-  searchQuery.value = '';
-  Object.assign(filters, { status: null, type: null, assignee: null, dateRange: [] });
-  fetchTasks(1);
-};
-const handleTableChange = (pag) => fetchTasks(pag.current);
+  pagination.current = 1
+  searchQuery.value = ''
+  Object.assign(filters, { status: null, type: null, assignee: null, dateRange: [] })
+  fetchTasks(1)
+}
+const handleTableChange = (pag) => fetchTasks(pag.current)
 
 const viewTask = (id) => {
   // router.push(`/tasks/${id}`);
-  const url = `/tasks/${id}`;
-  window.open(url, "_blank");
-};
+  const url = `/tasks/${id}`
+  window.open(url, '_blank')
+}
 
 const openNeedRevision = (id) => {
   selectedTaskId.value = id
@@ -341,38 +377,38 @@ const openNeedRevision = (id) => {
 }
 
 const clickSubmitReview = (id) => {
-  selectedTaskId.value = id;
-  showSubmitTaskModel.value = true;
+  selectedTaskId.value = id
+  showSubmitTaskModel.value = true
 }
 
 const clickMarkReview = (id) => {
-  selectedTaskId.value = id;
-  showCompleteModel.value = true;
+  selectedTaskId.value = id
+  showCompleteModel.value = true
 }
 
 const clickCompleteBtn = (id) => {
-  selectedTaskId.value = id;
-  showCompleteModel.value = true;
+  selectedTaskId.value = id
+  showCompleteModel.value = true
 }
 
 const actionAfterStatusUpdate = (task) => {
-  console.log(task);
+  console.log(task)
   if (currentTab.value.value == 'my_tasks') {
-    const index = tasks.value.findIndex(data => data.id === task.id);
-    console.log(index);
+    const index = tasks.value.findIndex((data) => data.id === task.id)
+    console.log(index)
     if (index !== -1) {
-      tasks.value[index].status = task.status;
-      console.log(tasks.value[index]);
+      tasks.value[index].status = task.status
+      console.log(tasks.value[index])
     }
   } else {
-    removeTaskFromList(task.id);
+    removeTaskFromList(task.id)
   }
-};
+}
 
 const clickCancelBtn = (id) => {
   selectedTaskId.value = id
   showCancelModel.value = true
-};
+}
 
 const editTask = (id) => {
   // adjust to your actual edit route if different
@@ -380,11 +416,11 @@ const editTask = (id) => {
 }
 
 const deleteTask = (id) => {
-  console.log('deleted task', id);
-  api.delete(`/api/task/${id}`).then(res => {
-    removeTaskFromList(id);
+  console.log('deleted task', id)
+  api.delete(`/api/task/${id}`).then((res) => {
+    removeTaskFromList(id)
   })
-};
+}
 
 // const cancelTask = (task) => {
 //     if (currentTab.value.value == 'my_tasks') {
@@ -399,26 +435,26 @@ const deleteTask = (id) => {
 // }
 
 const updateTaskStatus = (status, id) => {
-  api.post('/api/task/change-status', { status, task_id: id }).then(res => {
+  api.post('/api/task/change-status', { status, task_id: id }).then((res) => {
     if (currentTab.value.value == 'my_tasks') {
-      const index = tasks.value.findIndex(task => task.id === id);
-      console.log(index);
+      const index = tasks.value.findIndex((task) => task.id === id)
+      console.log(index)
       if (index !== -1) {
-        tasks.value[index].status = status;
-        console.log(tasks.value[index]);
+        tasks.value[index].status = status
+        console.log(tasks.value[index])
       }
     } else {
-      removeTaskFromList(id);
+      removeTaskFromList(id)
     }
   })
 }
 
 const assignTask = async (id) => {
-  selectedTaskId.value = id;
+  selectedTaskId.value = id
   selectedTaskAssigneeId.value = null
   isReassignMode.value = false
-  showModal.value = true;
-};
+  showModal.value = true
+}
 
 const reassignTask = (record) => {
   selectedTaskId.value = record.id
@@ -428,7 +464,7 @@ const reassignTask = (record) => {
 }
 
 const removeTaskFromList = (taskId) => {
-  tasks.value = tasks.value.filter(data => data.id !== taskId);
+  tasks.value = tasks.value.filter((data) => data.id !== taskId)
 }
 const columns = computed(() => [
   { title: t('project_name'), dataIndex: 'job_title', key: 'job_title' },
@@ -440,46 +476,51 @@ const columns = computed(() => [
   { title: t('created_at'), dataIndex: 'created_at', key: 'created_at' },
   { title: t('deadline'), dataIndex: 'deadline', key: 'deadline' },
   { title: t('updated_at'), dataIndex: 'updated_at', key: 'updated_at' },
-  { title: t('action'), key: 'action' }
-]);
+  { title: t('action'), key: 'action' },
+])
 
 const goToCreatePage = () => {
-  router.push('/task-create');
+  router.push('/task-create')
 }
 
 const getTaskTypeList = () => {
-  api.get('/api/get-task-type-name-list').then(res => {
-    taskTypeList.value = res.data.data;
-  });
+  api.get('/api/get-task-type-name-list').then((res) => {
+    taskTypeList.value = res.data.data
+  })
 }
 
 const getUserNameList = () => {
-  api.get('/api/get-user-name-list-by-ui-role').then(res => {
-    userList.value = res.data.data;
-  });
+  api.get('/api/get-user-name-list-by-ui-role').then((res) => {
+    userList.value = res.data.data
+  })
 }
 
 function getCreatorNameList(q = '') {
   creatorSearchLoading.value = true
-  api.get('/api/get-task-creator-list', { params: { q } })
-    .then(res => { creatorList.value = res.data.data || [] })
-    .finally(() => { creatorSearchLoading.value = false })
+  api
+    .get('/api/get-task-creator-list', { params: { q } })
+    .then((res) => {
+      creatorList.value = res.data.data || []
+    })
+    .finally(() => {
+      creatorSearchLoading.value = false
+    })
 }
 
 const fetchWebsitelist = async () => {
-  const res = await api.get('/api/websites');
-  websiteList.value = res.data.data;
+  const res = await api.get('/api/websites')
+  websiteList.value = res.data.data
 }
 
 const filteredCreatorList = computed(() => {
   const q = creatorQuery.value.trim().toLowerCase()
   if (!q) return creatorList.value
-  return creatorList.value.filter(u => (u.name || '').toLowerCase().includes(q))
+  return creatorList.value.filter((u) => (u.name || '').toLowerCase().includes(q))
 })
 const filteredWebsiteList = computed(() => {
   const q = websiteQuery.value.trim().toLowerCase()
   if (!q) return websiteList.value
-  return websiteList.value.filter(site => (site.name || '').toLowerCase().includes(q))
+  return websiteList.value.filter((site) => (site.name || '').toLowerCase().includes(q))
 })
 
 // change your search handler to ONLY update the query (no API call)
@@ -497,7 +538,7 @@ function canEdit(record) {
 
   // Tab-based: Complete & Task Distribution → only creator can edit
   if (currentTab.value?.value === 'complete' || currentTab.value?.value === 'task_distribution') {
-    return (isCreator || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead')
+    return isCreator || auth.userRole() == 'super_admin' || auth.userRole() == 'ui_lead'
   }
 
   // Status-based: in-progress, waiting-for-review, needs-revision, cancel
@@ -511,44 +552,104 @@ function canEdit(record) {
   return false
 }
 
+const copyTask = async (id) => {
+  try {
+    // 1) get full task data (use your real endpoint)
+    const { data } = await api.get(`/api/tasks/${id}`)
+    const task = data.data
+
+    console.log('copy data: ', task)
+
+    // 2) build draft (remove ids/status/audit fields)
+    const draft = taskDetailToDraft(task)
+
+    console.log('copy draft: ', draft)
+
+    // 3) save to draft storage
+    await saveDraft(draftKey, draft)
+
+    // 4) go create page with mode=copy
+    router.push({ path: '/task-create', query: { mode: 'copy' } })
+  } catch (e) {
+    console.error('copyTask failed:', e)
+  }
+}
+
 const getAvailableTabs = () => {
-  const isUi = userRoleId == uiRoleId;
+  const isUi = userRoleId == uiRoleId
 
   const allTabs = [
-    { value: 'my_tasks', label: 'my_tasks', showSearch: true, filters: ['status', 'type'], buttons: ['see_more', 'in-progress', 'submit'] },
-    { value: 'all_tasks', label: 'all_tasks', showSearch: true, filters: ['status', 'type', 'assignee'], buttons: ['see_more', 'delete'] },
-    { value: 'task_distribution', label: 'task_distribution', showSearch: false, filters: ['type', 'website'], buttons: ['see_more', 'assign', 'delete', 'cancel', 'edit'] },
-    { value: 'in_progress', label: 'in_progress', showSearch: false, filters: [], buttons: ['see_more', 'submit', 'reassign', 'edit'] },
+    {
+      value: 'my_tasks',
+      label: 'my_tasks',
+      showSearch: true,
+      filters: ['status', 'type'],
+      buttons: ['see_more', 'in-progress', 'submit'],
+    },
+    {
+      value: 'all_tasks',
+      label: 'all_tasks',
+      showSearch: true,
+      filters: ['status', 'type', 'assignee'],
+      buttons: ['see_more', 'delete'],
+    },
+    {
+      value: 'task_distribution',
+      label: 'task_distribution',
+      showSearch: false,
+      filters: ['type', 'website'],
+      buttons: ['see_more', 'assign', 'delete', 'cancel', 'edit'],
+    },
+    {
+      value: 'in_progress',
+      label: 'in_progress',
+      showSearch: false,
+      filters: [],
+      buttons: ['see_more', 'submit', 'reassign', 'edit'],
+    },
 
     // ⬇️ new “waiting for review” tab
     {
       value: 'waiting_for_review',
-      label: isUi ? 'submitted_tasks'   // UI sees “Submitted Tasks”
+      label: isUi
+        ? 'submitted_tasks' // UI sees “Submitted Tasks”
         : 'waiting_for_review', // others see “Waiting for Review”
       showSearch: false,
       filters: ['type'],
-      buttons: ['see_more', 'review', 'edit']
+      buttons: ['see_more', 'review', 'edit'],
     },
 
     // ⬇️ new “needs revision” tab
     {
       value: 'needs_revision',
-      label: isUi ? 'revisions_required' // UI sees “Revisions Required”
-        : 'needs_revision',    // others see “Needs Revision”
+      label: isUi
+        ? 'revisions_required' // UI sees “Revisions Required”
+        : 'needs_revision', // others see “Needs Revision”
       showSearch: false,
       filters: ['type'],
-      buttons: ['see_more', 'submit', 'edit']
+      buttons: ['see_more', 'submit', 'edit'],
     },
 
-    { value: 'complete', label: 'complete', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit', 'need-revision'] },
-    { value: 'cancel', label: 'cancel', showSearch: true, filters: ['type'], buttons: ['see_more', 'edit'] },
-
-  ];
+    {
+      value: 'complete',
+      label: 'complete',
+      showSearch: true,
+      filters: ['type'],
+      buttons: ['see_more', 'edit', 'need-revision'],
+    },
+    {
+      value: 'cancel',
+      label: 'cancel',
+      showSearch: true,
+      filters: ['type'],
+      buttons: ['see_more', 'edit'],
+    },
+  ]
 
   // hide “My Tasks” for UI role, hide “Task Distribution” for others
   return isUi
-    ? allTabs.filter(t => t.value !== 'task_distribution')
-    : allTabs.filter(t => t.value !== 'my_tasks');
+    ? allTabs.filter((t) => t.value !== 'task_distribution')
+    : allTabs.filter((t) => t.value !== 'my_tasks')
 }
 
 // socket start
@@ -586,7 +687,7 @@ function matchesFilters(task) {
 }
 
 function upsertOrRemoveFromList(task) {
-  const idx = tasks.value.findIndex(t => t.id === task.id)
+  const idx = tasks.value.findIndex((t) => t.id === task.id)
   const keep = matchesCurrentTab(task) && matchesFilters(task)
 
   if (!keep) {
@@ -620,13 +721,12 @@ function subscribeRoleChannel() {
   console.log('from dsh', roleChannel.value)
 
   // handlers: backend broadcastAs('task.created'|'task.updated'|'task.deleted'), payload { task: {...} }
-  roleChannel.value
-    .listen('.task.created', (payload) => {
-      const task = payload?.task
-      console.log(payload)
-      if (!task) return
-      upsertOrRemoveFromList(task)
-    })
+  roleChannel.value.listen('.task.created', (payload) => {
+    const task = payload?.task
+    console.log(payload)
+    if (!task) return
+    upsertOrRemoveFromList(task)
+  })
 }
 
 function subscribeUserChannel() {
@@ -641,12 +741,11 @@ function subscribeUserChannel() {
   console.log('listen user channel.')
 
   // receive task payloads sent to the assignee
-  userChannel.value
-    .listen('.task.assign', (payload) => {
-      const task = payload?.task
-      console.log(payload)
-      if (task) upsertOrRemoveFromList(task)
-    })
+  userChannel.value.listen('.task.assign', (payload) => {
+    const task = payload?.task
+    console.log(payload)
+    if (task) upsertOrRemoveFromList(task)
+  })
 }
 
 function teardownRoleChannel() {
@@ -685,16 +784,19 @@ onMounted(() => {
 })
 
 // re-evaluate when tab changes
-watch(() => currentTab.value?.value, () => {
-  if (shouldListenHere.value) {
-    subscribeRoleChannel()
-  } else {
-    teardownRoleChannel()
-  }
+watch(
+  () => currentTab.value?.value,
+  () => {
+    if (shouldListenHere.value) {
+      subscribeRoleChannel()
+    } else {
+      teardownRoleChannel()
+    }
 
-  if (shouldListenHereUi.value) subscribeUserChannel()
-  else teardownUserChannel()
-})
+    if (shouldListenHereUi.value) subscribeUserChannel()
+    else teardownUserChannel()
+  },
+)
 
 // if role could change dynamically, also watch isUiLead
 watch(isUiLead, (v) => {
@@ -716,19 +818,19 @@ onBeforeUnmount(() => {
 
 // Init
 onMounted(() => {
-  tabs.value = getAvailableTabs();
-  activeTab.value = tabs.value[0]?.value || '';
-  fetchTasks();
-  getTaskTypeList();
-  getUserNameList();
-  fetchWebsitelist();
-  getCreatorNameList();
-  hasCreatePermission.value = auth.hasPermission('task_create');
-  hasViewPermission.value = auth.hasPermission('task_read');
-  hasAssignPermission.value = auth.hasPermission('task_assign');
-  hasDeletePermission.value = auth.hasPermission('task_delete');
-  hasReviewPermission.value = auth.hasPermission('task_review');
-  hasCancelPermission.value = auth.hasPermission('task_cancel');
-  hasEditPermission.value = auth.hasPermission('task_edit');
+  tabs.value = getAvailableTabs()
+  activeTab.value = tabs.value[0]?.value || ''
+  fetchTasks()
+  getTaskTypeList()
+  getUserNameList()
+  fetchWebsitelist()
+  getCreatorNameList()
+  hasCreatePermission.value = auth.hasPermission('task_create')
+  hasViewPermission.value = auth.hasPermission('task_read')
+  hasAssignPermission.value = auth.hasPermission('task_assign')
+  hasDeletePermission.value = auth.hasPermission('task_delete')
+  hasReviewPermission.value = auth.hasPermission('task_review')
+  hasCancelPermission.value = auth.hasPermission('task_cancel')
+  hasEditPermission.value = auth.hasPermission('task_edit')
 })
 </script>
