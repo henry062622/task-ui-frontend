@@ -215,5 +215,6 @@
   "others_n": "{n} other(s)",
   "updated_at": "Updated at",
   "other_files": "Other Files",
-  "search_by_name": "Search by name..."
+  "search_by_name": "Search by name...",
+  "tele_bot": "Telegram Bot"
 }
