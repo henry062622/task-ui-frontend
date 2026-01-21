@@ -214,5 +214,6 @@
   "audios_n": "{n} audio file(s)",
   "others_n": "{n} other(s)",
   "updated_at": "Updated at",
-  "other_files": "Other Files"
+  "other_files": "Other Files",
+  "search_by_name": "Search by name..."
 }

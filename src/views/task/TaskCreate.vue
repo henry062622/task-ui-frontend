@@ -1,9 +1,14 @@
 <template>
   <DefaultLayout :site="selectedSite">
     <div v-if="!selectedSite" class="flex h-full bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
+      <!-- search box -->
+      <div class="flex justify-end mb-4">
+        <a-input-search v-model:value="searchQuery" :placeholder="$t('search_by_name')" @search="handleSearch"
+          allow-clear style="width: 250px" />
+      </div>
       <!-- Select Site -->
       <SiteCardContainer class="!mt-10">
-        <SiteCard v-for="website in websiteList" :key="website.id" :website="website" @click="clickSite(website)">
+        <SiteCard v-for="website in filteredWebsites" :key="website.id" :website="website" @click="clickSite(website)">
         </SiteCard>
       </SiteCardContainer>
     </div>
@@ -18,7 +23,7 @@
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import api from '@/lib/axios'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import SiteCardContainer from '@/components/ui/SiteCardContainer.vue'
 import SiteCard from '@/components/ui/SiteCard.vue'
 import TaskCreateComponent from '@/components/task/TaskCreateComponent.vue'
@@ -33,6 +38,22 @@ const auth = useAuthStore()
 const user = auth.user
 const route = useRoute()
 const draftKey = `taskFormDraft_user_${user.id}`
+
+const searchQuery = ref('')
+
+const filteredWebsites = computed(() => {
+  const q = (searchQuery.value || '').trim().toLowerCase()
+  if (!q) return websiteList.value
+
+  return websiteList.value.filter((w) => {
+    const name = (w?.name || '').toLowerCase()
+    return name.includes(q)
+  })
+})
+
+function handleSearch(value) {
+  searchQuery.value = value
+}
 
 const clickSite = async (site) => {
   selectedSite.value = site

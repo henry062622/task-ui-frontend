@@ -214,5 +214,6 @@
   "audios_n": "ไฟล์เสียง {n} ไฟล์",
   "others_n": "อื่น ๆ {n} ไฟล์",
   "updated_at": "แก้ล่าสุด",
-  "other_files": "ไฟล์อื่น ๆ"
+  "other_files": "ไฟล์อื่น ๆ",
+  "search_by_name": "ค้นหาตามชื่อ..."
 }
