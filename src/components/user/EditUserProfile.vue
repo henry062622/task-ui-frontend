@@ -25,16 +25,13 @@
 
     <a-row v-if="hasCreatePermission">
       <a-col span="24">
-        <a-form-item :label="$t('tele_bot')">
-          <a-input :value="teleBot" class="w-full md:!w-1/2" readonly>
-            <template #addonAfter>
-              <a-tooltip :title="$t('copy')">
-                <a-button type="text" @click="copyText(teleBot)" class="!px-2">
-                  <CopyOutlined />
-                </a-button>
-              </a-tooltip>
-            </template>
-          </a-input>
+        <a-form-item :label="$t('telegram_chat_id')">
+          <a-input v-model:value="formState.telegram_chat_id" class="w-full md:!w-1/2"
+            :placeholder="$t('enter_telegram_chat_id')" allow-clear />
+          <p class="!mt-2 text-sm text-gray-400">
+            โปรดเปิด <b>{{ teleBot }}</b> บน Telegram พิมพ์ <b>/start</b> จากนั้นคัดลอก Chat ID ที่บอทส่งให้
+            แล้วนำมาวางที่นี่
+          </p>
         </a-form-item>
       </a-col>
     </a-row>
@@ -71,7 +68,6 @@ import api from '@/lib/axios'
 import { useAuthStore } from '@/stores/auth'
 import { notification } from 'ant-design-vue'
 import { onMounted, ref } from 'vue'
-import { CopyOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps({
   user: Object,
@@ -81,30 +77,13 @@ const formState = ref({
   name: props.user.name,
   email: props.user.email,
   role_id: props.user.role_id,
+  telegram_chat_id: props.user.telegram_chat_id,
 })
 const errors = ref({ name: '', email: '' })
 const isLoading = ref(false)
 const auth = useAuthStore()
 const teleBot = import.meta.env.VITE_TELE_BOT || ''
 const hasCreatePermission = ref(false)
-
-const copyText = async (text) => {
-  try {
-    if (!text) return
-    await navigator.clipboard.writeText(text)
-    notification.success({
-      message: 'Copied',
-      description: 'Tele bot copied to clipboard',
-      duration: 2,
-    })
-  } catch (e) {
-    notification.error({
-      message: 'Copy failed',
-      description: 'Your browser blocked clipboard access.',
-      duration: 2,
-    })
-  }
-}
 
 // Submission logic
 const onSubmit = async () => {
@@ -116,6 +95,7 @@ const onSubmit = async () => {
     const title = res.data.status.charAt(0).toUpperCase() + res.data.status.slice(1)
     auth.user.name = res.data.data.name
     auth.user.email = res.data.data.email
+    auth.user.telegram_chat_id = res.data.data.telegram_chat_id
     notification.success({
       message: title,
       description: res.data.message, // Display the message

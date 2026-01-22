@@ -216,5 +216,7 @@
   "updated_at": "Updated at",
   "other_files": "Other Files",
   "search_by_name": "Search by name...",
-  "tele_bot": "Telegram Bot"
+  "tele_bot": "Telegram Bot",
+  "telegram_chat_id": "Telegram Chat ID",
+  "enter_telegram_chat_id": "Enter Telegram chat id"
 }

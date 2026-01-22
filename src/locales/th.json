@@ -216,5 +216,7 @@
   "updated_at": "แก้ล่าสุด",
   "other_files": "ไฟล์อื่น ๆ",
   "search_by_name": "ค้นหาตามชื่อ...",
-  "tele_bot": "บอท Telegram"
+  "tele_bot": "บอท Telegram",
+  "telegram_chat_id": "รหัสแชท Telegram",
+  "enter_telegram_chat_id": "กรอกรหัสแชท Telegram"
 }
