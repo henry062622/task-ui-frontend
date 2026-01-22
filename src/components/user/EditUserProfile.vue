@@ -29,7 +29,8 @@
           <a-input v-model:value="formState.telegram_chat_id" class="w-full md:!w-1/2"
             :placeholder="$t('enter_telegram_chat_id')" allow-clear />
           <p class="!mt-2 text-sm text-gray-400">
-            โปรดเปิด <b>{{ teleBot }}</b> บน Telegram พิมพ์ <b>/start</b> จากนั้นคัดลอก Chat ID ที่บอทส่งให้
+            โปรดเปิด <a href="https://t.me/task_management_ui_bot" target="_blank">{{ teleBot }}</a> บน Telegram พิมพ์
+            <b>/start</b> จากนั้นคัดลอก Chat ID ที่บอทส่งให้
             แล้วนำมาวางที่นี่
           </p>
         </a-form-item>
@@ -59,7 +60,7 @@
     <div class="flex items-center justify-start gap-4 pt-4">
       <a-button html-type="submit" type="primary" :loading="isLoading" :disabled="isLoading">{{
         $t('update')
-        }}</a-button>
+      }}</a-button>
     </div>
   </a-form>
 </template>
