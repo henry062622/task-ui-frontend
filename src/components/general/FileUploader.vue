@@ -70,6 +70,7 @@ const props = defineProps({
       'image/jpeg',
       'image/png',
       'image/gif',
+      'image/webp',
       'video/mp4',
       'application/zip',
       'application/x-rar-compressed',
@@ -84,13 +85,13 @@ const props = defineProps({
     type: Array,
     default: () => [
       'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf',
-      'jpg', 'jpeg', 'png', 'gif', 'mp4', 'zip', 'rar',
+      'jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'zip', 'rar',
       'wps', 'wpt', 'et', 'ett', 'dps', 'dpt'
     ]
   },
   accept: {
     type: String,
-    default: '.doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.jpg,.jpeg,.png,.gif,.mp4,.zip,.rar,.wps,.wpt,.et,.ett,.dps,.dpt'
+    default: '.doc,.docx,.xls,.xlsx,.ppt,.pptx,.pdf,.jpg,.jpeg,.png,.gif,.webp,.mp4,.zip,.rar,.wps,.wpt,.et,.ett,.dps,.dpt'
   }
 })
 
