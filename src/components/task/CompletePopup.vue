@@ -13,6 +13,10 @@
         </a-radio-group>
       </a-form-item>
 
+      <a-form-item v-if="formState.status === 'complete'" :label="$t('note')" name="note">
+        <a-textarea v-model:value="formState.complete_note" :rows="4" placeholder="U can add complete note here." />
+      </a-form-item>
+
       <a-form-item v-if="formState.status === 'needs-revision'" :label="$t('upload_image')" name="fileList">
         <a-upload list-type="picture-card" :file-list="formState.fileList" :before-upload="beforeUpload" :max-count="5"
           :multiple="true" accept="image/*,video/*,.zip,.rar" @remove="onRemove">
@@ -66,6 +70,7 @@ const formState = ref({
   task_id: props.taskId,
   status: '',
   revision_reason: '',
+  complete_note: '',
   fileList: [],
 })
 const isLoading = ref(false)
@@ -85,15 +90,6 @@ watch(
 )
 
 const beforeUpload = (file) => {
-  // formState.value.fileList = [
-  //   {
-  //     uid: Date.now().toString(),
-  //     name: file.name,
-  //     status: 'done',
-  //     originFileObj: file,
-  //   },
-  // ]
-
   const item = {
     uid: `${Date.now()}-${Math.random()}`,
     name: file.name,
@@ -130,45 +126,6 @@ const onRemove = (file) => {
   // formState.value.fileList = []
   formState.value.fileList = formState.value.fileList.filter(f => f.uid !== file.uid)
 }
-
-// const onSubmit = async () => {
-//   if (!formState.value.status) return
-//   console.log(formState.value)
-
-//   isUploading.value = true;
-//   overallPercent.value = 0;
-
-//   const formData = new FormData()
-//   formData.append('task_id', formState.value.task_id)
-//   formData.append('status', formState.value.status)
-//   if (formState.value.status == 'needs-revision') {
-//     formData.append('revision_reason', formState.value.revision_reason)
-//     if (formState.value.fileList.length > 0) {
-//       // formData.append('file', formState.value.fileList[0].originFileObj)
-//       for (const f of formState.value.fileList) {
-//         formData.append('files[]', f.originFileObj)
-//       }
-//     }
-
-//   }
-
-//   const apiUrl =
-//     formState.value.status == 'needs-revision'
-//       ? '/api/task/needs-revision'
-//       : '/api/task/change-status'
-
-//   await api
-//     .post(apiUrl, formData, {
-//       headers: { 'Content-Type': 'multipart/form-data' },
-//     })
-//     .then((res) => {
-//       emit('completed', res.data.data)
-//       emit('close')
-//     })
-//     .finally(() => {
-//       isLoading.value = false
-//     })
-// }
 
 const onSubmit = async () => {
   if (!formState.value.status) return
@@ -226,6 +183,10 @@ const onSubmit = async () => {
       isUploading.value = false
     }
     return
+  }
+
+  if (formState.value.status === 'complete') {
+    formData.append('complete_note', formState.value.complete_note)
   }
 
   // non-revision branch (unchanged)

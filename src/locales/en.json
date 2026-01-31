@@ -218,5 +218,7 @@
   "search_by_name": "Search by name...",
   "tele_bot": "Telegram Bot",
   "telegram_chat_id": "Telegram Chat ID",
-  "enter_telegram_chat_id": "Enter Telegram chat id"
+  "enter_telegram_chat_id": "Enter Telegram chat id",
+  "note": "Note",
+  "complete_note": "Task Completion Note"
 }

@@ -218,5 +218,7 @@
   "search_by_name": "ค้นหาตามชื่อ...",
   "tele_bot": "บอท Telegram",
   "telegram_chat_id": "รหัสแชท Telegram",
-  "enter_telegram_chat_id": "กรอกรหัสแชท Telegram"
+  "enter_telegram_chat_id": "กรอกรหัสแชท Telegram",
+  "note": "หมายเหตุ",
+  "complete_note": "หมายเหตุของงานที่เสร็จสิ้น"
 }

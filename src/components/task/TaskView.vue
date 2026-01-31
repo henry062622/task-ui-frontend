@@ -106,7 +106,7 @@
           <a-col :span="18">
             <a-tag :color="getColor(task.status)" class="!text-base"> {{ getStatusLabel(task.status, userRoleId,
               uiRoleId)
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -120,7 +120,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag v-for="size in task.sizes" :key="size.id" color="#2db7f5" class="!mt-2 !text-base"> {{ size.name
-            }}</a-tag>
+              }}</a-tag>
             <!-- <a-input :value="task.sizes.name" class="w-full" readonly></a-input> -->
           </a-col>
         </a-row>
@@ -161,7 +161,7 @@
           </a-col>
           <a-col :span="18">
             <a-tag v-for="theme in task.themes" :key="theme.id" color="#2db7f5" class="!mt-2 !text-base"> {{ theme.text
-            }}</a-tag>
+              }}</a-tag>
           </a-col>
         </a-row>
       </a-col>
@@ -257,6 +257,19 @@
           </a-col>
           <a-col :span="18">
             <a-textarea :value="task.cancel_reason" :auto-size="{ minRows: 3, maxRows: 12 }"
+              class="w-full !text-base overflow-hidden resize-none" readonly></a-textarea>
+          </a-col>
+        </a-row>
+      </a-col>
+    </a-row>
+    <a-row :gutter="16" v-if="task.status == 'complete'">
+      <a-col :span="12">
+        <a-row>
+          <a-col :span="6" class="!font-semibold !text-base">
+            {{ $t('complete_note') }}:
+          </a-col>
+          <a-col :span="18">
+            <a-textarea :value="task.complete_note" :auto-size="{ minRows: 3, maxRows: 12 }"
               class="w-full !text-base overflow-hidden resize-none" readonly></a-textarea>
           </a-col>
         </a-row>
