@@ -29,7 +29,7 @@ export function taskDetailToDraft(task) {
     colors: JSON.parse(task.colors || '[]'),
 
     image_text: task.image_text || '',
-    task_description: task.task_description || '',
+    task_description: '',
     requester_name: task.requester_name || '',
     deadline: task.deadline || null,
 
