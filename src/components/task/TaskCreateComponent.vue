@@ -58,10 +58,10 @@
           :validate-status="errors.size ? 'error' : ''" :help="errors.size || t('selectUpTo5Sizes')">
           <a-select mode="multiple" v-model:value="formState.sizes"
             :disabled="!formState.task_type || formState.task_type === 'custom'" :placeholder="!formState.task_type
-                ? t('pleaseSelectTaskTypeFirst')
-                : formState.task_type === 'custom'
-                  ? t('noPredefinedSizesAddCustom')
-                  : t('selectUpTo5Sizes')
+              ? t('pleaseSelectTaskTypeFirst')
+              : formState.task_type === 'custom'
+                ? t('noPredefinedSizesAddCustom')
+                : t('selectUpTo5Sizes')
               " :maxTagCount="5" :maxTagPlaceholder="() => '+ more'" class="w-full" @change="handleSizeChange"
             show-search :filter-option="(input, option) => option?.label?.toLowerCase?.().includes(input.toLowerCase())
               " :options="sizeList.map((s) => ({ label: s.name, value: s.id }))" />
@@ -287,6 +287,9 @@
 
     <!-- Footer Buttons -->
     <div class="flex items-center justify-end gap-4 pt-4">
+      <a-progress v-if="isTaskFileUploading" :percent="taskFileOverallPercent" status="active" :stroke-width="6"
+        class="!w-full !mr-3" />
+
       <a-button type="primary" class="!flex items-center" @click="clickCancelBtn" danger>
         <RollbackOutlined /> {{ $t('cancel') }}
       </a-button>
@@ -461,6 +464,11 @@ const decorativeModalVisible = ref(false)
 const decorativePage = ref(1)
 const decorativeTotal = ref(0)
 const selectedDecorativeIds = ref([])
+
+// Multipart upload logic and Progress bar
+const isTaskFileUploading = ref(false)
+const taskFileOverallPercent = ref(0)
+const taskFileAbortCtrl = ref(null)
 
 // Paste image popup
 const pasteModalVisible = ref(false)
@@ -717,15 +725,64 @@ const submitForm = async () => {
     formData.append('custom_themes[]', text)
   })
 
-  // 📂 Task files (Upload file list -> extract File object)
-  formState.value.task_file.forEach((fileObj) => {
-    const actualFile = fileObj.originFileObj
-    if (actualFile) {
-      formData.append('task_file[]', actualFile)
-    } else {
-      formData.append('task_file[]', fileObj.uid)
+  // 1) Separate existing task_file IDs vs new files
+  const existingTaskFileIds = []
+  const newTaskFiles = []
+
+  formState.value.task_file.forEach((f) => {
+    // "existing" (from system) -> uid is numeric (or numeric string)
+    if (!f.originFileObj && (typeof f.uid === 'number' || /^\d+$/.test(String(f.uid)))) {
+      existingTaskFileIds.push(Number(f.uid))
+      return
     }
+    // new file
+    const actualFile = f.originFileObj
+    if (actualFile) newTaskFiles.push({ wrapper: f, file: actualFile })
   })
+
+  // 2) Upload new task files to R2 (chunked)
+  let taskFileR2Objects = []
+  if (newTaskFiles.length) {
+    isTaskFileUploading.value = true
+    taskFileOverallPercent.value = 0
+    taskFileAbortCtrl.value = new AbortController()
+
+    const totalBytes = newTaskFiles.reduce((s, x) => s + (x.file.size || 0), 0)
+    let loadedBytes = 0
+
+    for (const item of newTaskFiles) {
+      const perFileStart = loadedBytes
+
+      // Update Upload list visuals (optional)
+      item.wrapper.status = 'uploading'
+      item.wrapper.percent = 0
+
+      const uploaded = await uploadTaskFileToR2(item.file, {
+        onProgress: (p) => {
+          item.wrapper.percent = p
+          const current = perFileStart + Math.round((p / 100) * item.file.size)
+          const safeLoaded = Math.min(current, perFileStart + item.file.size)
+          const overall = totalBytes ? Math.round((safeLoaded / totalBytes) * 100) : 100
+          taskFileOverallPercent.value = Math.max(taskFileOverallPercent.value, overall)
+        },
+      })
+
+      loadedBytes += item.file.size
+      taskFileR2Objects.push(uploaded)
+
+      item.wrapper.status = 'done'
+      item.wrapper.percent = 100
+    }
+
+    taskFileOverallPercent.value = 100
+    isTaskFileUploading.value = false
+    taskFileAbortCtrl.value = null
+  }
+
+  // 📂 Task files (NEW): send only existing IDs + uploaded R2 objects
+  existingTaskFileIds.forEach((id) => formData.append('task_file_existing_ids[]', String(id)))
+  formData.append('task_file_r2_objects', JSON.stringify(taskFileR2Objects))
+
 
   // 👤 Actor images (mixed id or file)
   formState.value.actor_images.forEach((img, i) => {
@@ -757,6 +814,8 @@ const submitForm = async () => {
     console.error(err)
   } finally {
     isLoading.value = false
+    isTaskFileUploading.value = false
+    taskFileAbortCtrl.value = null
   }
 }
 
@@ -903,6 +962,77 @@ const loadDraft = async () => {
     console.error('Failed to load draft:', e)
   }
 }
+
+// ---------- Multipart uploader (direct to R2) ----------
+const TASK_PART_SIZE = 10 * 1024 * 1024 // 10MB
+
+async function r2Create(key, contentType, size) {
+  const { data } = await api.post('/api/r2/multipart/create', { key, contentType, size })
+  return data.uploadId
+}
+
+async function r2SignPart(key, uploadId, partNumber) {
+  const { data } = await api.post('/api/r2/multipart/sign-part', { key, uploadId, partNumber })
+  return data.url
+}
+
+async function r2Complete(key, uploadId, parts) {
+  await api.post('/api/r2/multipart/complete', { key, uploadId, parts })
+}
+
+// Upload a single File via multipart
+async function uploadTaskFileToR2(file, { onProgress }) {
+  // Key pattern: keep "tasks" concept (matches your create service intent)
+  const now = new Date()
+  const timestamp = now.toISOString()
+    .replace(/T/, '-')
+    .replace(/\..+/, '')
+    .replace(/:/g, '')
+    .slice(0, 15)
+
+  const extMatch = file.name.match(/\.[0-9a-z]+$/i)
+  const ext = extMatch ? extMatch[0] : ''
+  const key = `uploads/tasks/${timestamp}-${crypto.randomUUID()}${ext}`
+
+  const contentType = file.type || 'application/octet-stream'
+  const size = file.size
+
+  const uploadId = await r2Create(key, contentType, size)
+
+  const totalParts = Math.ceil(size / TASK_PART_SIZE)
+  const parts = []
+  let uploadedBytes = 0
+
+  for (let partNumber = 1; partNumber <= totalParts; partNumber++) {
+    const start = (partNumber - 1) * TASK_PART_SIZE
+    const end = Math.min(start + TASK_PART_SIZE, size)
+    const blob = file.slice(start, end)
+
+    const url = await r2SignPart(key, uploadId, partNumber)
+
+    const res = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/octet-stream' },
+      body: blob,
+      signal: taskFileAbortCtrl.value?.signal,
+    })
+
+    if (!res.ok) throw new Error(`Task file part ${partNumber} upload failed (${res.status})`)
+
+    const etag = (res.headers.get('ETag') || '').replaceAll('"', '')
+    parts.push({ PartNumber: partNumber, ETag: etag })
+
+    uploadedBytes += (end - start)
+    const pct = Math.round((uploadedBytes / size) * 100)
+    onProgress?.(pct)
+  }
+
+  await r2Complete(key, uploadId, parts)
+
+  return { key, size, content_type: contentType }
+}
+// ------------------------------------------------------
+
 
 watch(
   () => formState.value, // Watch the .value of the ref
