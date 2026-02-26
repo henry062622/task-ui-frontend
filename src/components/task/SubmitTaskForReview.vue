@@ -31,7 +31,7 @@
           <div class="flex items-center justify-end gap-4">
             <a-button @click="cancel">{{ $t('cancel') }}</a-button>
             <a-button html-type="submit" type="primary" :loading="isUploading" :disabled="isUploading">{{ $t('submit')
-              }}</a-button>
+            }}</a-button>
           </div>
         </a-col>
 
@@ -168,7 +168,7 @@ async function uploadFileToR2(file, { taskId, onProgress }) {
   // complete
   await r2Complete(key, uploadId, parts)
 
-  return { key, size, content_type: contentType }
+  return { key, size, content_type: contentType, file_name: file.name }
 }
 // ------------------------------------------------------
 
