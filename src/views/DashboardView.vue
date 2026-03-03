@@ -4,11 +4,11 @@
       <a-breadcrumb>
         <a-breadcrumb-item v-for="breadcrumb in breadcrumbList">{{
           $t(breadcrumb)
-          }}</a-breadcrumb-item>
+        }}</a-breadcrumb-item>
       </a-breadcrumb>
       <a-button v-if="hasCreatePermission" type="primary" @click="goToCreatePage">{{
         $t('create')
-        }}</a-button>
+      }}</a-button>
     </div>
 
     <div class="flex h-full w-full flex-1 flex-col px-4">
@@ -480,6 +480,7 @@ const columns = computed(() => [
 ])
 
 const goToCreatePage = () => {
+  //router.push('/task-create')
   Modal.warning({
     title: 'ตอนนี้ไม่สามารถใช้งานได้, เตรียมตัวย้ายไปยังระบบใหม่เร็วๆ นี',
     okText: 'OK',
