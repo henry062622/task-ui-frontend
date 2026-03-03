@@ -195,10 +195,10 @@
 <script setup>
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import api from '@/lib/axios'
-import router from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import { computed, h, onMounted, reactive, ref, onBeforeUnmount, watch } from 'vue'
 import { EditOutlined, EyeOutlined, DeleteOutlined, CopyOutlined } from '@ant-design/icons-vue'
+import { Modal } from 'ant-design-vue'
 import AssignPopup from '@/components/task/AssignPopup.vue'
 import CompletePopup from '@/components/task/CompletePopup.vue'
 import { formatDate, formatDateTimeWithMoment } from '@/utils/format'
@@ -480,7 +480,11 @@ const columns = computed(() => [
 ])
 
 const goToCreatePage = () => {
-  router.push('/task-create')
+  Modal.warning({
+    title: 'ตอนนี้ไม่สามารถใช้งานได้, เตรียมตัวย้ายไปยังระบบใหม่เร็วๆ นี',
+    okText: 'OK',
+    centered: true,
+  })
 }
 
 const getTaskTypeList = () => {
