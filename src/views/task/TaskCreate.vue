@@ -1,6 +1,7 @@
 <template>
   <DefaultLayout :site="selectedSite">
-    <div v-if="!selectedSite" class="flex h-full bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
+    <div v-if="!showUnavailablePopup && !selectedSite"
+      class="flex h-full bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
       <!-- search box -->
       <div class="flex justify-end mb-4">
         <a-input-search v-model:value="searchQuery" :placeholder="$t('search_by_name')" @search="handleSearch"
@@ -12,12 +13,20 @@
         </SiteCard>
       </SiteCardContainer>
     </div>
-    <div v-else class="flex h-auto bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
+    <div v-else-if="!showUnavailablePopup && selectedSite"
+      class="flex h-auto bg-white w-full flex-1 flex-col gap-4 rounded-xl shadow-2xl p-4">
       <!-- create form  -->
       <TaskCreateComponent class="h-full" :website-list="websiteList" :website-id="selectedSite.id" :user-id="user.id"
         :user-name="user.name">
       </TaskCreateComponent>
     </div>
+
+    <a-modal v-model:open="showUnavailablePopup" :title="unavailableMessage" :closable="false" :mask-closable="false"
+      :keyboard="false" centered>
+      <template #footer>
+        <a-button type="primary" @click="redirectToDashboard">OK</a-button>
+      </template>
+    </a-modal>
   </DefaultLayout>
 </template>
 <script setup>
@@ -29,6 +38,7 @@ import SiteCard from '@/components/ui/SiteCard.vue'
 import TaskCreateComponent from '@/components/task/TaskCreateComponent.vue'
 import { useAuthStore } from '@/stores/auth'
 import { loadDraftFromIndexed, saveDraft } from '@/lib/indexdb'
+import router from '@/router'
 import { useRoute } from 'vue-router'
 
 const websiteList = ref([])
@@ -38,6 +48,8 @@ const auth = useAuthStore()
 const user = auth.user
 const route = useRoute()
 const draftKey = `taskFormDraft_user_${user.id}`
+const showUnavailablePopup = ref(true)
+const unavailableMessage = 'ตอนนี้ไม่สามารถใช้งานได้, เตรียมตัวย้ายไปยังระบบใหม่เร็วๆ นี'
 
 const searchQuery = ref('')
 
@@ -85,8 +97,15 @@ const init = async () => {
   loadDraft()
 }
 
+const redirectToDashboard = () => {
+  showUnavailablePopup.value = false
+  router.replace('/dashboard')
+}
+
 // Init
 onMounted(() => {
-  init()
+  if (!showUnavailablePopup.value) {
+    init()
+  }
 })
 </script>
